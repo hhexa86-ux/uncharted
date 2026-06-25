@@ -581,7 +581,29 @@
     .quote-band { padding: 60px 24px; }
     footer { padding: 32px 24px; flex-direction: column; text-align: center; }
   }
+
+  /* ── AUTH FEEDBACK ── */
+  .auth-message {
+    display: none;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .auth-message.error   { background: #FDE8E8; color: #8B2020; display: block; }
+  .auth-message.success { background: var(--sage); color: #2A5A2A; display: block; }
+
+  .modal-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
 </style>
+
+<!-- Supabase JS SDK (ESM via CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -732,16 +754,18 @@
     <h2>Welcome back</h2>
     <p class="modal-subtitle">Sign in to continue sharing your innovations with the world.</p>
 
+    <div id="login-message" class="auth-message" role="alert"></div>
+
     <div class="field">
       <label>Email address</label>
-      <input type="email" placeholder="you@example.com" />
+      <input id="login-email" type="email" placeholder="you@example.com" autocomplete="email" />
     </div>
     <div class="field">
       <label>Password</label>
-      <input type="password" placeholder="••••••••" />
+      <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
     </div>
 
-    <button class="modal-submit">Sign in</button>
+    <button id="login-submit" class="modal-submit" onclick="handleLogin()">Sign in</button>
 
     <div class="modal-switch">
       Don't have an account? <a onclick="switchModal('login','signup')">Create one →</a>
@@ -757,24 +781,26 @@
     <h2>Join Uncharted</h2>
     <p class="modal-subtitle">No affiliation required. Just your ideas and the drive to share them.</p>
 
+    <div id="signup-message" class="auth-message" role="alert"></div>
+
     <div class="field">
       <label>Full name</label>
-      <input type="text" placeholder="Your name" />
+      <input id="signup-name" type="text" placeholder="Your name" autocomplete="name" />
     </div>
     <div class="field">
       <label>Email address</label>
-      <input type="email" placeholder="you@example.com" />
+      <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" />
     </div>
     <div class="field">
       <label>Location</label>
-      <input type="text" placeholder="City, Country" />
+      <input id="signup-location" type="text" placeholder="City, Country" autocomplete="off" />
     </div>
     <div class="field">
       <label>Password</label>
-      <input type="password" placeholder="At least 8 characters" />
+      <input id="signup-password" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
     </div>
 
-    <button class="modal-submit">Create my account</button>
+    <button id="signup-submit" class="modal-submit" onclick="handleSignup()">Create my account</button>
 
     <div class="modal-switch">
       Already a member? <a onclick="switchModal('signup','login')">Sign in →</a>
@@ -783,6 +809,9 @@
 </div>
 
 <script>
+  // ─────────────────────────────────────────────────────────────────
+  // ORIGINAL MODAL FUNCTIONS — untouched, exactly as they were
+  // ─────────────────────────────────────────────────────────────────
   function openModal(type) {
     document.getElementById('modal-' + type).classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -804,6 +833,134 @@
       closeModal('signup');
     }
   });
+
+  // ─────────────────────────────────────────────────────────────────
+  // SUPABASE CONFIG
+  // ➜ Replace the two placeholder strings below with your own values.
+  // ─────────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co'
+  const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA'
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Feedback helpers ───────────────────────────────────────────
+  function showMessage(modal, text, kind) {
+    const el = document.getElementById(modal + '-message');
+    el.textContent = text;
+    el.className = 'auth-message ' + kind;
+  }
+  function clearMessage(modal) {
+    const el = document.getElementById(modal + '-message');
+    if (!el) return;
+    el.textContent = '';
+    el.className = 'auth-message';
+  }
+
+  // ── Button loading state ───────────────────────────────────────
+  function setLoading(btnId, loading, defaultLabel) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.textContent = loading ? 'Please wait…' : defaultLabel;
+  }
+
+  // ── Email validation ───────────────────────────────────────────
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  // ── Human-readable Supabase error messages ─────────────────────
+  function friendlyError(msg) {
+    if (!msg) return 'Something went wrong. Please try again.';
+    if (msg.includes('Invalid login credentials'))  return 'Incorrect email or password.';
+    if (msg.includes('Email not confirmed'))         return 'Please confirm your email before signing in.';
+    if (msg.includes('User already registered'))    return 'An account with this email already exists. Sign in instead.';
+    if (msg.includes('Password should be'))         return 'Password must be at least 8 characters.';
+    if (msg.includes('Unable to validate'))         return 'Invalid email address.';
+    if (msg.includes('rate limit'))                 return 'Too many attempts. Please wait a moment and try again.';
+    return msg;
+  }
+
+  // ── SIGNUP ─────────────────────────────────────────────────────
+  async function handleSignup() {
+    clearMessage('signup');
+
+    const name     = document.getElementById('signup-name').value.trim();
+    const email    = document.getElementById('signup-email').value.trim();
+    const location = document.getElementById('signup-location').value.trim();
+    const password = document.getElementById('signup-password').value;
+
+    if (!name)               return showMessage('signup', 'Please enter your full name.', 'error');
+    if (!isValidEmail(email)) return showMessage('signup', 'Please enter a valid email address.', 'error');
+    if (!location)           return showMessage('signup', 'Please enter your location.', 'error');
+    if (password.length < 8) return showMessage('signup', 'Password must be at least 8 characters.', 'error');
+
+    setLoading('signup-submit', true, 'Create my account');
+
+    try {
+      // 1. Create the Supabase Auth user
+      const { data, error: authError } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name, location } // saved to auth.users raw_user_meta_data
+        }
+      });
+
+      if (authError) throw authError;
+
+      // 2. Insert profile row (email confirmation is ON, so data.session is null here;
+      //    the INSERT will succeed because the user row already exists in auth.users)
+      const userId = data?.user?.id;
+      if (userId) {
+        const { error: profileError } = await sb
+          .from('profiles')
+          .insert({ id: userId, full_name: name, location, email });
+
+        if (profileError) console.warn('Profile insert warning:', profileError.message);
+      }
+
+      // 3. Email confirmation is ENABLED — always show confirm-email message
+      showMessage('signup', '✓ Account created! Please check your email to confirm your address, then sign in.', 'success');
+      setLoading('signup-submit', false, 'Create my account');
+
+    } catch (err) {
+      setLoading('signup-submit', false, 'Create my account');
+      showMessage('signup', friendlyError(err.message), 'error');
+    }
+  }
+
+  // ── LOGIN ──────────────────────────────────────────────────────
+  async function handleLogin() {
+    clearMessage('login');
+
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!isValidEmail(email)) return showMessage('login', 'Please enter a valid email address.', 'error');
+    if (!password)            return showMessage('login', 'Please enter your password.', 'error');
+
+    setLoading('login-submit', true, 'Sign in');
+
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+      if (error) throw error;
+
+      showMessage('login', '✓ Signed in! Redirecting…', 'success');
+      setTimeout(() => { window.location.href = 'coming-soon.html'; }, 800);
+
+    } catch (err) {
+      setLoading('login-submit', false, 'Sign in');
+      showMessage('login', friendlyError(err.message), 'error');
+    }
+  }
+
+  // ── Auto-redirect if a session already exists ──────────────────
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) window.location.href = 'coming-soon.html';
+  })();
 </script>
 </body>
 </html>
