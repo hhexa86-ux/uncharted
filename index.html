@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uncharted — Ideas That Deserve to Be Seen</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pearl:    #FAF8F5;
+    --sage:     #E8F0E9;
+    --lavender: #ECEAF5;
+    --amber:    #F5E9D4;
+    --ink:      #1C1C2E;
+    --ink-soft: #4A4A60;
+    --teal:     #5B8FA8;
+    --teal-lt:  #D4E6F0;
+    --rose:     #E8D5D0;
+    --border:   #E0DDD8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--pearl);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(250,248,245,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--teal); font-style: italic; }
+
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn-ghost {
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--ink-soft);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 22px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--pearl);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--teal); transform: translateY(-1px); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 120px 48px 80px;
+    gap: 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .hero-text { }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--teal-lt);
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 50px;
+    margin-bottom: 28px;
+  }
+  .eyebrow-dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(38px, 5vw, 58px);
+    line-height: 1.12;
+    letter-spacing: -1.5px;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--teal);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 420px;
+    margin-bottom: 40px;
+    font-weight: 300;
+  }
+
+  .hero-cta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+  .btn-large {
+    background: var(--ink);
+    color: var(--pearl);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px 32px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-large:hover { background: var(--teal); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(91,143,168,0.3); }
+
+  .hero-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* ── FLOATING CARDS (hero visual) ── */
+  .hero-visual {
+    position: relative;
+    height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .orbit {
+    position: relative;
+    width: 320px;
+    height: 320px;
+  }
+
+  .center-orb {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px; height: 120px;
+    background: linear-gradient(135deg, var(--lavender), var(--teal-lt));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 20px rgba(91,143,168,0.06), 0 0 0 40px rgba(91,143,168,0.03);
+    animation: breathe 4s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { box-shadow: 0 0 0 20px rgba(91,143,168,0.06), 0 0 0 40px rgba(91,143,168,0.03); }
+    50% { box-shadow: 0 0 0 30px rgba(91,143,168,0.09), 0 0 0 60px rgba(91,143,168,0.04); }
+  }
+  .center-icon { font-size: 36px; }
+
+  .idea-card {
+    position: absolute;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 12px;
+    width: 148px;
+    box-shadow: 0 4px 20px rgba(28,28,46,0.06);
+    animation: float 6s ease-in-out infinite;
+  }
+  .idea-card:nth-child(2) { top: -20px; left: -40px; animation-delay: 0s; }
+  .idea-card:nth-child(3) { top: -10px; right: -50px; animation-delay: 1.5s; }
+  .idea-card:nth-child(4) { bottom: 10px; left: -60px; animation-delay: 3s; }
+  .idea-card:nth-child(5) { bottom: 20px; right: -40px; animation-delay: 1s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .card-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    padding: 3px 8px;
+    border-radius: 50px;
+    display: inline-block;
+  }
+  .tag-green { background: var(--sage); color: #4A7A4A; }
+  .tag-blue  { background: var(--teal-lt); color: var(--teal); }
+  .tag-amber { background: var(--amber); color: #8A6A2A; }
+  .tag-rose  { background: var(--rose); color: #8A4A4A; }
+
+  .card-title {
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.4;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+  .card-meta { font-size: 11px; color: var(--ink-soft); font-weight: 300; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how {
+    background: var(--sage);
+    padding: 100px 48px;
+  }
+  .how-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .how-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 60px;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+  .how h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 42px);
+    letter-spacing: -1px;
+    line-height: 1.15;
+  }
+  .how-desc {
+    max-width: 340px;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+  }
+  .step {
+    background: var(--pearl);
+    border-radius: 20px;
+    padding: 32px 28px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s;
+  }
+  .step:hover { transform: translateY(-4px); }
+
+  .step-num {
+    font-family: 'Fraunces', serif;
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--teal);
+    opacity: 0.5;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .step h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: -0.3px;
+    margin-bottom: 12px;
+  }
+  .step p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* ── UPLOAD SECTION ── */
+  .upload-section {
+    padding: 100px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .upload-header { text-align: center; margin-bottom: 60px; }
+  .upload-header h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(28px, 4vw, 42px);
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  .upload-header p {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-weight: 300;
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  .upload-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .upload-card {
+    border: 1.5px dashed var(--border);
+    border-radius: 20px;
+    padding: 40px 28px;
+    text-align: center;
+    transition: all 0.25s;
+    cursor: pointer;
+    background: transparent;
+  }
+  .upload-card:hover {
+    border-color: var(--teal);
+    background: var(--teal-lt);
+    transform: translateY(-3px);
+  }
+  .upload-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .upload-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+  }
+  .upload-card p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+  .upload-card .formats {
+    margin-top: 16px;
+    font-size: 11px;
+    color: var(--teal);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── QUOTE BAND ── */
+  .quote-band {
+    background: var(--ink);
+    padding: 80px 48px;
+    text-align: center;
+  }
+  .quote-band blockquote {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(22px, 3vw, 36px);
+    color: var(--pearl);
+    line-height: 1.45;
+    max-width: 780px;
+    margin: 0 auto 20px;
+    letter-spacing: -0.5px;
+  }
+  .quote-band cite {
+    font-size: 13px;
+    color: rgba(250,248,245,0.45);
+    font-style: normal;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,28,46,0.45);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--pearl);
+    border-radius: 28px;
+    padding: 44px 44px;
+    width: 100%;
+    max-width: 420px;
+    margin: 20px;
+    box-shadow: 0 24px 80px rgba(28,28,46,0.18);
+    position: relative;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .modal-close {
+    position: absolute; top: 18px; right: 20px;
+    background: none; border: none;
+    font-size: 20px; cursor: pointer; color: var(--ink-soft);
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    transition: background 0.15s;
+  }
+  .modal-close:hover { background: var(--sage); }
+
+  .modal-logo {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+  .modal-logo span { color: var(--teal); font-style: italic; }
+
+  .modal h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+  .modal-subtitle {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin-bottom: 32px;
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .field input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .field input:focus { border-color: var(--teal); }
+  .field input::placeholder { color: #B0ADAA; }
+
+  .modal-submit {
+    width: 100%;
+    background: var(--ink);
+    color: var(--pearl);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+  }
+  .modal-submit:hover { background: var(--teal); transform: translateY(-1px); }
+
+  .modal-switch {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+  .modal-switch a {
+    color: var(--teal);
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .modal-switch a:hover { text-decoration: underline; }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px; margin: 22px 0;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  .divider span { font-size: 12px; color: var(--ink-soft); font-weight: 300; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--sage);
+    border-top: 1px solid var(--border);
+    padding: 40px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--ink);
+  }
+  .footer-logo span { color: var(--teal); font-style: italic; }
+  .footer-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 300;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 800px) {
+    nav { padding: 16px 24px; }
+    .hero { grid-template-columns: 1fr; padding: 100px 24px 60px; gap: 40px; }
+    .hero-visual { height: 300px; }
+    .orbit { width: 240px; height: 240px; }
+    .how { padding: 70px 24px; }
+    .steps { grid-template-columns: 1fr; gap: 16px; }
+    .upload-section { padding: 70px 24px; }
+    .upload-cards { grid-template-columns: 1fr; }
+    .quote-band { padding: 60px 24px; }
+    footer { padding: 32px 24px; flex-direction: column; text-align: center; }
+  }
+
+  /* ── AUTH FEEDBACK ── */
+  .auth-message {
+    display: none;
+    font-size: 13px;
+    font-weight: 400;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .auth-message.error   { background: #FDE8E8; color: #8B2020; display: block; }
+  .auth-message.success { background: var(--sage); color: #2A5A2A; display: block; }
+
+  .modal-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  /* ── SELECT field — matches .field input exactly ── */
+  .field select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: white;
+    outline: none;
+    transition: border 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A4A60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    cursor: pointer;
+  }
+  .field select:focus { border-color: var(--teal); }
+  .field select.unselected { color: #B0ADAA; }
+
+  /* ── Optional field label suffix ── */
+  .field label .optional {
+    font-weight: 300;
+    letter-spacing: 0;
+    text-transform: none;
+    color: #B0ADAA;
+    margin-left: 4px;
+    font-size: 11px;
+  }
+</style>
+
+<!-- Supabase JS SDK (ESM via CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">un<span>charted</span></div>
+  <div class="nav-actions">
+    <button class="btn-ghost" onclick="openModal('login')">Log in</button>
+    <button class="btn-primary" onclick="openModal('signup')">Get started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        Open to all innovators
+      </div>
+      <h1>Your idea<br/>deserves to be<br/><em>discovered.</em></h1>
+      <p class="hero-sub">
+        A space for independent thinkers — the ones not on any company's radar, not encouraged by any institution — but who carry solutions the world genuinely needs.
+      </p>
+      <div class="hero-cta">
+        <button class="btn-large" onclick="openModal('signup')">Share your idea</button>
+        <span class="hero-note">No affiliation required.</span>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="orbit">
+        <div class="center-orb">
+          <span class="center-icon">💡</span>
+        </div>
+
+        <div class="idea-card">
+          <span class="card-tag tag-green">Sustainability</span>
+          <div class="card-title">Low-cost water filtration using local clay</div>
+          <div class="card-meta">Self-taught · Rural India</div>
+        </div>
+
+        <div class="idea-card">
+          <span class="card-tag tag-blue">Health Tech</span>
+          <div class="card-title">Mobile ECG from recycled components</div>
+          <div class="card-meta">Independent · Kenya</div>
+        </div>
+
+        <div class="idea-card">
+          <span class="card-tag tag-amber">Education</span>
+          <div class="card-title">Offline peer tutoring mesh network</div>
+          <div class="card-meta">Student · Philippines</div>
+        </div>
+
+        <div class="idea-card">
+          <span class="card-tag tag-rose">Agriculture</span>
+          <div class="card-title">Soil sensor from repurposed phones</div>
+          <div class="card-meta">Farmer · Nigeria</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="how-inner">
+    <div class="how-header">
+      <div>
+        <div class="section-label">How it works</div>
+        <h2>Three steps from<br/><em style="font-family:Fraunces,serif;font-style:italic">idea to impact.</em></h2>
+      </div>
+      <p class="how-desc">We've removed every barrier. You don't need a degree, a company, or a grant to get started here.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Create your profile</h3>
+        <p>Sign up in under a minute. No institution needed. Just your name, your location, and what drives you to solve problems.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Upload your work</h3>
+        <p>Share your idea as a video demonstration, a written report, or a slide deck. All formats welcome — raw and real is fine.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Get discovered</h3>
+        <p>Businesses, investors, and collaborators browse Uncharted specifically looking for innovators like you. They come to you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD FORMATS -->
+<section class="upload-section">
+  <div class="upload-header">
+    <div class="section-label" style="text-align:center">Submit your project</div>
+    <h2>Show your work,<br/>your way.</h2>
+    <p>Upload in whichever format best captures your idea. You can combine all three.</p>
+  </div>
+
+  <div class="upload-cards">
+    <div class="upload-card">
+      <span class="upload-icon">🎬</span>
+      <h3>Video Demo</h3>
+      <p>Walk us through your idea. A prototype in motion, a live demo, or simply you explaining your solution.</p>
+      <div class="formats">MP4 · MOV · WebM · up to 500MB</div>
+    </div>
+
+    <div class="upload-card">
+      <span class="upload-icon">📄</span>
+      <h3>Written Report</h3>
+      <p>Document your research, methodology, and findings in a structured report. Evidence of depth matters.</p>
+      <div class="formats">PDF · DOCX · up to 50MB</div>
+    </div>
+
+    <div class="upload-card">
+      <span class="upload-icon">📊</span>
+      <h3>Presentation Deck</h3>
+      <p>A slide deck that lays out your problem statement, solution, and impact — ready for any audience.</p>
+      <div class="formats">PPTX · PDF · up to 50MB</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE BAND -->
+<section class="quote-band">
+  <blockquote>
+    "The most important ideas have often come from people no one was watching. We built Uncharted so they'd never go unseen again."
+  </blockquote>
+  <cite>— The Uncharted Team</cite>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">un<span>charted</span></div>
+  <div class="footer-note">For the builders the world hasn't found yet. © 2026</div>
+</footer>
+
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="modal-login" onclick="handleOverlayClick(event,'login')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2>Welcome back</h2>
+    <p class="modal-subtitle">Sign in to continue sharing your innovations with the world.</p>
+
+    <div id="login-message" class="auth-message" role="alert"></div>
+
+    <div class="field">
+      <label>Email address</label>
+      <input id="login-email" type="email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+
+    <button id="login-submit" class="modal-submit" onclick="handleLogin()">Sign in</button>
+
+    <div class="modal-switch">
+      Don't have an account? <a onclick="switchModal('login','signup')">Create one →</a>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="modal-signup" onclick="handleOverlayClick(event,'signup')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('signup')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2>Join Uncharted</h2>
+    <p class="modal-subtitle">No affiliation required. Just your ideas and the drive to share them.</p>
+
+    <div id="signup-message" class="auth-message" role="alert"></div>
+
+    <div class="field">
+      <label>Full name</label>
+      <input id="signup-name" type="text" placeholder="Your name" autocomplete="name" />
+    </div>
+    <div class="field">
+      <label>Email address</label>
+      <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email" />
+    </div>
+    <div class="field">
+      <label>Current Role</label>
+      <select id="signup-role" class="unselected" onchange="this.classList.remove('unselected')">
+        <option value="" disabled selected>Select your role</option>
+        <option value="Student">Student</option>
+        <option value="Professional">Professional</option>
+        <option value="Entrepreneur / Founder">Entrepreneur / Founder</option>
+        <option value="Researcher">Researcher</option>
+        <option value="Freelancer / Self-employed">Freelancer / Self-employed</option>
+        <option value="Government / Public Sector">Government / Public Sector</option>
+        <option value="NGO / Non-profit">NGO / Non-profit</option>
+        <option value="Farmer">Farmer</option>
+        <option value="Creator / Artist">Creator / Artist</option>
+        <option value="Educator">Educator</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Organization / Institution <span class="optional">(optional)</span></label>
+      <input id="signup-org" type="text" placeholder="e.g. IIT Madras, TCS, Google" autocomplete="organization" />
+    </div>
+    <div class="field">
+      <label>Location</label>
+      <input id="signup-location" type="text" placeholder="City, Country" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="signup-password" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+    </div>
+
+    <button id="signup-submit" class="modal-submit" onclick="handleSignup()">Create my account</button>
+
+    <div class="modal-switch">
+      Already a member? <a onclick="switchModal('signup','login')">Sign in →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─────────────────────────────────────────────────────────────────
+  // ORIGINAL MODAL FUNCTIONS — untouched, exactly as they were
+  // ─────────────────────────────────────────────────────────────────
+  function openModal(type) {
+    document.getElementById('modal-' + type).classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(type) {
+    document.getElementById('modal-' + type).classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function switchModal(from, to) {
+    closeModal(from);
+    setTimeout(() => openModal(to), 150);
+  }
+  function handleOverlayClick(e, type) {
+    if (e.target === e.currentTarget) closeModal(type);
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeModal('login');
+      closeModal('signup');
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────────
+  // SUPABASE CONFIG
+  // ➜ Replace the two placeholder strings below with your own values.
+  // ─────────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co'
+  const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA'
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // ── Feedback helpers ───────────────────────────────────────────
+  function showMessage(modal, text, kind) {
+    const el = document.getElementById(modal + '-message');
+    el.textContent = text;
+    el.className = 'auth-message ' + kind;
+  }
+  function clearMessage(modal) {
+    const el = document.getElementById(modal + '-message');
+    if (!el) return;
+    el.textContent = '';
+    el.className = 'auth-message';
+  }
+
+  // ── Button loading state ───────────────────────────────────────
+  function setLoading(btnId, loading, defaultLabel) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.textContent = loading ? 'Please wait…' : defaultLabel;
+  }
+
+  // ── Email validation ───────────────────────────────────────────
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  }
+
+  // ── Human-readable Supabase error messages ─────────────────────
+  function friendlyError(msg) {
+    if (!msg) return 'Something went wrong. Please try again.';
+    if (msg.includes('Invalid login credentials'))  return 'Incorrect email or password.';
+    if (msg.includes('Email not confirmed'))         return 'Please confirm your email before signing in.';
+    if (msg.includes('User already registered'))    return 'An account with this email already exists. Sign in instead.';
+    if (msg.includes('Password should be'))         return 'Password must be at least 8 characters.';
+    if (msg.includes('Unable to validate'))         return 'Invalid email address.';
+    if (msg.includes('rate limit'))                 return 'Too many attempts. Please wait a moment and try again.';
+    return msg;
+  }
+
+  // ── SIGNUP ─────────────────────────────────────────────────────
+  async function handleSignup() {
+    clearMessage('signup');
+
+    const name     = document.getElementById('signup-name').value.trim();
+    const email    = document.getElementById('signup-email').value.trim();
+    const role     = document.getElementById('signup-role').value;
+    const org      = document.getElementById('signup-org').value.trim();
+    const location = document.getElementById('signup-location').value.trim();
+    const password = document.getElementById('signup-password').value;
+
+    if (!name)               return showMessage('signup', 'Please enter your full name.', 'error');
+    if (!isValidEmail(email)) return showMessage('signup', 'Please enter a valid email address.', 'error');
+    if (!role)               return showMessage('signup', 'Please select your current role.', 'error');
+    if (!location)           return showMessage('signup', 'Please enter your location.', 'error');
+    if (password.length < 8) return showMessage('signup', 'Password must be at least 8 characters.', 'error');
+
+    setLoading('signup-submit', true, 'Create my account');
+
+    try {
+      // 1. Create the Supabase Auth user
+      const { data, error: authError } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name, location, user_role: role, organization: org || null }
+        }
+      });
+
+      if (authError) throw authError;
+
+      // 2. Insert profile row
+      const userId = data?.user?.id;
+      if (userId) {
+        const { error: profileError } = await sb
+          .from('profiles')
+          .insert({
+            id:           userId,
+            full_name:    name,
+            email,
+            location,
+            user_role:    role,
+            organization: org || null
+          });
+
+        if (profileError) console.warn('Profile insert warning:', profileError.message);
+      }
+
+      // 3. Email confirmation is ENABLED — always show confirm-email message
+      showMessage('signup', '✓ Account created! Please check your email to confirm your address, then sign in.', 'success');
+      setLoading('signup-submit', false, 'Create my account');
+
+    } catch (err) {
+      setLoading('signup-submit', false, 'Create my account');
+      showMessage('signup', friendlyError(err.message), 'error');
+    }
+  }
+
+  // ── LOGIN ──────────────────────────────────────────────────────
+  async function handleLogin() {
+    clearMessage('login');
+
+    const email    = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if (!isValidEmail(email)) return showMessage('login', 'Please enter a valid email address.', 'error');
+    if (!password)            return showMessage('login', 'Please enter your password.', 'error');
+
+    setLoading('login-submit', true, 'Sign in');
+
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+      if (error) throw error;
+
+      showMessage('login', '✓ Signed in! Redirecting…', 'success');
+      setTimeout(() => { window.location.href = 'dashboard.html'; }, 800);
+
+    } catch (err) {
+      setLoading('login-submit', false, 'Sign in');
+      showMessage('login', friendlyError(err.message), 'error');
+    }
+  }
+
+  // ── Auto-redirect if a session already exists ──────────────────
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) window.location.href = 'dashboard.html';
+  })();
+</script>
+</body>
+</html>
