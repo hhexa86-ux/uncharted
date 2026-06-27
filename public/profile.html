@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Profile — Uncharted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+body { background:var(--pearl); padding-top:68px; }
+
+/* NAV */
+.prof-nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 40px; background:rgba(250,248,245,.95);
+  backdrop-filter:blur(14px); border-bottom:1px solid var(--border);
+}
+.nav-logo { font-family:'Fraunces',serif; font-weight:600; font-size:20px; color:var(--ink); text-decoration:none; }
+.nav-logo span { color:var(--teal); font-style:italic; }
+
+/* HERO */
+.prof-hero {
+  background:linear-gradient(135deg,var(--sage) 0%,var(--lavender) 100%);
+  padding:52px 48px 64px;
+  position:relative;
+}
+.prof-hero-inner { max-width:1100px; margin:0 auto; }
+.prof-hero-layout { display:flex; align-items:center; gap:32px; flex-wrap:wrap; }
+.prof-avatar-xl { width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,var(--lavender),var(--teal-lt)); color:var(--teal); font-family:'Fraunces',serif; font-weight:600; font-size:36px; display:flex; align-items:center; justify-content:center; border:4px solid white; box-shadow:0 8px 32px rgba(28,28,46,.12); overflow:hidden; flex-shrink:0; }
+.prof-avatar-xl img { width:100%; height:100%; object-fit:cover; }
+.prof-hero-info { flex:1; }
+.prof-name { font-family:'Fraunces',serif; font-size:clamp(26px,4vw,40px); font-weight:400; letter-spacing:-1px; color:var(--ink); margin-bottom:8px; }
+.prof-role-badge { display:inline-block; background:var(--teal-lt); color:var(--teal); font-size:12px; font-weight:500; padding:4px 12px; border-radius:50px; margin-bottom:10px; }
+.prof-org { font-size:14px; color:var(--ink-soft); margin-bottom:6px; }
+.prof-location { font-size:14px; color:var(--ink-soft); display:flex; align-items:center; gap:4px; }
+.prof-since { font-size:13px; color:var(--ink-soft); font-weight:300; }
+.prof-hero-actions { display:flex; gap:10px; margin-top:20px; }
+
+/* STATS BAR */
+.prof-stats-bar { max-width:1100px; margin:-28px auto 0; padding:0 48px; position:relative; z-index:10; }
+.prof-stats-inner { background:white; border:1px solid var(--border); border-radius:18px; display:grid; grid-template-columns:repeat(3,1fr); overflow:hidden; box-shadow:var(--shadow-md); }
+.prof-stat { padding:20px 24px; text-align:center; border-right:1px solid var(--border); }
+.prof-stat:last-child { border-right:none; }
+.prof-stat-val { font-family:'Fraunces',serif; font-size:28px; font-weight:400; letter-spacing:-1px; color:var(--ink); line-height:1; }
+.prof-stat-lbl { font-size:12px; color:var(--ink-soft); margin-top:4px; }
+
+/* MAIN LAYOUT */
+.prof-layout { max-width:1100px; margin:40px auto 80px; padding:0 48px; display:grid; grid-template-columns:300px 1fr; gap:32px; align-items:start; }
+
+/* LEFT SIDEBAR */
+.prof-sidebar { position:sticky; top:90px; display:flex; flex-direction:column; gap:16px; }
+.prof-card { background:white; border:1px solid var(--border); border-radius:20px; padding:24px; }
+.prof-card h4 { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); margin-bottom:14px; }
+.prof-bio { font-size:14px; color:var(--ink-soft); line-height:1.7; font-weight:300; }
+.chips-wrap { display:flex; flex-wrap:wrap; gap:6px; }
+.skill-chip { display:inline-block; background:var(--pearl); border:1px solid var(--border); color:var(--ink-soft); font-size:12px; padding:4px 12px; border-radius:50px; }
+.interest-chip { display:inline-block; background:var(--lavender); border:1px solid rgba(92,74,138,.2); color:#5A4A8A; font-size:12px; padding:4px 12px; border-radius:50px; }
+
+/* IDEAS GRID */
+.ideas-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+.ideas-header h2 { font-family:'Fraunces',serif; font-size:22px; font-weight:400; letter-spacing:-.3px; }
+.ideas-count { font-size:13px; color:var(--ink-soft); font-weight:300; }
+.prof-ideas-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+
+/* Card */
+.prof-idea-card { background:white; border:1px solid var(--border); border-radius:18px; padding:20px; cursor:pointer; transition:all .2s; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:10px; }
+.prof-idea-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(28,28,46,.09); border-color:var(--teal-lt); }
+.pic-title { font-family:'Fraunces',serif; font-size:16px; font-weight:400; color:var(--ink); line-height:1.35; }
+.pic-desc { font-size:12px; color:var(--ink-soft); line-height:1.55; font-weight:300; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.pic-meta { display:flex; align-items:center; justify-content:space-between; font-size:12px; color:#8A8A9A; flex-wrap:wrap; gap:6px; }
+.pic-files { display:flex; gap:4px; }
+
+/* CONTACT MODAL */
+.contact-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.contact-type-btn { padding:10px 12px; border:1.5px solid var(--border); border-radius:12px; font-size:13px; cursor:pointer; transition:all .15s; background:white; color:var(--ink-soft); text-align:center; }
+.contact-type-btn:hover { border-color:var(--teal); color:var(--teal); }
+.contact-type-btn.selected { border-color:var(--teal); background:var(--teal-lt); color:var(--teal); font-weight:500; }
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .prof-hero{padding:40px 20px 60px}
+  .prof-stats-bar{padding:0 20px}
+  .prof-layout{grid-template-columns:1fr;padding:0 20px;margin-top:32px}
+  .prof-sidebar{position:static}
+  .prof-ideas-grid{grid-template-columns:1fr}
+  .prof-nav{padding:12px 20px}
+}
+@media(max-width:600px){
+  .prof-stats-inner{grid-template-columns:1fr}
+  .prof-stat{border-right:none;border-bottom:1px solid var(--border)}
+  .prof-stat:last-child{border-bottom:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="prof-nav" id="main-nav">
+  <a href="/public/index.html" class="nav-logo">un<span>charted</span></a>
+  <div style="display:flex;gap:10px;align-items:center">
+    <a href="/public/discover.html" class="btn btn-ghost btn-sm">← Discover</a>
+    <span id="nav-user-area"></span>
+  </div>
+</nav>
+
+<!-- PROFILE HERO -->
+<section class="prof-hero">
+  <div class="prof-hero-inner">
+    <div class="prof-hero-layout">
+      <div class="prof-avatar-xl" id="prof-avatar">
+        <div class="skeleton" style="width:100%;height:100%;border-radius:50%"></div>
+      </div>
+      <div class="prof-hero-info">
+        <div id="prof-name" class="prof-name"><div class="skeleton skel-title" style="width:200px"></div></div>
+        <div id="prof-role-badge" class="prof-role-badge" style="display:none"></div>
+        <div id="prof-org" class="prof-org" style="display:none"></div>
+        <div id="prof-location" class="prof-location" style="display:none"></div>
+        <div id="prof-since" class="prof-since" style="margin-top:6px;display:none"></div>
+        <div class="prof-hero-actions" id="prof-actions" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="prof-stats-bar">
+  <div class="prof-stats-inner">
+    <div class="prof-stat">
+      <div class="prof-stat-val" id="stat-ideas">—</div>
+      <div class="prof-stat-lbl">Ideas shared</div>
+    </div>
+    <div class="prof-stat">
+      <div class="prof-stat-val" id="stat-views">—</div>
+      <div class="prof-stat-lbl">Total views</div>
+    </div>
+    <div class="prof-stat">
+      <div class="prof-stat-val" id="stat-industries">—</div>
+      <div class="prof-stat-lbl">Industries</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="prof-layout">
+  <!-- SIDEBAR -->
+  <aside class="prof-sidebar">
+    <div class="prof-card" id="bio-card" style="display:none">
+      <h4>About</h4>
+      <p class="prof-bio" id="prof-bio"></p>
+    </div>
+
+    <div class="prof-card" id="skills-card" style="display:none">
+      <h4>Skills</h4>
+      <div class="chips-wrap" id="prof-skills"></div>
+    </div>
+
+    <div class="prof-card" id="interests-card" style="display:none">
+      <h4>Areas of Interest</h4>
+      <div class="chips-wrap" id="prof-interests"></div>
+    </div>
+  </aside>
+
+  <!-- IDEAS -->
+  <main>
+    <div class="ideas-header">
+      <h2>Ideas</h2>
+      <span class="ideas-count" id="ideas-count-label"></span>
+    </div>
+    <div class="prof-ideas-grid" id="prof-ideas-grid">
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+      <div class="skeleton skel-card"></div>
+    </div>
+  </main>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="modal-contact" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="document.getElementById('modal-contact').classList.remove('active')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title" id="contact-title">Contact Innovator</h2>
+    <p class="modal-subtitle">Send a direct message to connect with this innovator.</p>
+    <div class="field">
+      <label>Type of inquiry</label>
+      <div class="contact-type-grid">
+        <button class="contact-type-btn selected" onclick="selectContactType(this,'General inquiry')"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path></svg> General inquiry</button>
+        <button class="contact-type-btn" onclick="selectContactType(this,'Request meeting')">📅 Request meeting</button>
+        <button class="contact-type-btn" onclick="selectContactType(this,'Collaboration')"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m11 17 2 2a1 1 0 1 0 3-3"></path><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4"></path><path d="m21 3-6 6"></path><path d="M21 21v-4a2 2 0 0 0-2-2h-4"></path><path d="m7 7-4 4a2 2 0 0 0 0 2.83l5.17 5.17a2 2 0 0 0 2.83 0l4-4"></path><path d="m15 15-2.5-2.5"></path></svg> Collaboration</button>
+        <button class="contact-type-btn" onclick="selectContactType(this,'Investment interest')">💰 Investment interest</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Message</label>
+      <textarea id="contact-message" rows="5" placeholder="Introduce yourself and explain your interest…"></textarea>
+    </div>
+    <div id="contact-msg" class="auth-message"></div>
+    <button class="modal-submit" id="contact-submit-btn" onclick="sendContact()">Send Message →</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ─── SUPABASE ─────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const userId = new URLSearchParams(window.location.search).get('id');
+let profileData = null;
+let currentUserId = null;
+let selectedContactType = 'General inquiry';
+
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function showToast(message, type='success') {
+  const icons = {success:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',error:'✕',info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',warning:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'};
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]||'•'}</span><span>${message}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),300); },3500);
+}
+
+async function api(path, options={}) {
+  const t = localStorage.getItem('uncharted_token');
+  const res = await fetch('/api'+path, {...options, headers:{'Content-Type':'application/json',...(t?{'Authorization':'Bearer '+t}:{}),...(options.headers||{})}});
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error||'API error');
+  return data;
+}
+
+function industryClass(industry) {
+  if(!industry) return 'badge-teal';
+  const map={'sustainability':'badge-sage','agriculture':'badge-sage','health':'badge-rose','medical':'badge-rose','education':'badge-amber','tech':'badge-teal','technology':'badge-teal','ai':'badge-lavender','finance':'badge-amber','energy':'badge-amber'};
+  const lc = industry.toLowerCase();
+  for(const[k,v] of Object.entries(map)){ if(lc.includes(k)) return v; }
+  return 'badge-teal';
+}
+
+function stageClass(stage) {
+  if(!stage) return 'badge-teal';
+  const map={'concept':'badge-concept','prototype':'badge-prototype','mvp':'badge-mvp','scaling':'badge-scaling','market':'badge-market'};
+  for(const[k,v] of Object.entries(map)){if(stage.toLowerCase().includes(k))return v;}
+  return 'badge-teal';
+}
+
+// ─── LOAD PROFILE ────────────────────────────────────────────────
+async function loadProfile() {
+  if(!userId) { document.getElementById('prof-name').textContent='Profile not found'; return; }
+  try {
+    profileData = await api('/profiles/'+userId);
+    document.title = (profileData.full_name||'Profile') + ' — Uncharted';
+
+    // Avatar
+    const avatarEl = document.getElementById('prof-avatar');
+    const initials = (profileData.full_name||'U').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    if(profileData.avatar_url) { avatarEl.innerHTML = `<img src="${escHtml(profileData.avatar_url)}" alt="${escHtml(profileData.full_name)}"/>`; }
+    else { avatarEl.textContent = initials; }
+
+    // Name & role
+    document.getElementById('prof-name').textContent = profileData.full_name || 'Innovator';
+    if(profileData.user_role) {
+      const rb = document.getElementById('prof-role-badge');
+      rb.textContent = profileData.user_role; rb.style.display='inline-block';
+    }
+    if(profileData.organization) {
+      const org = document.getElementById('prof-org');
+      org.textContent = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect><path d="M9 22v-4h6v4"></path><path d="M8 6h.01"></path><path d="M16 6h.01"></path><path d="M12 6h.01"></path><path d="M12 10h.01"></path><path d="M12 14h.01"></path><path d="M16 10h.01"></path><path d="M16 14h.01"></path><path d="M8 10h.01"></path><path d="M8 14h.01"></path></svg> '+profileData.organization; org.style.display='block';
+    }
+    if(profileData.location) {
+      const loc = document.getElementById('prof-location');
+      loc.innerHTML = `<span>📍 ${escHtml(profileData.location)}</span>`; loc.style.display='flex';
+    }
+    if(profileData.created_at) {
+      const since = document.getElementById('prof-since');
+      since.textContent = 'Member since '+new Date(profileData.created_at).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+      since.style.display='block';
+    }
+
+    // Actions
+    const actions = document.getElementById('prof-actions');
+    actions.style.display='flex';
+    if(currentUserId && currentUserId !== userId) {
+      actions.innerHTML = `<button class="btn btn-teal btn-sm" onclick="openContact()">✉ Contact</button>`;
+    } else if (!currentUserId) {
+      actions.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="showToast('Sign in to contact this innovator','info')">✉ Contact</button>`;
+    }
+
+    // Bio
+    if(profileData.bio) {
+      document.getElementById('bio-card').style.display='block';
+      document.getElementById('prof-bio').textContent = profileData.bio;
+    }
+    // Skills
+    if(profileData.skills?.length) {
+      document.getElementById('skills-card').style.display='block';
+      document.getElementById('prof-skills').innerHTML = profileData.skills.map(s=>`<span class="skill-chip">${escHtml(s)}</span>`).join('');
+    }
+    // Interests
+    if(profileData.areas_of_interest?.length) {
+      document.getElementById('interests-card').style.display='block';
+      document.getElementById('prof-interests').innerHTML = profileData.areas_of_interest.map(s=>`<span class="interest-chip">${escHtml(s)}</span>`).join('');
+    }
+
+    if(profileData.full_name) {
+      document.getElementById('contact-title').textContent = 'Contact '+profileData.full_name.split(' ')[0];
+    }
+
+  } catch(err) {
+    document.getElementById('prof-name').textContent = 'Profile not found';
+    showToast('Could not load profile: '+err.message, 'error');
+  }
+}
+
+// ─── LOAD IDEAS ───────────────────────────────────────────────────
+async function loadIdeas() {
+  const grid = document.getElementById('prof-ideas-grid');
+  try {
+    const data = await api('/ideas?user_id='+userId);
+    const ideas = data.ideas || data || [];
+
+    // Stats
+    document.getElementById('stat-ideas').textContent = ideas.length;
+    document.getElementById('stat-views').textContent = ideas.reduce((s,i)=>s+(i.view_count||0),0).toLocaleString();
+    const industries = [...new Set(ideas.map(i=>i.industry).filter(Boolean))];
+    document.getElementById('stat-industries').textContent = industries.length;
+    document.getElementById('ideas-count-label').textContent = ideas.length + ' idea'+(ideas.length!==1?'s':'');
+
+    if(!ideas.length) {
+      grid.innerHTML = `<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg></div><div class="empty-title">No public ideas yet</div><div class="empty-desc">This innovator hasn't shared any public ideas yet.</div></div></div>`;
+      return;
+    }
+
+    grid.innerHTML = ideas.map(idea => {
+      const fileBadges = [
+        idea.video_url?'<span class="file-badge file-badge-video"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"></path><rect x="2" y="6" width="14" height="12" rx="2" ry="2"></rect></svg> Video</span>':'',
+        idea.report_url?'<span class="file-badge file-badge-pdf"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> PDF</span>':'',
+        idea.presentation_url?'<span class="file-badge file-badge-ppt"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg> PPT</span>':'',
+        (idea.images?.length)?'<span class="file-badge file-badge-img"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Images</span>':''
+      ].filter(Boolean).join('');
+      return `
+      <a class="prof-idea-card" href="/public/idea.html?id=${idea.id}">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <span class="badge ${industryClass(idea.industry)}">${escHtml(idea.industry||'Innovation')}</span>
+          ${idea.development_stage?`<span class="badge ${stageClass(idea.development_stage)}">${escHtml(idea.development_stage)}</span>`:''}
+        </div>
+        <div class="pic-title">${escHtml(idea.title)}</div>
+        <div class="pic-desc">${escHtml(idea.short_description||idea.description||'')}</div>
+        <div class="pic-meta">
+          <div class="pic-files">${fileBadges}</div>
+          <span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${(idea.view_count||0).toLocaleString()} · <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg> ${(idea.bookmark_count||0).toLocaleString()}</span>
+        </div>
+      </a>`;
+    }).join('');
+  } catch(err) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--ink-soft);font-size:14px">Could not load ideas.</div>`;
+    document.getElementById('stat-ideas').textContent = '0';
+    document.getElementById('stat-views').textContent = '0';
+    document.getElementById('stat-industries').textContent = '0';
+  }
+}
+
+// ─── CONTACT ─────────────────────────────────────────────────────
+function openContact() { document.getElementById('modal-contact').classList.add('active'); }
+function selectContactType(btn, type) {
+  document.querySelectorAll('.contact-type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedContactType = type;
+}
+async function sendContact() {
+  const message = document.getElementById('contact-message').value.trim();
+  if(!message) { showToast('Please write a message','error'); return; }
+  const btn = document.getElementById('contact-submit-btn');
+  const msgEl = document.getElementById('contact-msg');
+  btn.disabled=true; btn.textContent='Sending…'; msgEl.className='auth-message';
+  try {
+    await api('/contacts', {method:'POST',body:JSON.stringify({recipient_id:userId, message, contact_type:selectedContactType})});
+    msgEl.textContent='<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Message sent!'; msgEl.className='auth-message success';
+    showToast('Message sent!');
+    setTimeout(()=>document.getElementById('modal-contact').classList.remove('active'),1500);
+  } catch(err) {
+    msgEl.textContent=err.message; msgEl.className='auth-message error';
+  } finally {
+    btn.disabled=false; btn.textContent='Send Message →';
+  }
+}
+
+// ─── NAV SCROLL ──────────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('main-nav').style.boxShadow = window.scrollY>10?'0 4px 16px rgba(28,28,46,.08)':'none';
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) {
+    currentUserId = session.user.id;
+    localStorage.setItem('uncharted_token', session.access_token);
+    const firstName = session.user?.user_metadata?.full_name?.split(' ')[0]||'Dashboard';
+    const accountType = session.user?.user_metadata?.account_type;
+    const dest = accountType==='organization'?'/public/org-dashboard.html':'/public/dashboard.html';
+    document.getElementById('nav-user-area').innerHTML = `<a href="${dest}" class="btn btn-primary btn-sm">${escHtml(firstName)}'s Dashboard →</a>`;
+  } else {
+    document.getElementById('nav-user-area').innerHTML = `<a href="/public/index.html" class="btn btn-ghost btn-sm">Join Uncharted</a>`;
+  }
+
+  await Promise.all([loadProfile(), loadIdeas()]);
+})();
+</script>
+</body>
+</html>

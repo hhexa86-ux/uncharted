@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Submit Idea — Uncharted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com//api/upload/presentationcss2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+body { background: var(--pearl); padding-top: 72px; }
+
+/* NAV */
+.sub-nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 40px; background:rgba(250,248,245,0.95);
+  backdrop-filter:blur(14px); border-bottom:1px solid var(--border);
+}
+.nav-logo { font-family:'Fraunces',serif; font-weight:600; font-size:20px; color:var(--ink); text-decoration:none; }
+.nav-logo span { color:var(--teal); font-style:italic; }
+
+/* WIZARD CONTAINER */
+.wizard-container { max-width:800px; margin:0 auto; padding:40px 40px 80px; }
+
+/* STEP INDICATOR */
+.step-indicator { display:flex; align-items:center; margin-bottom:48px; }
+.step-item { display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; position:relative; }
+.step-item:not(:last-child)::after { content:''; position:absolute; top:18px; left:calc(50% + 20px); right:calc(-50% + 20px); height:2px; background:var(--border); z-index:0; transition:background .4s; }
+.step-item.completed:not(:last-child)::after { background:var(--teal); }
+.step-dot { width:36px; height:36px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:500; color:var(--ink-soft); background:white; transition:all .3s; z-index:1; position:relative; }
+.step-item.active .step-dot { border-color:var(--teal); background:var(--teal); color:white; font-weight:600; }
+.step-item.completed .step-dot { border-color:var(--teal); background:var(--teal); color:white; }
+.step-item.completed .step-dot::before { content:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2338b2ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'); }
+.step-name { font-size:11px; font-weight:500; color:var(--ink-soft); text-align:center; white-space:nowrap; }
+.step-item.active .step-name { color:var(--teal); font-weight:600; }
+
+/* STEP PANEL */
+.step-panel { display:none; animation:fadeIn .3s ease; }
+.step-panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+/* STEP CARD */
+.step-card { background:white; border:1px solid var(--border); border-radius:24px; padding:36px 40px; margin-bottom:20px; }
+.step-card-title { font-family:'Fraunces',serif; font-size:24px; font-weight:400; letter-spacing:-.4px; margin-bottom:6px; }
+.step-card-subtitle { font-size:14px; color:var(--ink-soft); font-weight:300; margin-bottom:28px; line-height:1.5; }
+
+/* Char counter */
+.field-with-counter { position:relative; }
+.field-counter { position:absolute; bottom:10px; right:14px; font-size:11px; color:#8A8A9A; pointer-events:none; }
+.field-counter.warn { color:#C47A2A; }
+.field-counter.over { color:var(--error); }
+
+/* STEP 2 — tags multi-select */
+.tag-select-wrap { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+.tag-select-item { padding:6px 14px; border-radius:50px; border:1.5px solid var(--border); font-size:13px; cursor:pointer; transition:all .15s; color:var(--ink-soft); background:white; }
+.tag-select-item:hover { border-color:var(--teal); color:var(--teal); }
+.tag-select-item.selected { background:var(--teal); border-color:var(--teal); color:white; }
+.custom-tag-input { display:flex; gap:8px; margin-top:10px; }
+.custom-tag-input input { flex:1; }
+
+/* STEP 3 — upload zones */
+.upload-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.upload-zone { border:2px dashed var(--border); border-radius:16px; padding:28px 20px; text-align:center; cursor:pointer; transition:all .2s; }
+.upload-zone:hover, .upload-zone.drag-over { border-color:var(--teal); background:rgba(91,143,168,.04); }
+.upload-zone.uploaded { border-color:var(--teal); background:var(--teal-lt); border-style:solid; cursor:default; }
+.upload-zone-icon { font-size:28px; margin-bottom:8px; }
+.upload-zone h4 { font-family:'Fraunces',serif; font-size:16px; font-weight:400; margin-bottom:6px; }
+.upload-zone p { font-size:12px; color:var(--ink-soft); font-weight:300; line-height:1.5; }
+.upload-hint { font-size:11px; color:#8A8A9A; margin-top:6px; }
+.upload-prog-wrap { margin-top:10px; }
+.upload-progress-bar { height:4px; background:var(--border); border-radius:50px; overflow:hidden; margin-top:6px; }
+.upload-progress-fill { height:100%; background:var(--teal); border-radius:50px; transition:width .3s; }
+.upload-file-name { font-size:12px; color:var(--teal); font-weight:500; margin-top:6px; display:flex; align-items:center; gap:6px; justify-content:center; }
+.upload-file-name button { background:none; border:none; cursor:pointer; color:var(--error); font-size:14px; padding:0; }
+.images-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; margin-top:10px; }
+.image-thumb { position:relative; border-radius:10px; overflow:hidden; aspect-ratio:1; }
+.image-thumb img { width:100%; height:100%; object-fit:cover; }
+.image-thumb-remove { position:absolute; top:4px; right:4px; width:20px; height:20px; background:rgba(192,57,43,.85); color:white; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; }
+
+/* STEP 4 */
+.visibility-toggle { display:flex; gap:0; border:1.5px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:8px; }
+.vis-btn { flex:1; padding:12px; border:none; background:white; font-size:14px; cursor:pointer; transition:all .2s; color:var(--ink-soft); }
+.vis-btn.active { background:var(--ink); color:white; }
+.vis-desc { font-size:13px; color:var(--ink-soft); font-weight:300; line-height:1.5; margin-bottom:20px; }
+
+.external-link-row { display:flex; gap:8px; margin-bottom:8px; align-items:center; }
+.external-link-row select { width:140px; flex-shrink:0; border:1.5px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; background:white; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234A4A60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; cursor:pointer; color:var(--ink); }
+.external-link-row input { flex:1; }
+.external-link-row button { width:34px; height:34px; border:1.5px solid var(--border); border-radius:8px; background:white; cursor:pointer; color:var(--error); font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+
+/* Review summary */
+.review-section { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.review-section:last-child { border-bottom:none; }
+.review-section h4 { font-size:12px; font-weight:600; color:var(--teal); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
+.review-row { display:grid; grid-template-columns:140px 1fr; gap:8px; margin-bottom:6px; font-size:13px; }
+.review-label { color:var(--ink-soft); font-weight:400; }
+.review-val { color:var(--ink); font-weight:400; line-height:1.5; }
+
+/* NAVIGATION BUTTONS */
+.wizard-nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+.draft-indicator { font-size:12px; color:#8A8A9A; display:flex; align-items:center; gap:6px; }
+.draft-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 2s ease-in-out infinite; }
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .wizard-container{padding:24px 16px 60px}
+  .step-card{padding:24px 20px}
+  .upload-grid{grid-template-columns:1fr}
+  .step-name{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="sub-nav">
+  <a href="/public/index.html" class="nav-logo">un<span>charted</span></a>
+  <div style="display:flex;gap:10px;align-items:center">
+    <a href="/public/dashboard.html" class="btn btn-ghost btn-sm">← My Dashboard</a>
+  </div>
+</nav>
+
+<div class="wizard-container">
+
+  <!-- STEP INDICATOR -->
+  <div class="step-indicator" id="step-indicator">
+    <div class="step-item active" data-step="1">
+      <div class="step-dot">1</div>
+      <div class="step-name">The Idea</div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-dot">2</div>
+      <div class="step-name">Classification</div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-dot">3</div>
+      <div class="step-name">Upload Files</div>
+    </div>
+    <div class="step-item" data-step="4">
+      <div class="step-dot">4</div>
+      <div class="step-name">Review & Publish</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 — The Idea -->
+  <div class="step-panel active" id="panel-1">
+    <div class="step-card">
+      <div class="step-card-title">Tell us your idea</div>
+      <div class="step-card-subtitle">Start with the big picture. What problem are you solving, and how?</div>
+
+      <div class="field">
+        <label>Idea title <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <div class="field-with-counter">
+          <input id="f-title" type="text" placeholder="e.g. Low-cost water purification using bio-ceramic filters" maxlength="120" oninput="updateCounter('title-cnt',this.value.length,120)"/>
+          <span class="field-counter" id="title-cnt">0/120</span>
+        </div>
+        <div class="field-error" id="err-title">Title is required</div>
+      </div>
+
+      <div class="field">
+        <label>Short description <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <div class="field-with-counter">
+          <textarea id="f-short-desc" rows="3" placeholder="A one-paragraph summary of your idea that will appear in listings…" maxlength="300" oninput="updateCounter('sdesc-cnt',this.value.length,300)"></textarea>
+          <span class="field-counter" id="sdesc-cnt" style="bottom:18px">0/300</span>
+        </div>
+        <div class="field-error" id="err-short-desc">Short description is required</div>
+      </div>
+
+      <div class="field">
+        <label>Problem being solved <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <textarea id="f-problem" rows="4" placeholder="What specific problem does your idea address? Who is affected and how?"></textarea>
+        <div class="field-error" id="err-problem">Please describe the problem</div>
+      </div>
+
+      <div class="field" style="margin-bottom:0">
+        <label>Proposed solution <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <textarea id="f-solution" rows="4" placeholder="How does your idea solve this problem? Describe the approach, mechanism, or technology involved."></textarea>
+        <div class="field-error" id="err-solution">Please describe your solution</div>
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <div class="draft-indicator"><div class="draft-dot"></div>Auto-saving draft</div>
+      <button class="btn btn-primary btn-large" onclick="goStep(2)">Next: Classification →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Classification -->
+  <div class="step-panel" id="panel-2">
+    <div class="step-card">
+      <div class="step-card-title">Classify your idea</div>
+      <div class="step-card-subtitle">Help organizations find you by accurately categorizing your innovation.</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="field">
+          <label>Industry</label>
+          <select id="f-industry" class="unselected" onchange="this.classList.remove('unselected')">
+            <option value="" disabled selected>Select industry</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Technology used <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">optional</span></label>
+          <input id="f-technology" type="text" placeholder="e.g. Machine Learning, Bio-ceramics, IoT"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tags <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">select or type your own</span></label>
+        <div class="tag-select-wrap" id="tags-wrap"></div>
+        <div class="custom-tag-input">
+          <input id="custom-tag-input" type="text" placeholder="Add custom tag…" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag()}"/>
+          <button class="btn btn-ghost btn-sm" type="button" onclick="addCustomTag()">Add</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="field">
+          <label>Development stage</label>
+          <select id="f-stage" class="unselected" onchange="this.classList.remove('unselected')">
+            <option value="" disabled selected>Select stage</option>
+            <option value="Concept Idea">Concept Idea</option>
+            <option value="Working Prototype">Working Prototype</option>
+            <option value="MVP">MVP (Minimum Viable Product)</option>
+            <option value="Scaling">Scaling</option>
+            <option value="Market Ready">Market Ready</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Patent status</label>
+          <select id="f-patent" class="unselected" onchange="this.classList.remove('unselected')">
+            <option value="" disabled selected>Select status</option>
+            <option value="No Patent">No Patent</option>
+            <option value="Patent Pending">Patent Pending</option>
+            <option value="Patent Granted">Patent Granted</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn btn-ghost btn-large" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary btn-large" onclick="goStep(3)">Next: Upload Files →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 — Upload Files -->
+  <div class="step-panel" id="panel-3">
+    <div class="step-card">
+      <div class="step-card-title">Upload your materials</div>
+      <div class="step-card-subtitle">All uploads are optional, but adding at least one significantly boosts discovery. Files are stored securely.</div>
+
+      <div class="upload-grid">
+        <!-- Video -->
+        <div class="upload-zone" id="zone-video" onclick="document.getElementById('input-video').click()" ondragover="handleDragOver(event,'zone-video')" ondragleave="handleDragLeave('zone-video')" ondrop="handleDrop(event,'video')">
+          <div class="upload-zone-icon">🎬</div>
+          <h4>Video Demo</h4>
+          <p>Walk through your idea on camera or demo a prototype</p>
+          <div class="upload-hint">MP4, MOV, WebM · Max 500MB</div>
+          <div id="prog-video" class="upload-prog-wrap" style="display:none">
+            <div class="upload-progress-bar"><div class="upload-progress-fill" id="fill-video" style="width:0%"></div></div>
+            <div id="name-video" class="upload-file-name"></div>
+          </div>
+          <input type="file" id="input-video" accept="video/*" style="display:none" onchange="uploadFile(this,'video')"/>
+        </div>
+
+        <!-- Report/PDF -->
+        <div class="upload-zone" id="zone-report" onclick="document.getElementById('input-report').click()" ondragover="handleDragOver(event,'zone-report')" ondragleave="handleDragLeave('zone-report')" ondrop="handleDrop(event,'report')">
+          <div class="upload-zone-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+          <h4>Written Report</h4>
+          <p>Research documentation, methodology, and findings</p>
+          <div class="upload-hint">PDF, DOCX · Max 50MB</div>
+          <div id="prog-report" class="upload-prog-wrap" style="display:none">
+            <div class="upload-progress-bar"><div class="upload-progress-fill" id="fill-report" style="width:0%"></div></div>
+            <div id="name-report" class="upload-file-name"></div>
+          </div>
+          <input type="file" id="input-report" accept=".pdf,.doc,.docx" style="display:none" onchange="uploadFile(this,'report')"/>
+        </div>
+
+        <!-- Presentation -->
+        <div class="upload-zone" id="zone-presentation" onclick="document.getElementById('input-presentation').click()" ondragover="handleDragOver(event,'zone-presentation')" ondragleave="handleDragLeave('zone-presentation')" ondrop="handleDrop(event,'presentation')">
+          <div class="upload-zone-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg></div>
+          <h4>Presentation Deck</h4>
+          <p>Slide deck with problem, solution, and impact</p>
+          <div class="upload-hint">PPTX, PDF · Max 50MB</div>
+          <div id="prog-presentation" class="upload-prog-wrap" style="display:none">
+            <div class="upload-progress-bar"><div class="upload-progress-fill" id="fill-presentation" style="width:0%"></div></div>
+            <div id="name-presentation" class="upload-file-name"></div>
+          </div>
+          <input type="file" id="input-presentation" accept=".pdf,.ppt,.pptx" style="display:none" onchange="uploadFile(this,'presentation')"/>
+        </div>
+
+        <!-- Images -->
+        <div class="upload-zone" id="zone-images" onclick="document.getElementById('input-images').click()" ondragover="handleDragOver(event,'zone-images')" ondragleave="handleDragLeave('zone-images')">
+          <div class="upload-zone-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>
+          <h4>Prototype Images</h4>
+          <p>Up to 5 images of your prototype or concept diagrams</p>
+          <div class="upload-hint">JPG, PNG, WebP · Max 10MB each</div>
+          <div id="images-grid-container" class="images-grid" style="display:none"></div>
+          <input type="file" id="input-images" accept="image/*" multiple style="display:none" onchange="uploadImages(this)"/>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px 16px;background:var(--amber);border-radius:12px;font-size:13px;color:#7A5A1A;line-height:1.5">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> <strong>Tip:</strong> Ideas with a video demo receive 3× more views and 5× more contact requests from organizations.
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn btn-ghost btn-large" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary btn-large" onclick="goStep(4)">Next: Review & Publish →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 — Review & Publish -->
+  <div class="step-panel" id="panel-4">
+    <div class="step-card">
+      <div class="step-card-title">Review & publish</div>
+      <div class="step-card-subtitle">Almost there! Review your submission and choose visibility before going live.</div>
+
+      <!-- Visibility -->
+      <div style="margin-bottom:24px">
+        <label class="form-label">Visibility</label>
+        <div class="visibility-toggle">
+          <button class="vis-btn active" id="vis-public" onclick="setVisibility('public')">🌐 Public</button>
+          <button class="vis-btn" id="vis-private" onclick="setVisibility('private')"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Private</button>
+        </div>
+        <p class="vis-desc" id="vis-desc">Your idea will be visible to all organizations and innovators on the platform.</p>
+      </div>
+
+      <!-- External links -->
+      <div style="margin-bottom:24px">
+        <label class="form-label">External links <span style="font-weight:300;text-transform:none;font-size:11px;color:#B0ADAA">up to 3</span></label>
+        <div id="ext-links-list"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addExtLink()" id="add-link-btn">+ Add link</button>
+      </div>
+
+      <!-- Review summary -->
+      <div style="border:1.5px solid var(--border);border-radius:16px;padding:24px">
+        <div class="review-section">
+          <h4>The Idea</h4>
+          <div class="review-row"><span class="review-label">Title</span><span class="review-val" id="rv-title">—</span></div>
+          <div class="review-row"><span class="review-label">Description</span><span class="review-val" id="rv-desc">—</span></div>
+        </div>
+        <div class="review-section">
+          <h4>Classification</h4>
+          <div class="review-row"><span class="review-label">Industry</span><span class="review-val" id="rv-industry">—</span></div>
+          <div class="review-row"><span class="review-label">Stage</span><span class="review-val" id="rv-stage">—</span></div>
+          <div class="review-row"><span class="review-label">Patent</span><span class="review-val" id="rv-patent">—</span></div>
+          <div class="review-row"><span class="review-label">Tags</span><span class="review-val" id="rv-tags">—</span></div>
+        </div>
+        <div class="review-section">
+          <h4>Files</h4>
+          <div class="review-row"><span class="review-label">Video</span><span class="review-val" id="rv-video">Not uploaded</span></div>
+          <div class="review-row"><span class="review-label">Report</span><span class="review-val" id="rv-report">Not uploaded</span></div>
+          <div class="review-row"><span class="review-label">Presentation</span><span class="review-val" id="rv-pres">Not uploaded</span></div>
+          <div class="review-row"><span class="review-label">Images</span><span class="review-val" id="rv-images">None</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="publish-message" class="auth-message" style="margin-top:12px"></div>
+    <div class="wizard-nav">
+      <button class="btn btn-ghost btn-large" onclick="goStep(3)">← Back</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost btn-large" id="draft-btn" onclick="submitIdea('draft')">Save Draft</button>
+        <button class="btn btn-primary btn-large" id="publish-btn" onclick="submitIdea('active')"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg> Publish Idea</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ─── SUPABASE + AUTH ─────────────────────────────────────────────
+const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const token = localStorage.getItem('uncharted_token');
+if (!token) window.location.href = '/public/index.html';
+
+// ─── STATE ────────────────────────────────────────────────────────
+let currentStep = 1;
+let visibility = 'public';
+let extLinksCount = 0;
+let selectedTags = [];
+let availableTags = [];
+let uploadedFiles = { video: null, report: null, presentation: null, images: [] };
+let editIdeaId = null;
+const DRAFT_KEY = 'idea_draft';
+
+// ─── API HELPER ──────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const t = localStorage.getItem('uncharted_token');
+  const res = await fetch('/api' + path, {
+    ...options,
+    headers: { 'Content-Type':'application/json', ...(t?{'Authorization':'Bearer '+t}:{}), ...(options.headers||{}) }
+  });
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────
+function showToast(message, type='success') {
+  const icons = {success:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',error:'✕',info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',warning:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'};
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]||'•'}</span><span>${message}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),300); },3500);
+}
+
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ─── STEP NAVIGATION ─────────────────────────────────────────────
+function goStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+  saveDraft();
+
+  // Update indicators
+  document.querySelectorAll('.step-item').forEach((item, i) => {
+    item.classList.remove('active','completed');
+    if (i+1 === n) item.classList.add('active');
+    if (i+1 < n) item.classList.add('completed');
+  });
+
+  // Show panels
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+n).classList.add('active');
+  currentStep = n;
+
+  if (n === 4) populateReview();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─── VALIDATION ──────────────────────────────────────────────────
+function validateStep(step) {
+  let valid = true;
+  if (step === 1) {
+    const checks = [
+      {id:'f-title',   err:'err-title',    msg:'Title is required'},
+      {id:'f-short-desc', err:'err-short-desc', msg:'Short description is required'},
+      {id:'f-problem', err:'err-problem',  msg:'Please describe the problem'},
+      {id:'f-solution',err:'err-solution', msg:'Please describe your solution'}
+    ];
+    checks.forEach(c => {
+      const el = document.getElementById(c.id);
+      const errEl = document.getElementById(c.err);
+      const parent = el.closest('.field');
+      if (!el.value.trim()) {
+        parent.classList.add('has-error');
+        errEl.style.display = 'block';
+        valid = false;
+      } else {
+        parent.classList.remove('has-error');
+        errEl.style.display = 'none';
+      }
+    });
+  }
+  return valid;
+}
+
+// ─── CHAR COUNTER ────────────────────────────────────────────────
+function updateCounter(id, cur, max) {
+  const el = document.getElementById(id);
+  el.textContent = cur + '/' + max;
+  el.className = 'field-counter' + (cur > max ? ' over' : cur > max*0.85 ? ' warn' : '');
+}
+
+// ─── LOAD INDUSTRIES & TAGS ──────────────────────────────────────
+async function loadIndustries() {
+  const sel = document.getElementById('f-industry');
+  try {
+    const data = await api('/search/industries');
+    const industries = data.industries || data || [];
+    industries.forEach(ind => {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = ind.name || ind;
+      sel.appendChild(opt);
+    });
+  } catch {
+    // Fallback industries
+    ['Agriculture','CleanTech','Education','Energy','Finance','Health Tech','Manufacturing','Sustainability','Technology','Transportation'].forEach(ind => {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = ind;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+async function loadTags() {
+  try {
+    const data = await api('/search/tags');
+    availableTags = data.tags || data || [];
+    renderTagOptions();
+  } catch {
+    availableTags = ['AI/ML','Sustainable','Low-cost','Open-source','Hardware','Software','Mobile','IoT','Blockchain','Rural','Urban','Social Impact','Women in Tech'];
+    renderTagOptions();
+  }
+}
+
+function renderTagOptions() {
+  const wrap = document.getElementById('tags-wrap');
+  wrap.innerHTML = availableTags.map(tag => {
+    const name = tag.name || tag;
+    return `<div class="tag-select-item ${selectedTags.includes(name)?'selected':''}" onclick="toggleTag('${escHtml(name)}')">${escHtml(name)}</div>`;
+  }).join('');
+}
+
+function toggleTag(tag) {
+  if (selectedTags.includes(tag)) selectedTags = selectedTags.filter(t=>t!==tag);
+  else if (selectedTags.length < 10) selectedTags.push(tag);
+  renderTagOptions();
+}
+
+function addCustomTag() {
+  const input = document.getElementById('custom-tag-input');
+  const val = input.value.trim();
+  if (!val || selectedTags.includes(val)) { input.value=''; return; }
+  selectedTags.push(val);
+  input.value = '';
+  // Add to available tags
+  if (!availableTags.find(t=>(t.name||t)===val)) availableTags.unshift(val);
+  renderTagOptions();
+}
+
+// ─── VISIBILITY ───────────────────────────────────────────────────
+function setVisibility(v) {
+  visibility = v;
+  document.getElementById('vis-public').classList.toggle('active', v==='public');
+  document.getElementById('vis-private').classList.toggle('active', v==='private');
+  document.getElementById('vis-desc').textContent = v==='public'
+    ? 'Your idea will be visible to all organizations and innovators on the platform.'
+    : 'Only you can see this idea. Organizations cannot discover it until you make it public.';
+}
+
+// ─── EXTERNAL LINKS ──────────────────────────────────────────────
+function addExtLink() {
+  if (extLinksCount >= 3) { showToast('Maximum 3 external links allowed','warning'); return; }
+  extLinksCount++;
+  const list = document.getElementById('ext-links-list');
+  const row = document.createElement('div');
+  row.className = 'external-link-row';
+  row.id = 'ext-row-' + extLinksCount;
+  row.innerHTML = `
+    <select>
+      <option>GitHub</option><option>Website</option><option>Demo</option>
+      <option>Research Paper</option><option>Other</option>
+    </select>
+    <input type="url" placeholder="https://…"/>
+    <button onclick="removeExtLink(${extLinksCount})">×</button>`;
+  list.appendChild(row);
+  if (extLinksCount >= 3) document.getElementById('add-link-btn').disabled = true;
+}
+
+function removeExtLink(id) {
+  document.getElementById('ext-row-'+id)?.remove();
+  extLinksCount--;
+  document.getElementById('add-link-btn').disabled = false;
+}
+
+function getExtLinks() {
+  return [...document.querySelectorAll('.external-link-row')].map(row => ({
+    label: row.querySelector('select').value,
+    url: row.querySelector('input').value.trim()
+  })).filter(l => l.url);
+}
+
+// ─── FILE UPLOAD ─────────────────────────────────────────────────
+function handleDragOver(e, zoneId) { e.preventDefault(); document.getElementById(zoneId).classList.add('drag-over'); }
+function handleDragLeave(zoneId) { document.getElementById(zoneId).classList.remove('drag-over'); }
+function handleDrop(e, type) {
+  e.preventDefault();
+  const zoneId = 'zone-' + type;
+  document.getElementById(zoneId).classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) { const input = document.getElementById('input-'+type); /* simulate */ uploadFileObj(file, type); }
+}
+
+async function uploadFile(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  await uploadFileObj(file, type);
+}
+
+async function uploadFileObj(file, type) {
+  const zone = document.getElementById('zone-'+type);
+  const prog = document.getElementById('prog-'+type);
+  const fill = document.getElementById('fill-'+type);
+  const nameEl = document.getElementById('name-'+type);
+
+  zone.style.pointerEvents = 'none';
+  prog.style.display = 'block';
+  fill.style.width = '10%';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const t = localStorage.getItem('uncharted_token');
+    // Simulate progress
+    let prog_val = 10;
+    const progInterval = setInterval(() => { prog_val = Math.min(prog_val + 15, 85); fill.style.width = prog_val + '%'; }, 300);
+
+    const res = await fetch('/api/upload/'+type, { method:'POST', headers:{ Authorization:'Bearer '+t }, body: formData });
+    clearInterval(progInterval);
+    fill.style.width = '100%';
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+    const uploadedUrl = data.url || data.data?.url;
+    uploadedFiles[type] = uploadedUrl;
+    zone.classList.add('uploaded');
+    nameEl.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> ${escHtml(file.name)} <button onclick="removeFile('${type}')" title="Remove">×</button>`;
+    showToast(type + ' uploaded successfully!');
+  } catch(err) {
+    fill.style.width = '0%';
+    prog.style.display = 'none';
+    zone.classList.remove('uploaded');
+    zone.style.pointerEvents = '';
+    showToast('Upload failed: ' + err.message, 'error');
+  }
+}
+
+function removeFile(type) {
+  uploadedFiles[type] = null;
+  const zone = document.getElementById('zone-'+type);
+  zone.classList.remove('uploaded');
+  zone.style.pointerEvents = '';
+  document.getElementById('prog-'+type).style.display = 'none';
+  document.getElementById('fill-'+type).style.width = '0%';
+  document.getElementById('name-'+type).innerHTML = '';
+  document.getElementById('input-'+type).value = '';
+}
+
+async function uploadImages(input) {
+  const files = [...input.files].slice(0, 5);
+  if (!files.length) return;
+  const t = localStorage.getItem('uncharted_token');
+  const grid = document.getElementById('images-grid-container');
+  grid.style.display = 'grid';
+  const zone = document.getElementById('zone-images');
+
+  for (const file of files) {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload/image', { method:'POST', headers:{Authorization:'Bearer '+t}, body:formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const uploadedUrl = data.url || data.data?.url;
+      uploadedFiles.images.push(uploadedUrl);
+      const thumb = document.createElement('div');
+      thumb.className = 'image-thumb';
+      const idx = uploadedFiles.images.length - 1;
+      thumb.innerHTML = `<img src="${escHtml(uploadedUrl)}" alt=""/><button class="image-thumb-remove" onclick="removeImage(${idx},this)">&times;</button>`;
+      grid.appendChild(thumb);
+    } catch(err) {
+      showToast('Image upload error: ' + err.message, 'error');
+    }
+  }
+  zone.classList.add('uploaded');
+}
+
+function removeImage(idx, btn) {
+  uploadedFiles.images.splice(idx, 1);
+  btn.closest('.image-thumb').remove();
+  if (!uploadedFiles.images.length) {
+    document.getElementById('zone-images').classList.remove('uploaded');
+    document.getElementById('images-grid-container').style.display = 'none';
+  }
+}
+
+// ─── DRAFT SAVE ───────────────────────────────────────────────────
+function saveDraft() {
+  const draft = {
+    title: document.getElementById('f-title').value,
+    shortDesc: document.getElementById('f-short-desc').value,
+    problem: document.getElementById('f-problem').value,
+    solution: document.getElementById('f-solution').value,
+    industry: document.getElementById('f-industry').value,
+    technology: document.getElementById('f-technology').value,
+    stage: document.getElementById('f-stage').value,
+    patent: document.getElementById('f-patent').value,
+    tags: selectedTags,
+    visibility,
+    uploadedFiles
+  };
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    document.getElementById('f-title').value = d.title || '';
+    document.getElementById('f-short-desc').value = d.shortDesc || '';
+    document.getElementById('f-problem').value = d.problem || '';
+    document.getElementById('f-solution').value = d.solution || '';
+    if (d.title) updateCounter('title-cnt', d.title.length, 120);
+    if (d.shortDesc) updateCounter('sdesc-cnt', d.shortDesc.length, 300);
+    selectedTags = d.tags || [];
+    visibility = d.visibility || 'public';
+    uploadedFiles = d.uploadedFiles || { video:null, report:null, presentation:null, images:[] };
+    setTimeout(() => {
+      if (d.industry) { document.getElementById('f-industry').value = d.industry; document.getElementById('f-industry').classList.remove('unselected'); }
+      if (d.technology) document.getElementById('f-technology').value = d.technology;
+      if (d.stage) { document.getElementById('f-stage').value = d.stage; document.getElementById('f-stage').classList.remove('unselected'); }
+      if (d.patent) { document.getElementById('f-patent').value = d.patent; document.getElementById('f-patent').classList.remove('unselected'); }
+      renderTagOptions();
+      setVisibility(visibility);
+    }, 100);
+  } catch {}
+}
+
+// ─── POPULATE REVIEW ─────────────────────────────────────────────
+function populateReview() {
+  document.getElementById('rv-title').textContent = document.getElementById('f-title').value || '—';
+  document.getElementById('rv-desc').textContent = document.getElementById('f-short-desc').value || '—';
+  document.getElementById('rv-industry').textContent = document.getElementById('f-industry').value || '—';
+  document.getElementById('rv-stage').textContent = document.getElementById('f-stage').value || '—';
+  document.getElementById('rv-patent').textContent = document.getElementById('f-patent').value || '—';
+  document.getElementById('rv-tags').textContent = selectedTags.length ? selectedTags.join(', ') : '—';
+  document.getElementById('rv-video').textContent = uploadedFiles.video ? '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Uploaded' : 'Not uploaded';
+  document.getElementById('rv-report').textContent = uploadedFiles.report ? '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Uploaded' : 'Not uploaded';
+  document.getElementById('rv-pres').textContent = uploadedFiles.presentation ? '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Uploaded' : 'Not uploaded';
+  document.getElementById('rv-images').textContent = uploadedFiles.images.length ? `${uploadedFiles.images.length} image(s)` : 'None';
+}
+
+// ─── SUBMIT IDEA ─────────────────────────────────────────────────
+async function submitIdea(status) {
+  const payload = {
+    title:        document.getElementById('f-title').value.trim(),
+    short_description: document.getElementById('f-short-desc').value.trim(),
+    problem:      document.getElementById('f-problem').value.trim(),
+    solution:     document.getElementById('f-solution').value.trim(),
+    industry:     document.getElementById('f-industry').value,
+    technology:   document.getElementById('f-technology').value.trim(),
+    development_stage: document.getElementById('f-stage').value,
+    patent_status: document.getElementById('f-patent').value,
+    tags:         selectedTags,
+    visibility,
+    status,
+    video_url:        uploadedFiles.video,
+    report_url:       uploadedFiles.report,
+    presentation_url: uploadedFiles.presentation,
+    images:           uploadedFiles.images,
+    external_links:   getExtLinks()
+  };
+
+  if (!payload.title) { showToast('Please add a title for your idea', 'error'); return; }
+
+  const msgEl = document.getElementById('publish-message');
+  const publishBtn = document.getElementById('publish-btn');
+  const draftBtn = document.getElementById('draft-btn');
+  publishBtn.disabled = draftBtn.disabled = true;
+  publishBtn.innerHTML = '<span class="spinner spinner-sm"></span> Publishing…';
+  msgEl.className = 'auth-message';
+
+  try {
+    let data;
+    if (editIdeaId) {
+      data = await api('/ideas/' + editIdeaId, { method:'PUT', body:JSON.stringify(payload) });
+    } else {
+      data = await api('/ideas', { method:'POST', body:JSON.stringify(payload) });
+    }
+    localStorage.removeItem(DRAFT_KEY);
+    showToast(status === 'draft' ? 'Draft saved!' : 'Idea published!');
+    setTimeout(() => {
+      const id = data.id || data.idea?.id || data.data?.id;
+      window.location.href = id ? `/public/idea.html?id=${id}` : '/public/dashboard.html';
+    }, 900);
+  } catch(err) {
+    msgEl.textContent = 'Error: ' + err.message;
+    msgEl.className = 'auth-message error';
+    publishBtn.disabled = draftBtn.disabled = false;
+    publishBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg> Publish Idea';
+  }
+}
+
+// ─── LOAD EDIT IDEA ──────────────────────────────────────────────
+async function loadEditIdea(id) {
+  try {
+    const idea = await api('/ideas/' + id);
+    document.getElementById('f-title').value = idea.title || '';
+    document.getElementById('f-short-desc').value = idea.short_description || '';
+    document.getElementById('f-problem').value = idea.problem || '';
+    document.getElementById('f-solution').value = idea.solution || '';
+    selectedTags = idea.tags || [];
+    visibility = idea.visibility || 'public';
+    uploadedFiles.video = idea.video_url || null;
+    uploadedFiles.report = idea.report_url || null;
+    uploadedFiles.presentation = idea.presentation_url || null;
+    uploadedFiles.images = idea.images || [];
+    if (idea.title) updateCounter('title-cnt', idea.title.length, 120);
+    if (idea.short_description) updateCounter('sdesc-cnt', idea.short_description.length, 300);
+    setTimeout(() => {
+      if(idea.industry) { document.getElementById('f-industry').value = idea.industry; document.getElementById('f-industry').classList.remove('unselected'); }
+      if(idea.technology) document.getElementById('f-technology').value = idea.technology;
+      if(idea.development_stage) { document.getElementById('f-stage').value = idea.development_stage; document.getElementById('f-stage').classList.remove('unselected'); }
+      if(idea.patent_status) { document.getElementById('f-patent').value = idea.patent_status; document.getElementById('f-patent').classList.remove('unselected'); }
+      renderTagOptions();
+      setVisibility(visibility);
+    }, 200);
+  } catch(err) {
+    showToast('Could not load idea: ' + err.message, 'error');
+  }
+}
+
+function resetNewIdeaForm() {
+  selectedTags = [];
+  visibility = 'public';
+  uploadedFiles = { video: null, report: null, presentation: null, images: [] };
+  editIdeaId = null;
+  localStorage.removeItem(DRAFT_KEY);
+
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-short-desc').value = '';
+  document.getElementById('f-problem').value = '';
+  document.getElementById('f-solution').value = '';
+  document.getElementById('f-technology').value = '';
+  document.getElementById('f-industry').value = '';
+  document.getElementById('f-stage').value = '';
+  document.getElementById('f-patent').value = '';
+  document.getElementById('title-cnt').textContent = '0/120';
+  document.getElementById('sdesc-cnt').textContent = '0/300';
+  document.getElementById('images-grid-container').innerHTML = '';
+  document.getElementById('images-grid-container').style.display = 'none';
+  ['video', 'report', 'presentation'].forEach((type) => {
+    document.getElementById('zone-' + type).classList.remove('uploaded');
+    document.getElementById('prog-' + type).style.display = 'none';
+    document.getElementById('fill-' + type).style.width = '0%';
+    document.getElementById('name-' + type).innerHTML = '';
+    document.getElementById('input-' + type).value = '';
+  });
+  renderTagOptions();
+  setVisibility('public');
+}
+
+// ─── AUTO-SAVE EVERY 30s ──────────────────────────────────────────
+setInterval(saveDraft, 30000);
+
+// ─── INIT ─────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { window.location.href = '/public/index.html'; return; }
+  localStorage.setItem('uncharted_token', session.access_token);
+
+  const params = new URLSearchParams(window.location.search);
+  editIdeaId = params.get('edit');
+
+  await Promise.all([loadIndustries(), loadTags()]);
+
+  if (editIdeaId) {
+    await loadEditIdea(editIdeaId);
+    document.querySelector('.step-card-title').textContent = 'Edit your idea';
+  } else {
+    resetNewIdeaForm();
+  }
+})();
+</script>
+</body>
+</html>
+
+

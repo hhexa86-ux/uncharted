@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uncharted — Ideas That Deserve to Be Seen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+/* PAGE-SPECIFIC */
+body { background: var(--pearl); }
+
+/* NAV OVERRIDE for landing */
+nav.land-nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 48px;
+  background:rgba(250,248,245,0.88);
+  backdrop-filter:blur(14px) saturate(1.4);
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border-bottom:1px solid rgba(224,221,216,0.6);
+}
+.nav-logo { font-family:'Fraunces',serif; font-weight:600; font-size:22px; color:var(--ink); letter-spacing:-0.5px; }
+.nav-logo span { color:var(--teal); font-style:italic; }
+.nav-center-links { display:flex; gap:28px; align-items:center; }
+.nav-clink { font-size:14px; color:var(--ink-soft); text-decoration:none; transition:color .15s; }
+.nav-clink:hover { color:var(--teal); }
+.land-nav-actions { display:flex; gap:10px; align-items:center; }
+
+/* HERO */
+.hero {
+  min-height:100vh;
+  display:grid; grid-template-columns:1fr 1fr;
+  align-items:center; padding:120px 48px 80px;
+  gap:60px; max-width:1200px; margin:0 auto;
+}
+.hero-eyebrow {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--teal-lt); color:var(--teal);
+  font-size:12px; font-weight:500; letter-spacing:.08em;
+  text-transform:uppercase; padding:6px 16px; border-radius:50px;
+  margin-bottom:28px;
+}
+.eyebrow-dot { width:6px; height:6px; background:var(--teal); border-radius:50%; animation:pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)} }
+h1.hero-h1 { font-family:'Fraunces',serif; font-weight:400; font-size:clamp(38px,5vw,58px); line-height:1.12; letter-spacing:-1.5px; color:var(--ink); margin-bottom:24px; }
+h1.hero-h1 em { font-style:italic; color:var(--teal); }
+.hero-sub { font-size:16px; line-height:1.7; color:var(--ink-soft); max-width:420px; margin-bottom:32px; font-weight:300; }
+.hero-cta { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:36px; }
+.hero-note { font-size:13px; color:var(--ink-soft); font-weight:300; }
+
+/* Live counter bar */
+.live-counter {
+  display:flex; align-items:center; gap:24px;
+  padding:14px 20px; background:white;
+  border:1px solid var(--border); border-radius:14px;
+  width:fit-content; box-shadow:var(--shadow-sm);
+}
+.counter-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.counter-num { font-family:'Fraunces',serif; font-size:22px; font-weight:400; color:var(--ink); letter-spacing:-0.5px; }
+.counter-label { font-size:11px; color:var(--ink-soft); font-weight:400; }
+.counter-sep { width:1px; height:28px; background:var(--border); }
+
+/* Floating cards */
+.hero-visual { position:relative; height:480px; display:flex; align-items:center; justify-content:center; }
+.orbit { position:relative; width:320px; height:320px; }
+.center-orb {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:120px; height:120px;
+  background:linear-gradient(135deg,var(--lavender),var(--teal-lt));
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 0 20px rgba(91,143,168,.06),0 0 0 40px rgba(91,143,168,.03);
+  animation:breathe 4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,100%{box-shadow:0 0 0 20px rgba(91,143,168,.06),0 0 0 40px rgba(91,143,168,.03)}
+  50%{box-shadow:0 0 0 30px rgba(91,143,168,.09),0 0 0 60px rgba(91,143,168,.04)}
+}
+.center-icon { font-size:36px; }
+
+.fc {
+  position:absolute; background:white; border:1px solid var(--border);
+  border-radius:16px; padding:14px 16px; font-size:12px; width:148px;
+  box-shadow:0 4px 20px rgba(28,28,46,.06); animation:float 6s ease-in-out infinite;
+  cursor:pointer; transition:transform .2s,box-shadow .2s;
+}
+.fc:hover { box-shadow:0 8px 28px rgba(28,28,46,.12); }
+.fc:nth-child(2){top:-20px;left:-40px;animation-delay:0s}
+.fc:nth-child(3){top:-10px;right:-50px;animation-delay:1.5s}
+.fc:nth-child(4){bottom:10px;left:-60px;animation-delay:3s}
+.fc:nth-child(5){bottom:20px;right:-40px;animation-delay:1s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.fc-tag { font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; padding:3px 8px; border-radius:50px; display:inline-block; }
+.tag-green{background:var(--sage);color:#4A7A4A}
+.tag-blue {background:var(--teal-lt);color:var(--teal)}
+.tag-amber{background:var(--amber);color:#8A6A2A}
+.tag-rose {background:var(--rose);color:#8A4A4A}
+.fc-title { font-weight:500; color:var(--ink); line-height:1.4; margin-bottom:8px; font-size:12px; }
+.fc-meta  { font-size:11px; color:var(--ink-soft); font-weight:300; }
+
+/* HOW IT WORKS */
+.how { background:var(--sage); padding:100px 48px; }
+.how-inner { max-width:1100px; margin:0 auto; }
+.how-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:60px; flex-wrap:wrap; gap:24px; }
+.how h2 { font-family:'Fraunces',serif; font-weight:400; font-size:clamp(28px,4vw,42px); letter-spacing:-1px; line-height:1.15; }
+.how-desc { max-width:340px; font-size:15px; line-height:1.65; color:var(--ink-soft); font-weight:300; }
+.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; }
+.step { background:var(--pearl); border-radius:20px; padding:32px 28px; border:1px solid var(--border); transition:transform .2s; }
+.step:hover { transform:translateY(-4px); }
+.step-num { font-family:'Fraunces',serif; font-size:48px; font-weight:300; color:var(--teal); opacity:.5; line-height:1; margin-bottom:20px; }
+.step h3 { font-family:'Fraunces',serif; font-weight:400; font-size:20px; letter-spacing:-.3px; margin-bottom:12px; }
+.step p { font-size:14px; line-height:1.65; color:var(--ink-soft); font-weight:300; }
+
+/* LIVE IDEAS SHOWCASE */
+.showcase { padding:100px 48px; max-width:1200px; margin:0 auto; }
+.showcase-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px; flex-wrap:wrap; gap:16px; }
+.showcase-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-bottom:40px; }
+.idea-showcase-card {
+  background:white; border:1px solid var(--border); border-radius:18px;
+  padding:20px; cursor:pointer; transition:all .22s; text-decoration:none; color:inherit;
+  display:flex; flex-direction:column; gap:10px;
+}
+.idea-showcase-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(28,28,46,.1); border-color:var(--teal-lt); }
+.isc-industry { margin-bottom:2px; }
+.isc-title { font-family:'Fraunces',serif; font-size:16px; font-weight:400; line-height:1.3; color:var(--ink); }
+.isc-desc { font-size:12px; color:var(--ink-soft); line-height:1.55; font-weight:300; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.isc-creator { display:flex; align-items:center; gap:8px; margin-top:4px; }
+.isc-avatar { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,var(--lavender),var(--teal-lt)); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; color:var(--teal); flex-shrink:0; }
+.isc-name { font-size:12px; color:var(--ink-soft); font-weight:400; }
+.isc-meta { display:flex; align-items:center; justify-content:space-between; font-size:11px; color:#8A8A9A; }
+.isc-files { display:flex; gap:4px; }
+
+/* TWO USER TYPES */
+.user-types { background:var(--lavender); padding:80px 48px; }
+.user-types-inner { max-width:1000px; margin:0 auto; }
+.user-types h2 { font-family:'Fraunces',serif; font-size:clamp(28px,4vw,40px); font-weight:400; text-align:center; letter-spacing:-1px; margin-bottom:48px; }
+.user-type-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.user-type-card {
+  background:white; border-radius:24px; padding:40px 36px;
+  border:1px solid var(--border); transition:transform .2s,box-shadow .2s;
+  display:flex; flex-direction:column; gap:16px;
+}
+.user-type-card:hover { transform:translateY(-4px); box-shadow:0 12px 36px rgba(28,28,46,.1); }
+.user-type-card.dark { background:var(--ink); border-color:var(--ink); }
+.user-type-icon { font-size:40px; }
+.user-type-card h3 { font-family:'Fraunces',serif; font-size:24px; font-weight:400; letter-spacing:-.3px; }
+.user-type-card.dark h3 { color:var(--pearl); }
+.user-type-card p  { font-size:14px; color:var(--ink-soft); line-height:1.65; font-weight:300; }
+.user-type-card.dark p { color:rgba(250,248,245,.6); }
+.user-type-features { list-style:none; display:flex; flex-direction:column; gap:8px; }
+.user-type-features li { font-size:13px; color:var(--ink-soft); display:flex; gap:8px; align-items:flex-start; }
+.user-type-card.dark .user-type-features li { color:rgba(250,248,245,.65); }
+.user-type-features li::before { content:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2338b2ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'); font-weight:600; flex-shrink:0; display:inline-block; width:1.2em; height:1.2em; }
+.user-type-card.dark .user-type-features li::before { content:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23faf8f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'); }
+
+/* FEATURED SECTIONS — Videos / Reports / Presentations */
+.featured-section { padding:72px 48px; max-width:1200px; margin:0 auto; }
+.featured-header { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:28px; }
+.featured-header-left { display:flex; flex-direction:column; gap:4px; }
+.featured-type-label {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--teal); margin-bottom:2px;
+}
+.featured-header h2 { font-family:var(--font-serif); font-weight:400; font-size:clamp(20px,2.5vw,28px); letter-spacing:-.5px; color:var(--ink); }
+.featured-see-all { font-size:13px; color:var(--ink-soft); text-decoration:none; transition:color var(--t-fast); white-space:nowrap; }
+.featured-see-all:hover { color:var(--teal); }
+
+.featured-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+
+/* Featured Idea Card — minimal, premium */
+.fi-card {
+  background:white; border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:20px 18px 18px; cursor:pointer; transition:transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+  text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:12px;
+}
+.fi-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); border-color:var(--teal-lt); }
+
+.fi-badge { } /* holds the industry badge */
+.fi-title {
+  font-family:var(--font-serif); font-size:15px; font-weight:400; line-height:1.35;
+  color:var(--ink); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+.fi-meta { font-size:12px; color:var(--ink-soft); font-weight:300; margin-top:auto; padding-top:4px; }
+
+.featured-divider { border:none; border-top:1px solid var(--border); margin:0 48px; }
+
+/* Showcase skeleton (kept for compat) */
+.skel-isc { height:160px; border-radius:var(--r-lg); margin-bottom:0; }
+
+/* RESPONSIVE */
+@media(max-width:1100px){ .featured-grid{grid-template-columns:repeat(2,1fr)} }
+@media(max-width:900px){
+  nav.land-nav{padding:14px 20px}
+  .nav-center-links{display:none}
+  .hero{grid-template-columns:1fr;padding:100px 24px 60px;gap:32px}
+  .hero-visual{height:280px}
+  .orbit{width:220px;height:220px}
+  .featured-section{padding:48px 24px}
+  .how{padding:70px 24px}
+  .steps{grid-template-columns:1fr;gap:16px}
+  .user-types{padding:60px 24px}
+  .user-type-grid{grid-template-columns:1fr}
+  .upload-section{padding:70px 24px}
+  .upload-cards{grid-template-columns:1fr}
+  .quote-band{padding:60px 24px}
+  footer{padding:40px 24px 28px}
+  .footer-top{grid-template-columns:1fr 1fr;gap:32px}
+  .featured-divider{margin:0 24px}
+}
+@media(max-width:600px){
+  .featured-grid{grid-template-columns:1fr 1fr}
+  .footer-top{grid-template-columns:1fr}
+  .live-counter{flex-wrap:wrap;justify-content:center}
+}
+
+/* UPLOAD FORMATS */
+.upload-section { padding:100px 48px; max-width:1100px; margin:0 auto; }
+.upload-header { text-align:center; margin-bottom:60px; }
+.upload-header h2 { font-family:'Fraunces',serif; font-weight:400; font-size:clamp(28px,4vw,42px); letter-spacing:-1px; margin-bottom:16px; }
+.upload-header p { font-size:15px; color:var(--ink-soft); font-weight:300; max-width:440px; margin:0 auto; line-height:1.65; }
+.upload-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+.upload-card { border:1.5px dashed var(--border); border-radius:20px; padding:40px 28px; text-align:center; transition:all .25s; cursor:default; background:transparent; }
+.upload-card:hover { border-color:var(--teal); background:var(--teal-lt); transform:translateY(-3px); }
+.upload-icon { font-size:40px; margin-bottom:16px; display:block; }
+.upload-card h3 { font-family:'Fraunces',serif; font-weight:400; font-size:20px; letter-spacing:-.3px; margin-bottom:10px; }
+.upload-card p { font-size:13px; color:var(--ink-soft); line-height:1.6; font-weight:300; }
+.upload-card .formats { margin-top:16px; font-size:11px; color:var(--teal); font-weight:500; letter-spacing:.05em; text-transform:uppercase; }
+
+/* QUOTE BAND */
+.quote-band { background:var(--ink); padding:80px 48px; text-align:center; }
+.quote-band blockquote { font-family:'Fraunces',serif; font-style:italic; font-weight:300; font-size:clamp(22px,3vw,36px); color:var(--pearl); line-height:1.45; max-width:780px; margin:0 auto 20px; letter-spacing:-.5px; }
+.quote-band cite { font-size:13px; color:rgba(250,248,245,.45); font-style:normal; font-weight:300; letter-spacing:.05em; }
+
+/* FOOTER */
+footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padding:60px 48px 40px; }
+.footer-inner { max-width:1200px; margin:0 auto; }
+.footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px; margin-bottom:48px; }
+.footer-brand p { font-size:13px; color:rgba(250,248,245,.5); line-height:1.7; font-weight:300; max-width:280px; margin-top:12px; }
+.footer-col h4 { font-family:'Fraunces',serif; font-size:14px; font-weight:400; color:var(--pearl); margin-bottom:16px; letter-spacing:-.2px; }
+.footer-col ul li { margin-bottom:10px; }
+.footer-col ul li a { font-size:13px; color:rgba(250,248,245,.5); text-decoration:none; font-weight:300; transition:color .15s; }
+.footer-col ul li a:hover { color:var(--teal); }
+.footer-bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; padding-top:28px; border-top:1px solid rgba(255,255,255,.08); }
+.footer-note { font-size:12px; color:rgba(250,248,245,.35); font-weight:300; }
+
+/* MODAL OVERRIDES — signup scroll */
+#modal-signup .modal { max-height:90vh; overflow-y:auto; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="land-nav" id="main-nav">
+  <a href="/" class="nav-logo">un<span>charted</span></a>
+  <div class="nav-center-links">
+    <a href="#" class="nav-clink" onclick="navigateIfAuth('/discover.html','signup')">Discover Ideas</a>
+    <a href="#user-types" class="nav-clink">For Organizations</a>
+    <a href="#how" class="nav-clink">How It Works</a>
+  </div>
+  <div class="land-nav-actions" id="nav-actions">
+    <button class="btn btn-ghost" onclick="openModal('login')">Log in</button>
+    <button class="btn btn-primary" onclick="openModal('signup')">Get started</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section>
+  <div class="hero">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        <div class="counter-item">
+          <span class="counter-num" id="cnt-ideas">—</span>
+          <span class="counter-label">ideas shared</span>
+        </div>
+        <div class="counter-sep"></div>
+        <div class="counter-item">
+          <span class="counter-num" id="cnt-countries">—</span>
+          <span class="counter-label">countries</span>
+        </div>
+        <div class="counter-sep"></div>
+        <div class="counter-item">
+          <span class="counter-num" id="cnt-orgs">—</span>
+          <span class="counter-label">organizations</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="orbit">
+        <div class="center-orb"><span class="center-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg></span></div>
+        <div class="fc">
+          <span class="fc-tag tag-green">Sustainability</span>
+          <div class="fc-title">Low-cost water filtration using local clay</div>
+          <div class="fc-meta">Self-taught · Rural India</div>
+        </div>
+        <div class="fc">
+          <span class="fc-tag tag-blue">Health Tech</span>
+          <div class="fc-title">Mobile ECG from recycled components</div>
+          <div class="fc-meta">Independent · Kenya</div>
+        </div>
+        <div class="fc">
+          <span class="fc-tag tag-amber">Education</span>
+          <div class="fc-title">Offline peer tutoring mesh network</div>
+          <div class="fc-meta">Student · Philippines</div>
+        </div>
+        <div class="fc">
+          <span class="fc-tag tag-rose">Agriculture</span>
+          <div class="fc-title">Soil sensor from repurposed phones</div>
+          <div class="fc-meta">Farmer · Nigeria</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-header">
+      <div>
+        <div class="section-label">How it works</div>
+        <h2>Three steps from<br/><em style="font-style:italic;color:var(--teal)">idea to impact.</em></h2>
+      </div>
+      <p class="how-desc">We've removed every barrier. You don't need a degree, a company, or a grant to get started here.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Create your profile</h3>
+        <p>Sign up in under a minute. No institution needed. Just your name, your location, and what drives you to solve problems.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Upload your work</h3>
+        <p>Share your idea as a video demonstration, a written report, or a slide deck. All formats welcome — raw and real is fine.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Get discovered</h3>
+        <p>Businesses, investors, and collaborators browse Uncharted specifically looking for innovators like you. They come to you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED SECTIONS -->
+
+<!-- Section 1: Featured Videos -->
+<section class="featured-section">
+  <div class="featured-header">
+    <div class="featured-header-left">
+      <span class="featured-type-label">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg>
+        Video innovations
+      </span>
+      <h2>Featured Videos</h2>
+    </div>
+    <a href="/discover.html?file_type=video" class="featured-see-all">See all →</a>
+  </div>
+  <div class="featured-grid" id="featured-videos">
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+  </div>
+</section>
+
+<hr class="featured-divider"/>
+
+<!-- Section 2: Featured Reports -->
+<section class="featured-section">
+  <div class="featured-header">
+    <div class="featured-header-left">
+      <span class="featured-type-label">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        Written research
+      </span>
+      <h2>Featured Reports</h2>
+    </div>
+    <a href="/discover.html?file_type=report" class="featured-see-all">See all →</a>
+  </div>
+  <div class="featured-grid" id="featured-reports">
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+  </div>
+</section>
+
+<hr class="featured-divider"/>
+
+<!-- Section 3: Featured Presentations -->
+<section class="featured-section">
+  <div class="featured-header">
+    <div class="featured-header-left">
+      <span class="featured-type-label">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg>
+        Slide decks
+      </span>
+      <h2>Featured Presentations</h2>
+    </div>
+    <a href="/discover.html?file_type=presentation" class="featured-see-all">See all →</a>
+  </div>
+  <div class="featured-grid" id="featured-presentations">
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+    <div class="skeleton skel-isc"></div>
+  </div>
+</section>
+
+<!-- TWO USER TYPES -->
+<section class="user-types" id="user-types">
+  <div class="user-types-inner">
+    <h2>Who is Uncharted for?</h2>
+    <div class="user-type-grid">
+      <div class="user-type-card">
+        <div class="user-type-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg></div>
+        <h3>I'm an Innovator</h3>
+        <p>You have an idea, a prototype, or a solution that nobody has built a platform for. Uncharted is where you finally share it.</p>
+        <ul class="user-type-features">
+          <li>Upload video demos, PDFs, and slide decks</li>
+          <li>Get discovered by organizations worldwide</li>
+          <li>Receive direct collaboration requests</li>
+          <li>Build your public innovator profile</li>
+          <li>Track views and interest in your ideas</li>
+        </ul>
+        <button class="btn btn-primary" onclick="openModal('signup')" style="margin-top:8px">Start sharing →</button>
+      </div>
+      <div class="user-type-card dark">
+        <div class="user-type-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg></div>
+        <h3 style="color:var(--pearl)">I'm an Organization</h3>
+        <p style="color:rgba(250,248,245,.6)">You're looking for fresh thinking outside your usual talent pool — problems solved in ways you haven't considered yet.</p>
+        <ul class="user-type-features">
+          <li>Search thousands of vetted innovations</li>
+          <li>Filter by industry, stage, and technology</li>
+          <li>Contact innovators directly</li>
+          <li>Bookmark and save promising ideas</li>
+          <li>Discover talent before competitors do</li>
+        </ul>
+        <button class="btn btn-ghost-white" onclick="handleShare()" style="margin-top:8px">Find innovations →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- UPLOAD FORMATS -->
+<section class="upload-section">
+  <div class="upload-header">
+    <div class="section-label" style="text-align:center">Submit your project</div>
+    <h2>Show your work,<br/>your way.</h2>
+    <p>Upload in whichever format best captures your idea. You can combine all three for maximum impact.</p>
+  </div>
+  <div class="upload-cards">
+    <div class="upload-card">
+      <span class="upload-icon">🎬</span>
+      <h3>Video Demo</h3>
+      <p>Walk us through your idea. A prototype in motion, a live demo, or simply you explaining your solution to camera.</p>
+      <div class="formats">MP4 · MOV · WebM · up to 500MB</div>
+    </div>
+    <div class="upload-card">
+      <span class="upload-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
+      <h3>Written Report</h3>
+      <p>Document your research, methodology, and findings in a structured report. Evidence of depth matters here.</p>
+      <div class="formats">PDF · DOCX · up to 50MB</div>
+    </div>
+    <div class="upload-card">
+      <span class="upload-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg></span>
+      <h3>Presentation Deck</h3>
+      <p>A slide deck that lays out your problem statement, solution, and impact — ready for any audience.</p>
+      <div class="formats">PPTX · PDF · up to 50MB</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE BAND -->
+<section class="quote-band">
+  <blockquote>"The most important ideas have often come from people no one was watching. We built Uncharted so they'd never go unseen again."</blockquote>
+  <cite>— The Uncharted Team</cite>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div style="font-family:'Fraunces',serif;font-weight:600;font-size:22px;color:var(--pearl);letter-spacing:-.5px">un<span style="color:var(--teal);font-style:italic">charted</span></div>
+        <p>For the builders the world hasn't found yet. A platform for independent innovators to share their ideas and get discovered by the organizations that need them.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#" onclick="navigateIfAuth('/discover.html','signup')">Discover Ideas</a></li>
+          <li><a href="#" onclick="handleShare()">Submit an Idea</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="#user-types">For Organizations</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Account</h4>
+        <ul>
+          <li><a href="#" onclick="openModal('signup')">Create Account</a></li>
+          <li><a href="#" onclick="openModal('login')">Sign In</a></li>
+          <li><a href="#" onclick="navigateIfAuth('/dashboard.html','login')">My Dashboard</a></li>
+          <li><a href="#" onclick="navigateIfAuth('/org-dashboard.html','login')">Org Dashboard</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-note">© 2026 Uncharted. All rights reserved.</div>
+      <div class="footer-note">Made for the builders the world hasn't found yet.</div>
+    </div>
+  </div>
+</footer>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="modal-login" onclick="handleOverlayClick(event,'login')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('login')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title">Welcome back</h2>
+    <p class="modal-subtitle">Sign in to continue sharing your innovations with the world.</p>
+    <div id="login-message" class="auth-message" role="alert"></div>
+    <div class="field">
+      <label>Email address</label>
+      <input id="login-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label style="display:flex; justify-content:space-between;">
+        Password
+        <a href="#" onclick="switchModal('login','forgot')" style="font-weight:400; font-size:12px; color:var(--teal)">Forgot password?</a>
+      </label>
+      <input id="login-password" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')handleLogin()"/>
+    </div>
+    <button id="login-submit" class="modal-submit" onclick="handleLogin()">Sign in</button>
+    <div class="modal-switch">Don't have an account? <a onclick="switchModal('login','signup')">Create one →</a></div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD MODAL -->
+<div class="modal-overlay" id="modal-forgot" onclick="handleOverlayClick(event,'forgot')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('forgot')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title">Reset password</h2>
+    <p class="modal-subtitle">Enter your email and we'll send you a link to reset your password.</p>
+    <div id="forgot-message" class="auth-message" role="alert"></div>
+    <div class="field">
+      <label>Email address</label>
+      <input id="forgot-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <button id="forgot-submit" class="modal-submit" onclick="handleForgot()">Send reset link</button>
+    <div class="modal-switch"><a onclick="switchModal('forgot','login')">← Back to sign in</a></div>
+  </div>
+</div>
+
+<!-- SET NEW PASSWORD MODAL (Shown after clicking email link) -->
+<div class="modal-overlay" id="modal-reset" onclick="handleOverlayClick(event,'reset')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reset')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title">Set new password</h2>
+    <p class="modal-subtitle">Please enter your new password below.</p>
+    <div id="reset-message" class="auth-message" role="alert"></div>
+    <div class="field">
+      <label>New Password</label>
+      <input id="reset-password" type="password" placeholder="At least 8 characters" autocomplete="new-password"/>
+    </div>
+    <button id="reset-submit" class="modal-submit" onclick="handleReset()">Update password</button>
+  </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="modal-signup" onclick="handleOverlayClick(event,'signup')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('signup')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title">Join Uncharted</h2>
+    <p class="modal-subtitle">No affiliation required. Just your ideas and the drive to share them.</p>
+    <div id="signup-message" class="auth-message" role="alert"></div>
+
+    <div id="signup-form-body">
+      <!-- Account type toggle -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;padding:4px;background:var(--pearl);border:1px solid var(--border);border-radius:50px">
+        <button id="type-innovator" onclick="setAccountType('innovator')" style="flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:var(--ink);color:var(--pearl)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg> Innovator</button>
+        <button id="type-org" onclick="setAccountType('organization')" style="flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--ink-soft)"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg> Organization</button>
+      </div>
+
+      <div class="field">
+        <label>Full name</label>
+        <input id="signup-name" type="text" placeholder="Your full name" autocomplete="name"/>
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input id="signup-email" type="email" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="field" id="signup-role-field">
+        <label>Current role</label>
+        <select id="signup-role" class="unselected" onchange="this.classList.remove('unselected')">
+          <option value="" disabled selected>Select your role</option>
+          <option>Student</option><option>Professional</option>
+          <option>Entrepreneur / Founder</option><option>Researcher</option>
+          <option>Freelancer / Self-employed</option><option>Government / Public Sector</option>
+          <option>NGO / Non-profit</option><option>Farmer</option>
+          <option>Creator / Artist</option><option>Educator</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field" id="signup-org-field" style="display:none">
+        <label>Organization name</label>
+        <input id="signup-org-name" type="text" placeholder="e.g. Acme Corp, UNDP, TechCo"/>
+      </div>
+      <div class="field">
+        <label>Organization / Institution <span style="font-weight:300;text-transform:none;font-size:11px;color:#B0ADAA;margin-left:4px;letter-spacing:0">(optional)</span></label>
+        <input id="signup-org" type="text" placeholder="e.g. IIT Madras, TCS, Google" autocomplete="organization"/>
+      </div>
+      <div class="field">
+        <label>Location</label>
+        <input id="signup-location" type="text" placeholder="City, Country" autocomplete="off"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input id="signup-password" type="password" placeholder="At least 8 characters" autocomplete="new-password"/>
+      </div>
+      <button id="signup-submit" class="modal-submit" onclick="handleSignup()">Create my account</button>
+      <div class="modal-switch">Already a member? <a onclick="switchModal('signup','login')">Sign in →</a></div>
+    </div><!-- /#signup-form-body -->
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<script>
+// ─── SUPABASE SETUP ─────────────────────────────────────────────
+const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ─── API HELPER ─────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const token = localStorage.getItem('uncharted_token');
+  const res = await fetch('/api' + path, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+      ...(options.headers || {})
+    }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+// ─── TOAST ──────────────────────────────────────────────────────
+function showToast(message, type = 'success') {
+  const icons = { success:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>', error:'✕', info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>', warning:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>' };
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]||'•'}</span><span>${message}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ─── MODAL HELPERS ───────────────────────────────────────────────
+function openModal(type) {
+  document.getElementById('modal-' + type).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(type) {
+  document.getElementById('modal-' + type).classList.remove('active');
+  document.body.style.overflow = '';
+}
+function switchModal(from, to) {
+  closeModal(from);
+  setTimeout(() => openModal(to), 160);
+}
+function handleOverlayClick(e, type) {
+  if (e.target === e.currentTarget) closeModal(type);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal('login'); closeModal('signup'); }
+});
+
+// ─── CONDITIONAL NAVIGATION ────────────────────────────────────────
+function navigateIfAuth(path, fallbackModal = 'login') {
+  const token = localStorage.getItem('uncharted_token');
+  if (token) {
+    window.location.href = path;
+  } else {
+    openModal(fallbackModal);
+  }
+}
+function handleShare() {
+  navigateIfAuth('/submit-idea.html', 'signup');
+}
+function handleBrowse() {
+  navigateIfAuth('/discover.html', 'signup');
+}
+
+// ─── AUTH FEEDBACK ───────────────────────────────────────────────
+function showMessage(modal, html, kind) {
+  const el = document.getElementById(modal + '-message');
+  el.innerHTML = html; el.className = 'auth-message ' + kind;
+}
+
+function clearMessage(modal) {
+  const el = document.getElementById(modal + '-message');
+  if (el) { el.textContent = ''; el.className = 'auth-message'; }
+}
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.innerHTML = loading ? '<span class="spinner spinner-sm"></span> Please wait…' : label;
+}
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim()); }
+function friendlyError(msg) {
+  if (!msg) return 'Something went wrong. Please try again.';
+  if (msg.includes('Invalid login credentials')) return 'Incorrect email or password.';
+  if (msg.includes('Email not confirmed'))        return 'Please confirm your email before signing in.';
+  if (msg.includes('User already registered'))   return 'An account with this email already exists.';
+  if (msg.includes('Password should be'))        return 'Password must be at least 8 characters.';
+  if (msg.includes('rate limit'))                return 'Too many attempts. Please wait a moment.';
+  return msg;
+}
+
+// ─── ACCOUNT TYPE TOGGLE ─────────────────────────────────────────
+let currentAccountType = 'innovator';
+function setAccountType(type) {
+  currentAccountType = type;
+  const invBtn = document.getElementById('type-innovator');
+  const orgBtn = document.getElementById('type-org');
+  const roleField = document.getElementById('signup-role-field');
+  const orgNameField = document.getElementById('signup-org-field');
+  if (type === 'innovator') {
+    invBtn.style.cssText = 'flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:var(--ink);color:var(--pearl)';
+    orgBtn.style.cssText = 'flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--ink-soft)';
+    roleField.style.display = 'block';
+    orgNameField.style.display = 'none';
+  } else {
+    orgBtn.style.cssText = 'flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:var(--ink);color:var(--pearl)';
+    invBtn.style.cssText = 'flex:1;padding:8px;border:none;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;background:transparent;color:var(--ink-soft)';
+    roleField.style.display = 'none';
+    orgNameField.style.display = 'block';
+  }
+}
+
+// ─── SIGNUP ──────────────────────────────────────────────────────
+async function handleSignup() {
+  clearMessage('signup');
+  const name     = document.getElementById('signup-name').value.trim();
+  const email    = document.getElementById('signup-email').value.trim();
+  const role     = currentAccountType === 'organization' ? 'Organization' : (document.getElementById('signup-role').value || '');
+  const org      = currentAccountType === 'organization'
+                   ? document.getElementById('signup-org-name').value.trim()
+                   : document.getElementById('signup-org').value.trim();
+  const location = document.getElementById('signup-location').value.trim();
+  const password = document.getElementById('signup-password').value;
+
+  if (!name)                return showMessage('signup', 'Please enter your full name.', 'error');
+  if (!isValidEmail(email)) return showMessage('signup', 'Please enter a valid email address.', 'error');
+  if (currentAccountType === 'innovator' && !role) return showMessage('signup', 'Please select your current role.', 'error');
+  if (!location)            return showMessage('signup', 'Please enter your location.', 'error');
+  if (password.length < 8)  return showMessage('signup', 'Password must be at least 8 characters.', 'error');
+
+  setLoading('signup-submit', true, 'Create my account');
+  try {
+    const { data, error: authError } = await sb.auth.signUp({
+      email, password,
+      options: { data: { full_name: name, location, user_role: role, organization: org || null, account_type: currentAccountType } }
+    });
+    if (authError) throw authError;
+
+    // Email confirmation is required — show confirmation screen
+    document.getElementById('signup-form-body').style.display = 'none';
+    showMessage('signup',
+      '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg> <strong>Check your inbox!</strong><br>' +
+      'We sent a confirmation link to <strong>' + email + '</strong>.<br>' +
+      'Click the link to activate your account, then sign in.' +
+      '<br><br><span style="font-size:12px;color:var(--ink-soft)">Didn\'t receive it? Check your spam folder or ' +
+      '<a href="#" onclick="resendConfirm(\'' + email + '\')" style="color:var(--teal)">resend</a>.</span>',
+      'success'
+    );
+    window._lastSignupEmail = email;
+  } catch (err) {
+    showMessage('signup', friendlyError(err.message), 'error');
+  } finally {
+    setLoading('signup-submit', false, 'Create my account');
+  }
+}
+
+async function resendConfirm(email) {
+  try {
+    await sb.auth.resend({ type: 'signup', email });
+    showMessage('signup', '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg> Confirmation email resent to <strong>' + email + '</strong>!', 'success');
+  } catch (err) {
+    showMessage('signup', 'Could not resend: ' + err.message, 'error');
+  }
+}
+
+// ─── LOGIN ───────────────────────────────────────────────────────
+async function handleLogin() {
+  clearMessage('login');
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!isValidEmail(email)) return showMessage('login', 'Please enter a valid email address.', 'error');
+  if (!password)            return showMessage('login', 'Please enter your password.', 'error');
+  setLoading('login-submit', true, 'Sign in');
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    localStorage.setItem('uncharted_token', data.session.access_token);
+    localStorage.setItem('uncharted_user', JSON.stringify(data.user));
+    showMessage('login', '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Signed in! Redirecting…', 'success');
+    const accountType = data.user?.user_metadata?.account_type;
+    setTimeout(() => {
+      window.location.href = accountType === 'organization' ? '/org-dashboard.html' : '/dashboard.html';
+    }, 700);
+  } catch (err) {
+    showMessage('login', friendlyError(err.message), 'error');
+    setLoading('login-submit', false, 'Sign in');
+  }
+}
+
+// ─── FORGOT PASSWORD ─────────────────────────────────────────────
+async function handleForgot() {
+  clearMessage('forgot');
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!isValidEmail(email)) return showMessage('forgot', 'Please enter a valid email address.', 'error');
+  setLoading('forgot-submit', true, 'Send reset link');
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/?type=recovery'
+    });
+    if (error) throw error;
+    showMessage('forgot', '📧 <strong>Check your inbox!</strong><br>We sent a password reset link to ' + email, 'success');
+  } catch (err) {
+    showMessage('forgot', friendlyError(err.message), 'error');
+  } finally {
+    setLoading('forgot-submit', false, 'Send reset link');
+  }
+}
+
+// ─── SET NEW PASSWORD ────────────────────────────────────────────
+async function handleReset() {
+  clearMessage('reset');
+  const password = document.getElementById('reset-password').value;
+  if (password.length < 8) return showMessage('reset', 'Password must be at least 8 characters.', 'error');
+  setLoading('reset-submit', true, 'Update password');
+  try {
+    const { error } = await sb.auth.updateUser({ password });
+    if (error) throw error;
+    showMessage('reset', '✓ Password updated successfully! Redirecting...', 'success');
+    setTimeout(() => {
+      window.location.hash = '';
+      window.location.search = '';
+      window.location.reload();
+    }, 1500);
+  } catch (err) {
+    showMessage('reset', friendlyError(err.message), 'error');
+    setLoading('reset-submit', false, 'Update password');
+  }
+}
+
+// ─── AUTO-REDIRECT / RECOVERY STATE ────────────────────────────
+(async () => {
+  // Check if this is a password recovery flow
+  const hash = window.location.hash;
+  const search = window.location.search;
+  if (hash.includes('type=recovery') || search.includes('type=recovery')) {
+    openModal('reset');
+    return; // Stop here so we don't auto-redirect while they are resetting password
+  }
+
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    localStorage.setItem('uncharted_token', session.access_token);
+    localStorage.setItem('uncharted_user', JSON.stringify(session.user));
+    const actions = document.getElementById('nav-actions');
+    const accountType = session.user?.user_metadata?.account_type;
+    const dest = accountType === 'organization' ? '/org-dashboard.html' : '/dashboard.html';
+    if (actions) actions.innerHTML = `<a href="${dest}" class="btn btn-primary">My Dashboard →</a>`;
+  }
+})();
+
+// ─── NAV SCROLL EFFECT ────────────────────────────────────────────
+window.addEventListener('scroll', () => {
+  document.getElementById('main-nav').classList.toggle('scrolled', window.scrollY > 20);
+});
+
+// ─── LIVE COUNTER ─────────────────────────────────────────────────
+async function loadCounter() {
+  try {
+    const data = await api('/ideas?count=true');
+    document.getElementById('cnt-ideas').textContent = (data.total_ideas || 0).toLocaleString();
+    document.getElementById('cnt-countries').textContent = (data.countries || 0).toLocaleString();
+    document.getElementById('cnt-orgs').textContent = (data.organizations || 0).toLocaleString();
+  } catch {
+    document.getElementById('cnt-ideas').textContent = '—';
+    document.getElementById('cnt-countries').textContent = '—';
+    document.getElementById('cnt-orgs').textContent = '—';
+  } finally {
+    document.getElementById('live-counter').style.opacity = '1';
+  }
+}
+
+// ─── INDUSTRY BADGE COLOR ─────────────────────────────────────────
+function industryClass(industry) {
+  if (!industry) return 'badge-teal';
+  const map = {
+    'sustainability':'badge-sage','environment':'badge-sage','agriculture':'badge-sage',
+    'health':'badge-rose','medical':'badge-rose','healthcare':'badge-rose',
+    'education':'badge-amber','tech':'badge-teal','technology':'badge-teal',
+    'ai':'badge-lavender','finance':'badge-amber','energy':'badge-amber',
+    'transportation':'badge-lavender','manufacturing':'badge-ink'
+  };
+  const lc = industry.toLowerCase();
+  for (const [k, v] of Object.entries(map)) { if (lc.includes(k)) return v; }
+  return 'badge-teal';
+}
+
+// ─── FEATURED CARD RENDERER ──────────────────────────────────────
+function renderFeaturedCard(idea) {
+  const role     = idea.creator_role     ? escHtml(idea.creator_role) : '';
+  const country  = idea.creator_location ? escHtml(idea.creator_location) : '';
+  const meta     = [role, country].filter(Boolean).join(' • ');
+  return `
+    <a class="fi-card" href="/idea.html?id=${idea.id}">
+      <div class="fi-badge"><span class="badge ${industryClass(idea.industry)}">${escHtml(idea.industry || 'Innovation')}</span></div>
+      <div class="fi-title">${escHtml(idea.title)}</div>
+      ${ meta ? `<div class="fi-meta">${meta}</div>` : '' }
+    </a>`;
+}
+
+// ─── FEATURED SECTION LOADER ─────────────────────────────────────
+async function loadFeaturedSection(gridId, fileType) {
+  const grid = document.getElementById(gridId);
+  try {
+    const data = await api('/ideas?limit=4&sort=newest&file_type=' + fileType);
+    const ideas = data.data || data.ideas || data || [];
+    if (!ideas.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-soft);padding:32px 0;font-size:14px">No ' + fileType + 's shared yet — <a href="#" class="btn btn-teal btn-sm" onclick="handleShare()">+ New Idea</a></div>';
+      return;
+    }
+    grid.innerHTML = ideas.slice(0, 4).map(renderFeaturedCard).join('');
+  } catch {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink-soft);padding:32px 0;font-size:14px">Could not load ideas.</div>';
+  }
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+loadCounter();
+Promise.all([
+  loadFeaturedSection('featured-videos',        'video'),
+  loadFeaturedSection('featured-reports',       'report'),
+  loadFeaturedSection('featured-presentations', 'presentation'),
+]);
+</script>
+</body>
+</html>

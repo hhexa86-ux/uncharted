@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Uncharted — Dashboard Coming Soon</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+<!-- ➜ PASTE YOUR SUPABASE CDN HERE (same as index.html) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --pearl:    #FAF8F5;
+    --sage:     #E8F0E9;
+    --ink:      #1C1C2E;
+    --ink-soft: #4A4A60;
+    --teal:     #5B8FA8;
+    --teal-lt:  #D4E6F0;
+    --border:   #E0DDD8;
+  }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--pearl);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.5px;
+    margin-bottom: 48px;
+    color: var(--ink);
+  }
+  .logo span { color: var(--teal); font-style: italic; }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(28px, 5vw, 42px);
+    letter-spacing: -1px;
+    margin-bottom: 16px;
+  }
+  h1 em { font-style: italic; color: var(--teal); }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-weight: 300;
+    line-height: 1.65;
+    max-width: 340px;
+    margin: 0 auto 40px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--teal-lt);
+    color: var(--teal);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 50px;
+    margin-bottom: 40px;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    background: var(--teal);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 48px;
+    max-width: 420px;
+    width: 100%;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(28,28,46,0.05);
+  }
+  .card-icon { font-size: 40px; margin-bottom: 16px; }
+  .card h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+  }
+  .card p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .btn-logout {
+    background: var(--ink);
+    color: var(--pearl);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 11px 28px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { background: var(--teal); transform: translateY(-1px); }
+  .btn-logout:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .user-email {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 300;
+    margin-bottom: 20px;
+  }
+  .user-email strong { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<div class="logo">un<span>charted</span></div>
+
+<div class="badge">
+  <span class="badge-dot"></span>
+  You're in
+</div>
+
+<h1>Welcome to <em>Uncharted.</em></h1>
+<p class="subtitle">You've successfully signed in. Your space to share ideas is almost ready.</p>
+
+<div class="card">
+  <div class="card-icon">🚀</div>
+  <h2>Dashboard coming soon.</h2>
+  <p>We're building the place where you'll upload your projects, track who's discovered your ideas, and connect with the people who believe in them.</p>
+</div>
+
+<p class="user-email" id="user-info">Signed in as <strong id="user-email-display">—</strong></p>
+
+<button class="btn-logout" id="logout-btn" onclick="handleLogout()">Log out</button>
+
+<script>
+  // ─────────────────────────────────────────────────────────────────
+  // ➜ PASTE YOUR SUPABASE PROJECT URL AND PUBLISHABLE KEY HERE
+  //   (must match the values in index.html)
+  // ─────────────────────────────────────────────────────────────────
+  const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co'
+  const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA'
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Show the signed-in user's email
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      // Not authenticated — send back to landing page
+      window.location.href = 'index.html';
+      return;
+    }
+    const emailEl = document.getElementById('user-email-display');
+    if (emailEl) emailEl.textContent = session.user.email;
+  })();
+
+  // Logout handler
+  async function handleLogout() {
+    const btn = document.getElementById('logout-btn');
+    btn.disabled = true;
+    btn.textContent = 'Signing out…';
+    await sb.auth.signOut();
+    window.location.href = 'index.html';
+  }
+</script>
+</body>
+</html>

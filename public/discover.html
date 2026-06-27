@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Discover Innovations — Uncharted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+body { background:var(--pearl); padding-top:70px; }
+
+/* NAV */
+.disc-nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 40px; background:rgba(250,248,245,.95);
+  backdrop-filter:blur(14px); border-bottom:1px solid var(--border);
+}
+.nav-logo { font-family:'Fraunces',serif; font-weight:600; font-size:20px; color:var(--ink); text-decoration:none; }
+.nav-logo span { color:var(--teal); font-style:italic; }
+.nav-links-disc { display:flex; gap:24px; align-items:center; }
+.nav-link-d { font-size:14px; color:var(--ink-soft); text-decoration:none; transition:color .15s; }
+.nav-link-d:hover, .nav-link-d.active { color:var(--teal); }
+
+/* HERO */
+.disc-hero {
+  background:linear-gradient(to bottom,var(--sage),var(--pearl));
+  padding:52px 48px 44px;
+  text-align:center;
+}
+.disc-hero h1 { font-family:'Fraunces',serif; font-size:clamp(28px,4vw,44px); font-weight:400; letter-spacing:-1px; margin-bottom:10px; }
+.disc-hero p { font-size:15px; color:var(--ink-soft); font-weight:300; margin-bottom:28px; }
+
+/* Search bar */
+.search-bar-outer { max-width:640px; margin:0 auto; position:relative; }
+.search-bar { display:flex; align-items:center; background:white; border:1.5px solid var(--border); border-radius:50px; padding:6px 8px 6px 20px; transition:border-color .15s,box-shadow .15s; gap:8px; box-shadow:var(--shadow-sm); }
+.search-bar:focus-within { border-color:var(--teal); box-shadow:0 0 0 3px rgba(91,143,168,.12); }
+.search-bar input { flex:1; border:none; outline:none; font-size:15px; color:var(--ink); background:transparent; }
+.search-bar input::placeholder { color:#C0BDBA; }
+.search-bar-btn { background:var(--ink); color:white; border:none; padding:10px 22px; border-radius:50px; font-size:14px; font-weight:500; cursor:pointer; transition:all .2s; white-space:nowrap; }
+.search-bar-btn:hover { background:var(--teal); }
+.results-count { font-size:13px; color:var(--ink-soft); text-align:center; margin-top:12px; font-weight:300; min-height:20px; }
+
+/* MAIN LAYOUT */
+.disc-layout { max-width:1300px; margin:0 auto; padding:32px 40px 80px; display:grid; grid-template-columns:260px 1fr; gap:28px; align-items:start; }
+
+/* FILTER SIDEBAR */
+.filter-sidebar { position:sticky; top:88px; }
+.filter-card { background:white; border:1px solid var(--border); border-radius:20px; padding:20px; }
+.filter-title { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); margin-bottom:14px; display:flex; justify-content:space-between; align-items:center; }
+.filter-clear { font-size:12px; color:var(--ink-soft); cursor:pointer; font-weight:400; text-transform:none; letter-spacing:0; }
+.filter-clear:hover { color:var(--error); }
+.filter-section { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.filter-section:last-child { border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.filter-section-label { font-size:11px; font-weight:600; color:var(--ink-soft); letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px; display:block; }
+
+/* Checkbox filter */
+.filter-check { display:flex; align-items:center; gap:8px; padding:5px 0; cursor:pointer; }
+.filter-check input[type=checkbox] { width:15px; height:15px; accent-color:var(--teal); cursor:pointer; }
+.filter-check span { font-size:13px; color:var(--ink-soft); }
+.filter-check:hover span { color:var(--ink); }
+
+/* Dropdown filter */
+.filter-select { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:13px; color:var(--ink); background:white; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234A4A60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; cursor:pointer; outline:none; }
+.filter-select:focus { border-color:var(--teal); }
+
+/* Country input */
+.filter-input { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:13px; color:var(--ink); background:white; outline:none; }
+.filter-input:focus { border-color:var(--teal); }
+.filter-input::placeholder { color:#C0BDBA; }
+
+/* RESULTS */
+.results-area { display:flex; flex-direction:column; gap:20px; }
+
+.results-header { display:flex; align-items:center; justify-content:space-between; }
+.sort-row { display:flex; align-items:center; gap:10px; }
+.sort-select { padding:8px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:13px; color:var(--ink); background:white; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234A4A60' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 10px center; outline:none; cursor:pointer; }
+
+.ideas-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+
+/* Idea card */
+.disc-card {
+  background:white; border:1px solid var(--border); border-radius:18px;
+  padding:20px; cursor:pointer; transition:all .2s; text-decoration:none;
+  color:inherit; display:flex; flex-direction:column; gap:10px;
+}
+.disc-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(28,28,46,.09); border-color:var(--teal-lt); }
+.dc-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+.dc-badges { display:flex; gap:5px; flex-wrap:wrap; }
+.dc-title { font-family:'Fraunces',serif; font-size:16px; font-weight:400; color:var(--ink); line-height:1.35; }
+.dc-desc { font-size:13px; color:var(--ink-soft); line-height:1.6; font-weight:300; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.dc-creator { display:flex; align-items:center; gap:8px; margin-top:2px; }
+.dc-avatar { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,var(--lavender),var(--teal-lt)); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600; color:var(--teal); flex-shrink:0; }
+.dc-creator-info { font-size:12px; color:var(--ink-soft); }
+.dc-bottom { display:flex; align-items:center; justify-content:space-between; margin-top:4px; }
+.dc-stats { display:flex; gap:12px; font-size:12px; color:#8A8A9A; }
+.dc-files { display:flex; gap:4px; flex-wrap:wrap; }
+.dc-cta { font-size:12px; color:var(--teal); font-weight:500; white-space:nowrap; }
+
+/* Pagination */
+.pagination { display:flex; justify-content:center; align-items:center; gap:6px; margin-top:32px; }
+.page-btn { min-width:36px; height:36px; padding:0 12px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; color:var(--ink-soft); background:white; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:all .15s; }
+.page-btn:hover { border-color:var(--teal); color:var(--teal); }
+.page-btn.active { background:var(--teal); color:white; border-color:var(--teal); }
+.page-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* No results */
+.no-results { text-align:center; padding:60px 24px; }
+.no-results-icon { font-size:52px; margin-bottom:16px; opacity:.5; }
+.no-results-title { font-family:'Fraunces',serif; font-size:22px; font-weight:400; margin-bottom:8px; }
+.no-results-desc { font-size:14px; color:var(--ink-soft); font-weight:300; line-height:1.6; max-width:320px; margin:0 auto; }
+
+/* Skeleton cards */
+.skel-disc-card { height:220px; border-radius:18px; }
+
+/* RESPONSIVE */
+@media(max-width:1000px){ .disc-layout{grid-template-columns:220px 1fr;padding:24px 24px 60px} }
+@media(max-width:768px){
+  .disc-layout{grid-template-columns:1fr;padding:20px 16px 60px}
+  .disc-hero{padding:40px 20px 36px}
+  .filter-sidebar{position:static}
+  .ideas-grid{grid-template-columns:1fr}
+  .disc-nav{padding:12px 20px}
+  .nav-links-disc{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="disc-nav" id="main-nav">
+  <a href="/public/index.html" class="nav-logo">un<span>charted</span></a>
+  <div class="nav-links-disc">
+    <a href="/public/discover.html" class="nav-link-d active">Discover</a>
+    <a href="/public/index.html#how" class="nav-link-d">How it Works</a>
+    <a href="/public/index.html#user-types" class="nav-link-d">For Organizations</a>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center" id="nav-actions">
+    <button class="btn btn-ghost btn-sm" onclick="openLogin()">Log in</button>
+    <a href="/public/index.html" class="btn btn-primary btn-sm">Get started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="disc-hero">
+  <div class="section-label" style="justify-content:center;display:flex">Innovation Discovery</div>
+  <h1>Discover <em style="font-style:italic;color:var(--teal)">breakthrough</em> innovations</h1>
+  <p>Search thousands of ideas from innovators around the world</p>
+  <div class="search-bar-outer">
+    <div class="search-bar">
+      <span style="font-size:18px;color:#8A8A9A">🔍</span>
+      <input type="text" id="hero-search" placeholder="Search ideas, technologies, problems…" onkeydown="if(event.key==='Enter')applyHeroSearch()"/>
+      <button class="search-bar-btn" onclick="applyHeroSearch()">Search</button>
+    </div>
+    <div class="results-count" id="results-count"></div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<div class="disc-layout">
+
+  <!-- FILTER SIDEBAR -->
+  <aside class="filter-sidebar">
+    <div class="filter-card">
+      <div class="filter-title">
+        Filters
+        <span class="filter-clear" onclick="clearFilters()">Clear all</span>
+      </div>
+
+      <!-- Industry -->
+      <div class="filter-section">
+        <span class="filter-section-label">Industry</span>
+        <select class="filter-select" id="filter-industry" onchange="debouncedFetch()">
+          <option value="">All Industries</option>
+        </select>
+      </div>
+
+      <!-- Development Stage -->
+      <div class="filter-section">
+        <span class="filter-section-label">Development Stage</span>
+        <label class="filter-check"><input type="checkbox" value="Concept Idea" onchange="debouncedFetch()"/><span>Concept Idea</span></label>
+        <label class="filter-check"><input type="checkbox" value="Working Prototype" onchange="debouncedFetch()"/><span>Working Prototype</span></label>
+        <label class="filter-check"><input type="checkbox" value="MVP" onchange="debouncedFetch()"/><span>MVP</span></label>
+        <label class="filter-check"><input type="checkbox" value="Scaling" onchange="debouncedFetch()"/><span>Scaling</span></label>
+        <label class="filter-check"><input type="checkbox" value="Market Ready" onchange="debouncedFetch()"/><span>Market Ready</span></label>
+      </div>
+
+      <!-- Patent -->
+      <div class="filter-section">
+        <span class="filter-section-label">Patent Status</span>
+        <label class="filter-check"><input type="checkbox" value="No Patent" onchange="debouncedFetch()"/><span>No Patent</span></label>
+        <label class="filter-check"><input type="checkbox" value="Patent Pending" onchange="debouncedFetch()"/><span>Patent Pending</span></label>
+        <label class="filter-check"><input type="checkbox" value="Patent Granted" onchange="debouncedFetch()"/><span>Patent Granted</span></label>
+      </div>
+
+      <!-- Country -->
+      <div class="filter-section">
+        <span class="filter-section-label">Country</span>
+        <input class="filter-input" type="text" id="filter-country" placeholder="e.g. Nigeria, India…" oninput="debouncedFetch()"/>
+      </div>
+
+      <!-- Date Range -->
+      <div class="filter-section">
+        <span class="filter-section-label">Date Range</span>
+        <select class="filter-select" id="filter-date" onchange="debouncedFetch()">
+          <option value="">Any time</option>
+          <option value="week">Past week</option>
+          <option value="month">Past month</option>
+          <option value="year">Past year</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RESULTS -->
+  <div class="results-area">
+    <div class="results-header">
+      <div id="results-label" style="font-size:14px;color:var(--ink-soft);font-weight:300">Showing results…</div>
+      <div class="sort-row">
+        <span style="font-size:13px;color:var(--ink-soft)">Sort by</span>
+        <select class="sort-select" id="filter-sort" onchange="debouncedFetch()">
+          <option value="newest">Newest</option>
+          <option value="most_viewed">Most viewed</option>
+          <option value="most_bookmarked">Most bookmarked</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="ideas-grid" id="ideas-grid">
+      <!-- Skeleton loaders -->
+      <div class="skeleton skel-disc-card"></div>
+      <div class="skeleton skel-disc-card"></div>
+      <div class="skeleton skel-disc-card"></div>
+      <div class="skeleton skel-disc-card"></div>
+      <div class="skeleton skel-disc-card"></div>
+      <div class="skeleton skel-disc-card"></div>
+    </div>
+
+    <div class="pagination" id="pagination" style="display:none"></div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL (lightweight) -->
+<div class="modal-overlay" id="modal-login" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modal-login').classList.remove('active')">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title">Sign in</h2>
+    <p class="modal-subtitle">Sign in to bookmark ideas and contact innovators.</p>
+    <div id="login-msg" class="auth-message"></div>
+    <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"/></div>
+    <div class="field"><label>Password</label><input id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+    <button class="modal-submit" id="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="modal-switch"><a href="/public/index.html" onclick="document.getElementById('modal-login').classList.remove('active')">Create an account on the homepage →</a></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ─── SUPABASE ─────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentPage = 1;
+const PAGE_SIZE = 12;
+let totalIdeas = 0;
+let debounceTimer = null;
+
+// ─── API ─────────────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const t = localStorage.getItem('uncharted_token');
+  const res = await fetch('/api' + path, {
+    ...options,
+    headers: { 'Content-Type':'application/json', ...(t?{'Authorization':'Bearer '+t}:{}), ...(options.headers||{}) }
+  });
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+function showToast(message, type='success') {
+  const icons = {success:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',error:'✕',info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',warning:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'};
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]||'•'}</span><span>${message}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),300); },3500);
+}
+
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function industryClass(industry) {
+  if(!industry) return 'badge-teal';
+  const map={'sustainability':'badge-sage','agriculture':'badge-sage','health':'badge-rose','medical':'badge-rose','education':'badge-amber','tech':'badge-teal','technology':'badge-teal','ai':'badge-lavender','finance':'badge-amber','energy':'badge-amber'};
+  const lc = industry.toLowerCase();
+  for(const[k,v] of Object.entries(map)){ if(lc.includes(k)) return v; }
+  return 'badge-teal';
+}
+
+function stageClass(stage) {
+  if(!stage) return 'badge-teal';
+  const map={'concept':'badge-concept','prototype':'badge-prototype','mvp':'badge-mvp','scaling':'badge-scaling','market':'badge-market'};
+  for(const[k,v] of Object.entries(map)){if(stage.toLowerCase().includes(k))return v;}
+  return 'badge-teal';
+}
+
+// ─── BUILD QUERY ─────────────────────────────────────────────────
+function buildQuery(page) {
+  const params = new URLSearchParams();
+  params.set('page', page);
+  params.set('limit', PAGE_SIZE);
+
+  const search = document.getElementById('hero-search').value.trim();
+  if (search) params.set('q', search);
+
+  const industry = document.getElementById('filter-industry').value;
+  if (industry) params.set('industry', industry);
+
+  const stages = [...document.querySelectorAll('.filter-check input[type=checkbox]:checked')].filter(c=>['Concept Idea','Working Prototype','MVP','Scaling','Market Ready'].includes(c.value)).map(c=>c.value);
+  if (stages.length) params.set('stage', stages.join(','));
+
+  const patents = [...document.querySelectorAll('.filter-check input[type=checkbox]:checked')].filter(c=>['No Patent','Patent Pending','Patent Granted'].includes(c.value)).map(c=>c.value);
+  if (patents.length) params.set('patent', patents.join(','));
+
+  const country = document.getElementById('filter-country').value.trim();
+  if (country) params.set('country', country);
+
+  const date = document.getElementById('filter-date').value;
+  if (date) params.set('date_range', date);
+
+  const sort = document.getElementById('filter-sort').value;
+  if (sort) params.set('sort', sort);
+
+  return params.toString();
+}
+
+// ─── FETCH IDEAS ─────────────────────────────────────────────────
+async function fetchIdeas(page = 1) {
+  currentPage = page;
+  const grid = document.getElementById('ideas-grid');
+  grid.innerHTML = Array(6).fill('<div class="skeleton skel-disc-card"></div>').join('');
+  document.getElementById('pagination').style.display = 'none';
+  document.getElementById('results-count').textContent = '';
+
+  try {
+    const query = buildQuery(page);
+    const data = await api('/ideas?' + query);
+    const ideas = data.ideas || data || [];
+    totalIdeas = data.total || data.count || ideas.length;
+    const total = Number(totalIdeas || 0);
+    const totalPages = Math.ceil(total / PAGE_SIZE);
+
+document.getElementById('results-label').textContent =
+`${total.toLocaleString()} idea${total!==1?'s':''} found`;
+
+document.getElementById('results-count').textContent =
+total > 0 ? total.toLocaleString() + ' results' : '';
+
+    if (!ideas.length) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1">
+          <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <div class="no-results-title">No ideas found</div>
+            <div class="no-results-desc">Try adjusting your filters or search terms. Great ideas are being added every day.</div>
+            <button class="btn btn-ghost" onclick="clearFilters()" style="margin-top:16px">Clear filters</button>
+          </div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = ideas.map(idea => {
+      const initials = (idea.creator_name||'U').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+      const fileBadges = [
+        idea.video_url?'<span class="file-badge file-badge-video"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"></path><rect x="2" y="6" width="14" height="12" rx="2" ry="2"></rect></svg> Video</span>':'',
+        idea.report_url?'<span class="file-badge file-badge-pdf"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> PDF</span>':'',
+        idea.presentation_url?'<span class="file-badge file-badge-ppt"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg> PPT</span>':'',
+        (idea.images?.length)?'<span class="file-badge file-badge-img"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Img</span>':''
+      ].filter(Boolean).join('');
+      return `
+      <a class="disc-card" href="/public/idea.html?id=${idea.id}">
+        <div class="dc-top">
+          <div class="dc-badges">
+            <span class="badge ${industryClass(idea.industry)}">${escHtml(idea.industry||'Innovation')}</span>
+            ${idea.development_stage?`<span class="badge ${stageClass(idea.development_stage)}">${escHtml(idea.development_stage)}</span>`:''}
+          </div>
+        </div>
+        <div class="dc-title">${escHtml(idea.title)}</div>
+        <div class="dc-desc">${escHtml(idea.short_description||idea.description||'')}</div>
+        <div class="dc-creator">
+          <div class="dc-avatar">${initials}</div>
+          <div class="dc-creator-info">
+            <strong style="color:var(--ink);font-weight:500;font-size:12px">${escHtml(idea.creator_name||'Innovator')}</strong>
+            ${idea.creator_role?`<span style="color:var(--ink-soft)"> · ${escHtml(idea.creator_role)}</span>`:''}
+            ${idea.creator_location?`<span style="color:#8A8A9A"> · ${escHtml(idea.creator_location)}</span>`:''}
+          </div>
+        </div>
+        <div class="dc-bottom">
+          <div class="dc-files">${fileBadges}</div>
+          <div class="dc-stats"><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${(idea.view_count||0).toLocaleString()}</span><span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg> ${(idea.bookmark_count||0).toLocaleString()}</span></div>
+        </div>
+        <div style="font-size:12px;color:var(--teal);font-weight:500">View Idea →</div>
+      </a>`;
+    }).join('');
+
+    // Pagination
+    if (totalPages > 1) {
+      renderPagination(page, totalPages);
+    }
+
+  } catch(err) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--ink-soft)">Error loading ideas: ${escHtml(err.message)}</div>`;
+  }
+}
+
+// ─── PAGINATION ───────────────────────────────────────────────────
+function renderPagination(current, total) {
+  const pag = document.getElementById('pagination');
+  pag.style.display = 'flex';
+  let html = `<button class="page-btn" ${current===1?'disabled':''} onclick="fetchIdeas(${current-1})">← Prev</button>`;
+
+  const start = Math.max(1, current-2);
+  const end   = Math.min(total, current+2);
+  if (start > 1) html += `<button class="page-btn" onclick="fetchIdeas(1)">1</button>${start>2?'<span style="color:#8A8A9A;padding:0 4px">…</span>':''}`;
+  for (let i=start; i<=end; i++) html += `<button class="page-btn ${i===current?'active':''}" onclick="fetchIdeas(${i})">${i}</button>`;
+  if (end < total) html += `${end<total-1?'<span style="color:#8A8A9A;padding:0 4px">…</span>':''}<button class="page-btn" onclick="fetchIdeas(${total})">${total}</button>`;
+
+  html += `<button class="page-btn" ${current===total?'disabled':''} onclick="fetchIdeas(${current+1})">Next →</button>`;
+  pag.innerHTML = html;
+}
+
+// ─── DEBOUNCE ─────────────────────────────────────────────────────
+function debouncedFetch() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(()=>fetchIdeas(1), 400);
+}
+
+function applyHeroSearch() { fetchIdeas(1); }
+
+// ─── CLEAR FILTERS ────────────────────────────────────────────────
+function clearFilters() {
+  document.getElementById('hero-search').value = '';
+  document.getElementById('filter-industry').value = '';
+  document.getElementById('filter-country').value = '';
+  document.getElementById('filter-date').value = '';
+  document.getElementById('filter-sort').value = 'newest';
+  document.querySelectorAll('.filter-check input[type=checkbox]').forEach(c=>c.checked=false);
+  fetchIdeas(1);
+}
+
+// ─── LOAD INDUSTRIES ─────────────────────────────────────────────
+async function loadIndustries() {
+  const sel = document.getElementById('filter-industry');
+  try {
+    const data = await api('/search/industries');
+    const industries = data.industries || data || [];
+    industries.forEach(ind => {
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = ind.name || ind;
+      sel.appendChild(opt);
+    });
+  } catch {
+    ['Agriculture','CleanTech','Education','Energy','Finance','Health Tech','Manufacturing','Sustainability','Technology','Transportation'].forEach(ind=>{
+      const opt = document.createElement('option');
+      opt.value = opt.textContent = ind;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+// ─── LOGIN ────────────────────────────────────────────────────────
+function openLogin() { document.getElementById('modal-login').classList.add('active'); }
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const msgEl = document.getElementById('login-msg');
+  const btn = document.getElementById('login-btn');
+  btn.disabled=true; btn.textContent='Signing in…'; msgEl.className='auth-message';
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    localStorage.setItem('uncharted_token', data.session.access_token);
+    localStorage.setItem('uncharted_user', JSON.stringify(data.user));
+    msgEl.textContent='<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Signed in!'; msgEl.className='auth-message success';
+    setTimeout(()=>{ document.getElementById('modal-login').classList.remove('active'); updateNavForAuth(data.user); },600);
+  } catch(err) {
+    msgEl.textContent=err.message||'Login failed'; msgEl.className='auth-message error';
+    btn.disabled=false; btn.textContent='Sign in';
+  }
+}
+
+function updateNavForAuth(user) {
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0]||'Dashboard';
+  const accountType = user?.user_metadata?.account_type;
+  const dest = accountType==='organization'?'/public/org-dashboard.html':'/public/dashboard.html';
+  document.getElementById('nav-actions').innerHTML = `<a href="${dest}" class="btn btn-primary btn-sm">${escHtml(firstName)}'s Dashboard →</a>`;
+}
+
+// ─── NAV SCROLL ──────────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('main-nav').style.boxShadow = window.scrollY>10?'0 4px 16px rgba(28,28,46,.08)':'none';
+});
+
+// ─── INIT ─────────────────────────────────────────────────────────
+(async () => {
+  // Check auth
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    localStorage.setItem('uncharted_token', session.access_token);
+    updateNavForAuth(session.user);
+  }
+
+  // Apply URL params if any
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('q')) document.getElementById('hero-search').value = urlParams.get('q');
+  if (urlParams.get('industry')) document.getElementById('filter-industry').value = urlParams.get('industry');
+
+  await loadIndustries();
+  await fetchIdeas(1);
+})();
+</script>
+</body>
+</html>
+
