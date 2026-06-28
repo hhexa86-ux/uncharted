@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Uncharted — Organization Dashboard</title>
-<meta name="description" content="Discover and save breakthrough innovations on Uncharted."/>
+<title>Uncharted — Innovation Discovery</title>
+<meta name="description" content="Discover breakthrough innovations on Uncharted."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/shared.css"/>
@@ -18,24 +18,66 @@ body{background:var(--pearl);min-height:100vh;}
 .nav-org-name{font-size:13px;color:var(--ink-soft);font-weight:300;}
 .nav-org-name strong{color:var(--ink);font-weight:500;}
 
-.page-wrap{max-width:1200px;margin:0 auto;padding:104px 48px 80px;display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:start;}
+.page-wrap{max-width:1200px;margin:0 auto;padding:104px 48px 80px;display:grid;grid-template-columns:224px 1fr;gap:24px;align-items:start;}
 
 /* SIDEBAR */
-.sidebar{position:sticky;top:96px;display:flex;flex-direction:column;gap:16px;}
-.org-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:28px 24px;box-shadow:0 2px 16px rgba(28,28,46,.04);}
-.org-avatar{width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,var(--lavender),var(--teal-lt));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:28px;color:var(--teal);margin-bottom:16px;}
-.org-name{font-family:'Fraunces',serif;font-weight:400;font-size:20px;letter-spacing:-.3px;margin-bottom:4px;}
-.org-meta{font-size:13px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5;}
-.org-type-badge{display:inline-block;background:var(--lavender);color:var(--ink-soft);font-size:11px;font-weight:500;padding:3px 10px;border-radius:50px;margin-bottom:12px;}
-.sidebar-divider{height:1px;background:var(--border);margin:12px 0;}
-.sidebar-nav{display:flex;flex-direction:column;gap:4px;}
-.sidebar-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
+.sidebar{position:sticky;top:96px;display:flex;flex-direction:column;gap:12px;}
+.org-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 16px rgba(28,28,46,.04);}
+.org-avatar{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--lavender),var(--teal-lt));display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:22px;color:var(--teal);margin-bottom:12px;}
+.org-name{font-family:'Fraunces',serif;font-weight:500;font-size:16px;letter-spacing:-.2px;margin-bottom:2px;}
+.org-meta{font-size:12px;color:var(--ink-soft);margin-bottom:12px;line-height:1.4;}
+.org-type-badge{display:inline-block;background:var(--lavender);color:var(--ink-soft);font-size:10px;font-weight:600;padding:2px 8px;border-radius:50px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.02em;}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 0;}
+.sidebar-nav{display:flex;flex-direction:column;gap:2px;}
+.sidebar-link{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;color:var(--ink-soft);text-decoration:none;transition:all .15s;cursor:pointer;border:none;background:none;width:100%;text-align:left;}
 .sidebar-link:hover{background:var(--sage);color:var(--teal);}
 .sidebar-link.active{background:var(--teal-lt);color:var(--teal);font-weight:500;}
-.sidebar-link-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-link-icon{font-size:14px;width:18px;text-align:center;}
 
 /* MAIN */
-.main-col{display:flex;flex-direction:column;gap:28px;}
+.main-col{display:flex;flex-direction:column;gap:24px;}
+
+/* HERO SEARCH SECTION */
+.discovery-hero{background:linear-gradient(135deg,var(--ink) 0%,#2a2a3e 100%);border-radius:20px;padding:28px 32px;color:#fff;box-shadow:0 8px 40px rgba(28,28,46,.15);}
+.discovery-hero h1{font-family:'Fraunces',serif;font-weight:500;font-size:28px;letter-spacing:-.5px;margin-bottom:4px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.2);}
+.discovery-hero p{font-size:14px;color:rgba(255,255,255,.8);margin-bottom:20px;max-width:400px;}
+.search-filters-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-items:end;}
+.filter-group{display:flex;flex-direction:column;gap:4px;}
+.filter-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.7);}
+.filter-input{padding:10px 12px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:all .2s;}
+.filter-input::placeholder{color:rgba(255,255,255,.5);}
+.filter-input:focus{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.18);}
+.filter-input option{background:var(--ink);color:#fff;}
+.search-btn-primary{background:var(--teal);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;height:40px;white-space:nowrap;grid-column:1/-1;margin-top:8px;}
+.search-btn-primary:hover{background:#4A7A94;transform:translateY(-1px);box-shadow:0 4px 12px rgba(74,122,148,.3);}
+
+/* SECTION HEADERS */
+.discovery-section-header{display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-bottom:16px;}
+.discovery-section-title{font-family:'Fraunces',serif;font-weight:500;font-size:20px;letter-spacing:-.3px;color:var(--ink);}
+.discovery-section-subtitle{font-size:13px;color:var(--ink-soft);font-weight:400;}
+.discovery-section-link{font-size:13px;color:var(--teal);text-decoration:none;font-weight:500;align-self:flex-end;}
+.discovery-section-link:hover{text-decoration:underline;}
+
+/* NEW INNOVATION CARDS */
+.discovery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.innovation-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;transition:all .2s;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:12px;}
+.innovation-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(28,28,46,.1);border-color:var(--teal);}
+.innovation-header{display:flex;flex-direction:column;gap:6px;}
+.innovation-title{font-family:'Fraunces',serif;font-weight:500;font-size:16px;letter-spacing:-.2px;line-height:1.4;color:var(--ink);}
+.innovation-meta{display:flex;flex-wrap:wrap;gap:6px;}
+.innovation-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--sage);color:#3A6A3A;text-transform:uppercase;letter-spacing:.02em;}
+.innovation-tag.stage{background:var(--teal-lt);color:var(--teal);}
+.innovation-tag.patent{background:var(--amber);color:#7A5A2A;}
+.innovation-desc{font-size:13px;color:var(--ink-soft);line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
+.innovation-footer{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--border);margin-top:auto;}
+.innovation-location{font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:4px;}
+.innovation-actions{display:flex;gap:8px;}
+.btn-view-details{background:var(--ink);color:#fff;border:none;border-radius:6px;padding:6px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-view-details:hover{background:var(--teal);}
+.btn-save{background:#fff;border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--ink);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;}
+.btn-save:hover{border-color:var(--teal);color:var(--teal);}
+.btn-save svg{width:14px;height:14px;}
+.btn-save.saved{background:var(--teal);border-color:var(--teal);color:#fff;}
 
 /* SEARCH BAR */
 .quick-search{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 24px;display:flex;gap:12px;align-items:center;box-shadow:0 2px 16px rgba(28,28,46,.04);}
@@ -45,11 +87,11 @@ body{background:var(--pearl);min-height:100vh;}
 .search-btn:hover{background:var(--teal);}
 
 /* STAT ROW */
-.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-.stat-card{background:#fff;border:1px solid var(--border);border-radius:20px;padding:24px;box-shadow:0 2px 16px rgba(28,28,46,.04);}
-.stat-icon{font-size:26px;margin-bottom:8px;display:block;}
-.stat-number{font-family:'Fraunces',serif;font-weight:300;font-size:40px;letter-spacing:-2px;line-height:1;color:var(--ink);}
-.stat-label{font-size:13px;color:var(--ink-soft);font-weight:300;margin-top:4px;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 2px 16px rgba(28,28,46,.04);}
+.stat-icon{font-size:20px;margin-bottom:6px;display:block;}
+.stat-number{font-family:'Fraunces',serif;font-weight:400;font-size:28px;letter-spacing:-1px;line-height:1;color:var(--ink);}
+.stat-label{font-size:12px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
 
 /* SECTIONS */
 .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
@@ -135,10 +177,14 @@ body{background:var(--pearl);min-height:100vh;}
   .page-wrap{grid-template-columns:1fr;padding:90px 20px 60px;}
   .sidebar{position:static;}
   .stat-row{grid-template-columns:1fr 1fr;}
-  .ideas-grid{grid-template-columns:1fr;}
+  .discovery-grid{grid-template-columns:1fr;}
+  .search-filters-grid{grid-template-columns:1fr 1fr;}
 }
 @media(max-width:480px){
   .stat-row{grid-template-columns:1fr;}
+  .discovery-hero{padding:20px 16px;}
+  .discovery-hero h1{font-size:22px;}
+  .search-filters-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -152,7 +198,7 @@ body{background:var(--pearl);min-height:100vh;}
   <a class="logo" href="/">un<span>charted</span></a>
   <div class="nav-right">
     <span class="nav-org-name">Welcome, <strong id="nav-org-name">Organization</strong></span>
-    <a href="/discover.html" class="btn-ghost" style="font-size:13px;padding:8px 18px;">Discover Ideas</a>
+    <a href="/discover.html" class="btn-ghost" style="font-size:13px;padding:8px 18px;">Innovation Discovery</a>
     <button class="btn-ghost" style="font-size:13px;padding:8px 18px;" onclick="handleLogout()" id="logout-btn">Log out</button>
   </div>
 </nav>
@@ -169,8 +215,8 @@ body{background:var(--pearl);min-height:100vh;}
       <span class="org-type-badge" id="org-type-badge">Organization</span>
       <div class="sidebar-divider"></div>
       <nav class="sidebar-nav">
-        <button class="sidebar-link active" onclick="scrollToSection('saved-ideas')">
-          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg></span> Saved Ideas
+        <button class="sidebar-link active" onclick="scrollToSection('discovery-hero')">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> Discovery
         </button>
         <button class="sidebar-link" onclick="scrollToSection('recently-viewed')">
           <span class="sidebar-link-icon">🕐</span> Recently Viewed
@@ -188,11 +234,62 @@ body{background:var(--pearl);min-height:100vh;}
   <!-- MAIN COLUMN -->
   <div class="main-col">
 
-    <!-- QUICK SEARCH -->
-    <div class="quick-search">
-      <span style="font-size:18px;">🔍</span>
-      <input type="text" id="quick-search-input" placeholder="Search innovations by keyword, industry, or technology…" onkeydown="handleSearchKey(event)"/>
-      <button class="search-btn" onclick="doSearch()">Search</button>
+    <!-- INNOVATION DISCOVERY HERO -->
+    <div class="discovery-hero" id="discovery-hero">
+      <h1>Innovation Discovery</h1>
+      <p>Search and discover breakthrough innovations from innovators around the world.</p>
+      <div class="search-filters-grid">
+        <div class="filter-group">
+          <label class="filter-label">Search</label>
+          <input type="text" class="filter-input" id="search-query" placeholder="Keyword, title, or description..."/>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Sector</label>
+          <select class="filter-input" id="filter-sector">
+            <option value="">All Sectors</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Country</label>
+          <select class="filter-input" id="filter-country">
+            <option value="">All Countries</option>
+            <option value="USA">USA</option>
+            <option value="India">India</option>
+            <option value="UK">UK</option>
+            <option value="Germany">Germany</option>
+            <option value="Canada">Canada</option>
+            <option value="Australia">Australia</option>
+            <option value="Singapore">Singapore</option>
+            <option value="Japan">Japan</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Technology</label>
+          <input type="text" class="filter-input" id="filter-technology" placeholder="e.g. AI, IoT"/>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Stage</label>
+          <select class="filter-input" id="filter-stage">
+            <option value="">All Stages</option>
+            <option value="Concept Idea">Concept Idea</option>
+            <option value="Working Prototype">Working Prototype</option>
+            <option value="MVP">MVP</option>
+            <option value="Scaling">Scaling</option>
+            <option value="Market Ready">Market Ready</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Patent</label>
+          <select class="filter-input" id="filter-patent">
+            <option value="">All</option>
+            <option value="No Patent">No Patent</option>
+            <option value="Patent Pending">Patent Pending</option>
+            <option value="Patent Granted">Patent Granted</option>
+          </select>
+        </div>
+        <button class="search-btn-primary" onclick="executeSearch()">Search Innovations</button>
+      </div>
     </div>
 
     <!-- STATS -->
@@ -214,17 +311,58 @@ body{background:var(--pearl);min-height:100vh;}
       </div>
     </div>
 
+    <!-- RECOMMENDED INNOVATIONS -->
+    <div id="recommended-section">
+      <div class="discovery-section-header">
+        <div>
+          <h2 class="discovery-section-title">Recommended Innovations</h2>
+          <p class="discovery-section-subtitle">Based on your organization profile.</p>
+        </div>
+        <a href="#" class="discovery-section-link">View all →</a>
+      </div>
+      <div class="discovery-grid" id="recommended-grid">
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+      </div>
+    </div>
+
     <!-- SAVED IDEAS -->
     <div id="saved-ideas">
-      <div class="section-header">
-        <div class="section-label">Saved Ideas</div>
-        <a href="/discover.html" class="section-link">Discover more →</a>
+      <div class="discovery-section-header">
+        <h2 class="discovery-section-title">Saved Ideas</h2>
+        <a href="/discover.html" class="discovery-section-link">Discover more →</a>
       </div>
       <div id="bookmarks-container">
         <!-- Skeleton -->
-        <div class="ideas-grid" id="bookmarks-skeleton">
-          ${[1,2,3].map(()=>`<div class="idea-card-full"><div class="skel" style="width:80px;height:18px;margin-bottom:10px;"></div><div class="skel" style="height:20px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;"></div></div>`).join('')}
+        <div class="discovery-grid" id="bookmarks-skeleton">
+          ${[1,2,3].map(()=>`<div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>`).join('')}
         </div>
+      </div>
+    </div>
+
+    <!-- RECENTLY ADDED -->
+    <div id="recently-added">
+      <div class="discovery-section-header">
+        <h2 class="discovery-section-title">Recently Added</h2>
+        <a href="/discover.html" class="discovery-section-link">View all →</a>
+      </div>
+      <div class="discovery-grid" id="recently-added-grid">
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+      </div>
+    </div>
+
+    <!-- TRENDING TECHNOLOGIES -->
+    <div id="trending-technologies">
+      <div class="discovery-section-header">
+        <h2 class="discovery-section-title">Trending Technologies</h2>
+      </div>
+      <div class="discovery-grid" id="trending-grid">
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+        <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
       </div>
     </div>
 
@@ -337,10 +475,14 @@ async function boot() {
   document.getElementById('edit-org-name').value = orgName;
   document.getElementById('edit-org-country').value = country;
 
-  // Load data in parallel
+  // ── Load data in parallel
+  loadIndustries();
   loadBookmarks();
   loadRecentlyViewed();
   loadContactsSent();
+  loadRecommended();
+  loadRecentlyAdded();
+  loadTrending();
 }
 
 // ── API helpers ──────────────────────────────────────────────────────────────
@@ -393,33 +535,9 @@ async function loadBookmarks() {
     }
 
     const grid = document.createElement('div');
-    grid.className = 'ideas-grid';
-    grid.innerHTML = data.map(b => renderIdeaCard(b.idea || b, true)).join('');
+    grid.className = 'discovery-grid';
+    grid.innerHTML = data.map(b => renderInnovationCard(b.idea || b)).join('');
     document.getElementById('bookmarks-container').appendChild(grid);
-
-    // Attach remove handlers
-    grid.querySelectorAll('.remove-bookmark-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const ideaId = btn.dataset.id;
-        try {
-          await apiDelete('/api/bookmarks/' + ideaId);
-          btn.closest('.idea-card-full').remove();
-          showToast('Bookmark removed');
-          const cur = parseInt(document.getElementById('stat-bookmarks').textContent) || 0;
-          document.getElementById('stat-bookmarks').textContent = Math.max(0, cur - 1);
-        } catch { showToast('Failed to remove bookmark', 'error'); }
-      });
-    });
-
-    // Click card
-    grid.querySelectorAll('.idea-card-full').forEach(card => {
-      card.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-bookmark-btn')) return;
-        const id = card.dataset.id;
-        if (id) window.location.href = '/idea.html?id=' + id;
-      });
-    });
 
   } catch (err) {
     document.getElementById('bookmarks-skeleton').innerHTML = `<p style="color:var(--ink-soft);font-size:13px;">Could not load bookmarks.</p>`;
@@ -460,11 +578,11 @@ async function loadRecentlyViewed() {
     }
 
     const grid = document.createElement('div');
-    grid.className = 'ideas-grid';
-    grid.innerHTML = loaded.map(idea => renderIdeaCard(idea, false)).join('');
+    grid.className = 'discovery-grid';
+    grid.innerHTML = loaded.map(idea => renderInnovationCard(idea)).join('');
     document.getElementById('recent-container').appendChild(grid);
 
-    grid.querySelectorAll('.idea-card-full').forEach(card => {
+    grid.querySelectorAll('.innovation-card').forEach(card => {
       card.addEventListener('click', () => {
         const id = card.dataset.id;
         if (id) window.location.href = '/idea.html?id=' + id;
@@ -518,36 +636,119 @@ async function loadContactsSent() {
   }
 }
 
-// ── Render idea card ──────────────────────────────────────────────────────────
-function renderIdeaCard(idea, showRemove) {
+// ── Load industries for dropdown ─────────────────────────────────────────────
+async function loadIndustries() {
+  try {
+    const { data } = await apiGet('/api/search/industries');
+    const select = document.getElementById('filter-sector');
+    (data || []).forEach(ind => {
+      const opt = document.createElement('option');
+      opt.value = ind.name;
+      opt.textContent = ind.name;
+      select.appendChild(opt);
+    });
+  } catch (err) {
+    console.error('Failed to load industries:', err);
+  }
+}
+
+// ── Execute search with filters ───────────────────────────────────────────────
+async function executeSearch() {
+  const query = document.getElementById('search-query').value.trim();
+  const sector = document.getElementById('filter-sector').value;
+  const country = document.getElementById('filter-country').value;
+  const technology = document.getElementById('filter-technology').value.trim();
+  const stage = document.getElementById('filter-stage').value;
+  const patent = document.getElementById('filter-patent').value;
+  
+  const params = new URLSearchParams();
+  if (query) params.append('q', query);
+  if (sector) params.append('industry', sector);
+  if (country) params.append('country', country);
+  if (technology) params.append('technology', technology);
+  if (stage) params.append('stage', stage);
+  if (patent) params.append('patent', patent);
+  
+  window.location.href = '/discover.html?' + params.toString();
+}
+
+// ── Load recommended innovations ─────────────────────────────────────────────
+async function loadRecommended() {
+  try {
+    const { data } = await apiGet('/api/ideas?limit=3&sort=bookmarks');
+    document.getElementById('recommended-grid').innerHTML = (data || []).map(idea => renderInnovationCard(idea)).join('') || '<p style="color:var(--ink-soft);grid-column:1/-1;text-align:center;padding:20px;">No recommendations yet.</p>';
+  } catch (err) {
+    console.error('Failed to load recommended:', err);
+  }
+}
+
+// ── Load recently added innovations ───────────────────────────────────────────
+async function loadRecentlyAdded() {
+  try {
+    const { data } = await apiGet('/api/ideas?limit=3&sort=created_at');
+    document.getElementById('recently-added-grid').innerHTML = (data || []).map(idea => renderInnovationCard(idea)).join('') || '<p style="color:var(--ink-soft);grid-column:1/-1;text-align:center;padding:20px;">No recent innovations.</p>';
+  } catch (err) {
+    console.error('Failed to load recently added:', err);
+  }
+}
+
+// ── Load trending technologies ───────────────────────────────────────────────
+async function loadTrending() {
+  try {
+    const { data } = await apiGet('/api/ideas?limit=3&sort=view_count');
+    document.getElementById('trending-grid').innerHTML = (data || []).map(idea => renderInnovationCard(idea)).join('') || '<p style="color:var(--ink-soft);grid-column:1/-1;text-align:center;padding:20px;">No trending innovations.</p>';
+  } catch (err) {
+    console.error('Failed to load trending:', err);
+  }
+}
+
+// ── Render innovation card (new design) ────────────────────────────────────────
+function renderInnovationCard(idea) {
   if (!idea) return '';
-  const colors = ['industry-green','industry-blue','industry-amber','industry-rose','industry-lavender'];
-  const colorClass = colors[Math.abs(hashStr(idea.industry||'')) % colors.length];
-  const hasvideo = !!idea.video_url;
-  const hasReport = !!idea.report_url;
-  const hasPpt = !!idea.presentation_url;
   return `
-    <div class="idea-card-full" data-id="${idea.id}" style="cursor:pointer;">
-      ${showRemove ? `<button class="remove-bookmark-btn" data-id="${idea.id}" title="Remove bookmark"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg></button>` : ''}
-      <span class="idea-industry ${colorClass}">${idea.industry || 'Other'}</span>
-      <div class="idea-title">${idea.title || 'Untitled'}</div>
-      <div class="idea-desc">${idea.short_description || ''}</div>
-      <div class="idea-creator">
-        <span>${idea.creator_name || idea.profiles?.full_name || 'Innovator'}</span>
-        ${(idea.creator_location || idea.profiles?.location) ? `<span class="creator-dot"></span><span>${idea.creator_location || idea.profiles?.location}</span>` : ''}
-      </div>
-      <div class="idea-meta-row">
-        <div class="idea-file-badges">
-          ${hasvideo ? '<span class="file-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"></path><rect x="2" y="6" width="14" height="12" rx="2" ry="2"></rect></svg> Video</span>' : ''}
-          ${hasReport ? '<span class="file-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> PDF</span>' : ''}
-          ${hasPpt ? '<span class="file-badge"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg> PPT</span>' : ''}
+    <div class="innovation-card" data-id="${idea.id}">
+      <div class="innovation-header">
+        <div class="innovation-title">${idea.title || 'Untitled'}</div>
+        <div class="innovation-meta">
+          <span class="innovation-tag">${idea.industry || 'Other'}</span>
+          ${idea.development_stage ? `<span class="innovation-tag stage">${idea.development_stage}</span>` : ''}
+          ${idea.patent_status ? `<span class="innovation-tag patent">${idea.patent_status}</span>` : ''}
         </div>
-        <div class="idea-stats">
-          <span class="idea-stat"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${idea.view_count || 0}</span>
-          <span class="idea-stat"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg> ${idea.bookmark_count || 0}</span>
+      </div>
+      <div class="innovation-desc">${idea.short_description || ''}</div>
+      <div class="innovation-footer">
+        <div class="innovation-location">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          ${idea.creator_location || 'Global'}
+        </div>
+        <div class="innovation-actions">
+          <button class="btn-view-details" onclick="event.stopPropagation();window.location.href='/idea.html?id=${idea.id}'">View Details</button>
+          <button class="btn-save" onclick="event.stopPropagation();toggleSave('${idea.id}', this)">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>
+            Save
+          </button>
         </div>
       </div>
     </div>`;
+}
+
+// ── Toggle save/bookmark ─────────────────────────────────────────────────────
+async function toggleSave(ideaId, btn) {
+  try {
+    await apiPost('/api/bookmarks', { idea_id: ideaId });
+    btn.classList.add('saved');
+    btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg> Saved';
+    showToast('Idea saved!');
+  } catch (err) {
+    if (err.message.includes('already bookmarked')) {
+      await apiDelete('/api/bookmarks/' + ideaId);
+      btn.classList.remove('saved');
+      btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg> Save';
+      showToast('Bookmark removed');
+    } else {
+      showToast('Failed to save idea', 'error');
+    }
+  }
 }
 
 // ── Edit org profile ──────────────────────────────────────────────────────────
@@ -600,10 +801,9 @@ function scrollToSection(id) {
   event.currentTarget.classList.add('active');
 }
 function doSearch() {
-  const q = document.getElementById('quick-search-input').value.trim();
-  if (q) window.location.href = '/discover.html?q=' + encodeURIComponent(q);
+  executeSearch();
 }
-function handleSearchKey(e) { if (e.key === 'Enter') doSearch(); }
+function handleSearchKey(e) { if (e.key === 'Enter') executeSearch(); }
 
 function showToast(msg, type = 'success') {
   const t = document.createElement('div');
