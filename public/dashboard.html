@@ -181,7 +181,7 @@ body { background: var(--pearl); padding-top: 70px; }
     <div class="sidebar-card" style="padding:16px">
       <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Quick Links</div>
       <div style="display:flex;flex-direction:column;gap:2px">
-        <a href="/public/submit-idea.html" onclick="event.preventDefault();window.location.href='/public/submit-idea.html'" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> Submit New Idea</a>
+        <a href="/submit-idea.html" onclick="event.preventDefault();window.location.href='/submit-idea.html'" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> Submit New Idea</a>
         <a href="/public/discover.html" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'">🔍 Discover Ideas</a>
         <a href="#my-ideas" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'">📋 My Ideas</a>
         <a href="#contacts" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'">✉️ Contact Requests</a>
@@ -222,14 +222,14 @@ body { background: var(--pearl); padding-top: 70px; }
         <h3>Ready to share your next idea?</h3>
         <p>It takes less than 5 minutes. Upload your video, report, or slides — and get discovered.</p>
       </div>
-      <a href="/public/submit-idea.html" onclick="event.preventDefault();window.location.href='/public/submit-idea.html'" class="btn btn-ghost-white btn-large">Share an Idea →</a>
+      <a href="/submit-idea.html" onclick="event.preventDefault();window.location.href='/submit-idea.html'" class="btn btn-ghost-white btn-large">Share an Idea →</a>
     </div>
 
     <!-- My Ideas -->
     <div id="my-ideas">
       <div class="section-head">
         <h3>My Ideas</h3>
-        <a href="/public/submit-idea.html" onclick="event.preventDefault();window.location.href='/public/submit-idea.html'" class="btn btn-teal btn-sm">+ New Idea</a>
+        <a href="/submit-idea.html" onclick="event.preventDefault();window.location.href='/submit-idea.html'" class="btn btn-teal btn-sm">+ New Idea</a>
       </div>
       <div id="ideas-list">
         <div class="skeleton skel-card" style="margin-bottom:12px"></div>
@@ -506,7 +506,7 @@ async function loadMyIdeas() {
         <div class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg></div>
         <div class="empty-title">No ideas yet</div>
         <div class="empty-desc">Share your first innovation and start getting discovered.</div>
-        <a href="/public/submit-idea.html" class="btn btn-teal" style="margin-top:8px">Share an Idea →</a>
+        <a href="/submit-idea.html" class="btn btn-teal" style="margin-top:8px">Share an Idea →</a>
       </div>`;
       return;
     }
@@ -537,7 +537,7 @@ async function loadMyIdeas() {
         </div>
         <div class="mic-actions">
           <a href="/public/idea.html?id=${idea.id}" class="btn btn-ghost btn-sm">View</a>
-          <a href="/public/submit-idea.html?edit=${idea.id}" class="btn btn-ghost btn-sm">Edit</a>
+          <a href="/submit-idea.html?edit=${idea.id}" class="btn btn-ghost btn-sm">Edit</a>
           <button class="btn btn-danger btn-sm" onclick="deleteIdea('${idea.id}','${escHtml(idea.title)}')">Delete</button>
         </div>
       </div>`;

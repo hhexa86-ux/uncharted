@@ -116,9 +116,9 @@ body { background: var(--pearl); padding-top: 72px; }
 
 <!-- NAV -->
 <nav class="sub-nav">
-  <a href="/public/index.html" class="nav-logo">un<span>charted</span></a>
+  <a href="/index.html" class="nav-logo">un<span>charted</span></a>
   <div style="display:flex;gap:10px;align-items:center">
-    <a href="/public/dashboard.html" class="btn btn-ghost btn-sm">← My Dashboard</a>
+    <a href="/dashboard.html" class="btn btn-ghost btn-sm">← My Dashboard</a>
   </div>
 </nav>
 
@@ -382,7 +382,7 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const token = localStorage.getItem('uncharted_token');
-if (!token) window.location.href = '/public/index.html';
+if (!token) window.location.href = '/index.html';
 
 // ─── STATE ────────────────────────────────────────────────────────
 let currentStep = 1;
@@ -775,7 +775,7 @@ async function submitIdea(status) {
     showToast(status === 'draft' ? 'Draft saved!' : 'Idea published!');
     setTimeout(() => {
       const id = data.id || data.idea?.id || data.data?.id;
-      window.location.href = id ? `/public/idea.html?id=${id}` : '/public/dashboard.html';
+      window.location.href = id ? `/idea.html?id=${id}` : '/dashboard.html';
     }, 900);
   } catch(err) {
     msgEl.textContent = 'Error: ' + err.message;
@@ -849,10 +849,6 @@ setInterval(saveDraft, 30000);
 
 // ─── INIT ─────────────────────────────────────────────────────────
 (async () => {
-  const { data: { session } } = await sb.auth.getSession();
-  if (!session) { window.location.href = '/public/index.html'; return; }
-  localStorage.setItem('uncharted_token', session.access_token);
-
   const params = new URLSearchParams(window.location.search);
   editIdeaId = params.get('edit');
 
