@@ -1054,14 +1054,6 @@ body {
             <div class="summary-label">Solution</div>
             <p class="summary-text" id="summary-solution"></p>
           </div>
-          <div class="summary-item">
-            <div class="summary-label">Why It Matters</div>
-            <p class="summary-text" id="summary-impact">This innovation addresses a critical market need with significant potential for positive impact.</p>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">Commercial Value</div>
-            <p class="summary-text" id="summary-value">Strong market potential with scalable business model.</p>
-          </div>
         </div>
       </div>
       
@@ -1078,30 +1070,6 @@ body {
           <div class="info-item">
             <div class="info-label">Technology</div>
             <div class="info-value" id="detail-technology"></div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Target Market</div>
-            <div class="info-value" id="detail-market">Global market</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Business Model</div>
-            <div class="info-value" id="detail-model">B2B / B2C</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Scalability</div>
-            <div class="info-value" id="detail-scalability">High</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Implementation Difficulty</div>
-            <div class="info-value" id="detail-difficulty">Medium</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Estimated Cost</div>
-            <div class="info-value" id="detail-cost">TBD</div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">Time to Market</div>
-            <div class="info-value" id="detail-timeline">6-12 months</div>
           </div>
         </div>
       </div>
@@ -1145,15 +1113,6 @@ body {
             <div class="timeline-content">
               <div class="timeline-label">Current Stage</div>
               <div class="timeline-date" id="timeline-stage"></div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            </div>
-            <div class="timeline-content">
-              <div class="timeline-label">Future Roadmap</div>
-              <div class="timeline-date">Scaling and market expansion planned</div>
             </div>
           </div>
         </div>
@@ -1450,6 +1409,7 @@ function renderAttachments() {
   // Presentation
   if (idea.presentation_url) {
     const filename = getFilename(idea.presentation_url);
+    const encoded = encodeURIComponent(idea.presentation_url);
     html += `
       <div class="attachment-item">
         <div class="attachment-icon">
@@ -1460,9 +1420,12 @@ function renderAttachments() {
           <div class="attachment-meta">Presentation Deck</div>
         </div>
         <div class="attachment-actions">
-          <button class="btn btn-sm" onclick="window.open('${escHtml(idea.presentation_url)}', '_blank')">Preview</button>
+          <button class="btn btn-sm" onclick="openPreview('${escHtml(encoded)}')">Preview</button>
           <a href="${escHtml(idea.presentation_url)}" download class="btn btn-sm">Download</a>
         </div>
+      </div>
+      <div class="preview-container" id="preview-presentation" style="display:none;margin-bottom:12px;">
+        <iframe src="https://docs.google.com/viewer?url=${encoded}&embedded=true" style="width:100%;height:500px;border:none;border-radius:8px;"></iframe>
       </div>
     `;
   }
@@ -1470,6 +1433,7 @@ function renderAttachments() {
   // Report
   if (idea.report_url) {
     const filename = getFilename(idea.report_url);
+    const encoded = encodeURIComponent(idea.report_url);
     html += `
       <div class="attachment-item">
         <div class="attachment-icon">
@@ -1480,9 +1444,12 @@ function renderAttachments() {
           <div class="attachment-meta">Report / PDF</div>
         </div>
         <div class="attachment-actions">
-          <button class="btn btn-sm" onclick="window.open('${escHtml(idea.report_url)}', '_blank')">Preview</button>
+          <button class="btn btn-sm" onclick="openPreview('${escHtml(encoded)}')">Preview</button>
           <a href="${escHtml(idea.report_url)}" download class="btn btn-sm">Download</a>
         </div>
+      </div>
+      <div class="preview-container" id="preview-report" style="display:none;margin-bottom:12px;">
+        <iframe src="https://docs.google.com/viewer?url=${encoded}&embedded=true" style="width:100%;height:500px;border:none;border-radius:8px;"></iframe>
       </div>
     `;
   }
@@ -1537,9 +1504,9 @@ function renderCreator() {
 
   document.getElementById('creator-name').textContent = idea.creator_name || 'Innovator';
   document.getElementById('creator-role').textContent = idea.creator_role || '';
-  document.getElementById('creator-bio').textContent = idea.profiles?.bio || 'Innovator and problem solver.';
-  document.getElementById('stat-ideas').textContent = idea.creator_idea_count || Math.floor(Math.random() * 10) + 1;
-  document.getElementById('stat-experience').textContent = idea.creator_experience || Math.floor(Math.random() * 15) + 1;
+  document.getElementById('creator-bio').textContent = idea.profiles?.bio || '';
+  document.getElementById('stat-ideas').textContent = idea.creator_idea_count || '—';
+  document.getElementById('stat-experience').textContent = idea.creator_experience || '—';
   document.getElementById('creator-profile-link').href = `/profile.html?id=${idea.creator_id || idea.user_id}`;
   document.getElementById('similar-card').style.display = 'block';
 }
@@ -1663,6 +1630,13 @@ async function sendContact() {
 function requestMeeting() {
   openContactModal();
   document.getElementById('contact-message').value = 'I would like to request a meeting to discuss this innovation further.';
+}
+
+function openPreview(encodedUrl) {
+  const previewContainer = document.querySelector('.preview-container');
+  if (previewContainer) {
+    previewContainer.style.display = previewContainer.style.display === 'none' ? 'block' : 'none';
+  }
 }
 
 function downloadAll() {
