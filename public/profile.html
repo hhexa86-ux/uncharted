@@ -254,13 +254,13 @@ body { background:var(--pearl); padding-top:68px; }
         <p>Share an idea, prototype, research, business model, product concept or invention.</p>
         <button class="btn btn-primary">Continue →</button>
       </div>
-      <div class="publish-option-card disabled">
+      <div class="publish-option-card" onclick="handlePublishChallenge()">
         <div class="publish-option-icon">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
         </div>
         <h3>Innovation Challenge</h3>
         <p>Publish a real-world problem, industry challenge or research question for innovators to solve.</p>
-        <button class="btn btn-ghost" disabled>Coming Soon</button>
+        <button class="btn btn-primary">Continue →</button>
       </div>
     </div>
   </div>
@@ -482,6 +482,16 @@ function handlePublishInnovation() {
   closeModal('publish');
   if (token) {
     window.location.href = '/submit-idea.html';
+  } else {
+    openModal('login');
+  }
+}
+
+function handlePublishChallenge() {
+  const token = localStorage.getItem('uncharted_token');
+  closeModal('publish');
+  if (token) {
+    window.location.href = '/challenge-submit.html';
   } else {
     openModal('login');
   }

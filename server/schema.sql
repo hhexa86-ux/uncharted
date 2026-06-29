@@ -75,23 +75,6 @@ CREATE TABLE IF NOT EXISTS ideas (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create problems table
-CREATE TABLE IF NOT EXISTS problems (
-  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  title TEXT NOT NULL,
-  industry TEXT,
-  problem_description TEXT,
-  expected_outcome TEXT,
-  budget TEXT,
-  timeline TEXT,
-  country TEXT,
-  attachments JSONB DEFAULT '[]',
-  status TEXT DEFAULT 'active',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
 -- Create idea_files table
 CREATE TABLE IF NOT EXISTS idea_files (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -274,25 +257,6 @@ CREATE POLICY "Users update own ideas" ON ideas FOR UPDATE USING (auth.uid() = u
 -- RLS: Users delete own ideas
 DROP POLICY IF EXISTS "Users delete own ideas" ON ideas;
 CREATE POLICY "Users delete own ideas" ON ideas FOR DELETE USING (auth.uid() = user_id);
-
--- Enable RLS on problems
-ALTER TABLE problems ENABLE ROW LEVEL SECURITY;
-
--- RLS: Public problems viewable
-DROP POLICY IF EXISTS "Public problems viewable" ON problems;
-CREATE POLICY "Public problems viewable" ON problems FOR SELECT USING (status = 'active' OR auth.uid() = user_id);
-
--- RLS: Users insert problems
-DROP POLICY IF EXISTS "Users insert problems" ON problems;
-CREATE POLICY "Users insert problems" ON problems FOR INSERT WITH CHECK (auth.uid() = user_id);
-
--- RLS: Users update own problems
-DROP POLICY IF EXISTS "Users update own problems" ON problems;
-CREATE POLICY "Users update own problems" ON problems FOR UPDATE USING (auth.uid() = user_id);
-
--- RLS: Users delete own problems
-DROP POLICY IF EXISTS "Users delete own problems" ON problems;
-CREATE POLICY "Users delete own problems" ON problems FOR DELETE USING (auth.uid() = user_id);
 
 -- RLS: Files viewable
 DROP POLICY IF EXISTS "Files viewable" ON idea_files;
