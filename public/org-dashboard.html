@@ -240,17 +240,50 @@ body{background:var(--pearl);min-height:100vh;}
       <span class="org-type-badge" id="org-type-badge">Organization</span>
       <div class="sidebar-divider"></div>
       <nav class="sidebar-nav">
-        <button class="sidebar-link active" onclick="scrollToSection('discovery-hero')">
-          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> Workspace
+        <button class="sidebar-link active" onclick="switchSection('overview')" id="org-nav-overview">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span> Overview
         </button>
-        <button class="sidebar-link" onclick="scrollToSection('recently-viewed')">
-          <span class="sidebar-link-icon">🕐</span> Recently Viewed
+        <button class="sidebar-link" onclick="openPublishModal()" id="org-nav-publish">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg></span> Publish
         </button>
-        <button class="sidebar-link" onclick="scrollToSection('contact-requests')">
-          <span class="sidebar-link-icon">✉️</span> Contact Requests
+        <button class="sidebar-link" onclick="window.location.href='/discover.html'" id="org-nav-discover">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> Discover
         </button>
-        <button class="sidebar-link" onclick="openEditModal()">
-          <span class="sidebar-link-icon">⚙️</span> Edit Organization
+      </nav>
+    </div>
+
+    <!-- My Content -->
+    <div class="org-card" style="margin-top:16px;padding:16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">My Content</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link" onclick="switchSection('my-challenges')" id="org-nav-my-challenges">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg></span> My Challenges
+        </button>
+        <button class="sidebar-link" onclick="switchSection('my-solutions')" id="org-nav-my-solutions">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span> My Solutions
+        </button>
+      </nav>
+    </div>
+
+    <!-- Collections -->
+    <div class="org-card" style="margin-top:16px;padding:16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Collections</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link" onclick="switchSection('saved')" id="org-nav-saved">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg></span> Saved
+        </button>
+      </nav>
+    </div>
+
+    <!-- Account -->
+    <div class="org-card" style="margin-top:16px;padding:16px;">
+      <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Account</div>
+      <nav class="sidebar-nav">
+        <button class="sidebar-link" onclick="document.getElementById('modal-edit-profile').classList.add('active')" id="org-nav-profile">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span> Profile
+        </button>
+        <button class="sidebar-link" onclick="switchSection('settings')" id="org-nav-settings">
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></span> Settings
         </button>
       </nav>
     </div>
@@ -428,12 +461,52 @@ body{background:var(--pearl);min-height:100vh;}
     </div>
     <!-- END IDEAS TAB CONTENT -->
 
-    <!-- CHALLENGES TAB CONTENT -->
-    <div id="tab-content-challenges" style="display:none;">
+    <!-- My Challenges Section -->
+    <div id="section-my-challenges" style="display:none">
       <div style="text-align:center;padding:80px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
-        <div style="font-size:48px;margin-bottom:16px;">🚀</div>
-        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">Coming Soon</h3>
-        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto;">Innovation Challenges will allow organizations to publish open innovation calls and receive solutions from the community.</p>
+        <div style="width:64px;height:64px;background:var(--teal-lt);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--teal);">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">My Challenges</h3>
+        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto 24px;">You haven't published any innovation challenges yet.</p>
+        <button class="btn btn-ghost" disabled>Coming Soon</button>
+      </div>
+    </div>
+
+    <!-- My Solutions Section -->
+    <div id="section-my-solutions" style="display:none">
+      <div style="text-align:center;padding:80px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
+        <div style="width:64px;height:64px;background:var(--teal-lt);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--teal);">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">My Solutions</h3>
+        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto 24px;">Solutions you submit to innovation challenges will appear here.</p>
+        <button class="btn btn-ghost" disabled>Coming Soon</button>
+      </div>
+    </div>
+
+    <!-- Saved Section -->
+    <div id="section-saved" style="display:none">
+      <div class="section-header">
+        <div class="section-label">Saved</div>
+      </div>
+      <div style="text-align:center;padding:60px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
+        <div style="width:48px;height:48px;background:var(--teal-lt);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--teal);">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path></svg>
+        </div>
+        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto;">Saved ideas will appear here.</p>
+      </div>
+    </div>
+
+    <!-- Settings Section -->
+    <div id="section-settings" style="display:none">
+      <div style="text-align:center;padding:80px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
+        <div style="width:64px;height:64px;background:var(--teal-lt);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--teal);">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">Settings</h3>
+        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto 24px;">Settings coming soon.</p>
+        <button class="btn btn-ghost" disabled>Coming Soon</button>
       </div>
     </div>
 
@@ -920,6 +993,44 @@ function closeModal(type) {
 }
 function handleOverlayClick(e, type) {
   if (e.target === e.currentTarget) closeModal(type);
+}
+
+function switchSection(section) {
+  // Hide all sections
+  const overviewSection = document.getElementById('discovery-hero');
+  const myChallengesSection = document.getElementById('section-my-challenges');
+  const mySolutionsSection = document.getElementById('section-my-solutions');
+  const savedSection = document.getElementById('section-saved');
+  const settingsSection = document.getElementById('section-settings');
+
+  if (overviewSection) overviewSection.style.display = 'none';
+  if (myChallengesSection) myChallengesSection.style.display = 'none';
+  if (mySolutionsSection) mySolutionsSection.style.display = 'none';
+  if (savedSection) savedSection.style.display = 'none';
+  if (settingsSection) settingsSection.style.display = 'none';
+
+  // Remove active state from all sidebar links
+  document.querySelectorAll('.sidebar-link').forEach(link => {
+    link.classList.remove('active');
+  });
+
+  // Show selected section
+  if (section === 'overview') {
+    if (overviewSection) overviewSection.style.display = 'block';
+    document.getElementById('org-nav-overview').classList.add('active');
+  } else if (section === 'my-challenges') {
+    if (myChallengesSection) myChallengesSection.style.display = 'block';
+    document.getElementById('org-nav-my-challenges').classList.add('active');
+  } else if (section === 'my-solutions') {
+    if (mySolutionsSection) mySolutionsSection.style.display = 'block';
+    document.getElementById('org-nav-my-solutions').classList.add('active');
+  } else if (section === 'saved') {
+    if (savedSection) savedSection.style.display = 'block';
+    document.getElementById('org-nav-saved').classList.add('active');
+  } else if (section === 'settings') {
+    if (settingsSection) settingsSection.style.display = 'block';
+    document.getElementById('org-nav-settings').classList.add('active');
+  }
 }
 
 function switchTab(tab) {
