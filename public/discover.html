@@ -71,6 +71,20 @@ body { background:var(--pearl); padding-top:70px; }
 .filter-input:focus { border-color:var(--teal); }
 .filter-input::placeholder { color:#C0BDBA; }
 
+/* TABS */
+.tabs-container { display:flex; gap:8px; margin-bottom:32px; border-bottom:1px solid var(--border); padding-bottom:0; }
+.tab-btn { padding:12px 24px; border:none; background:none; font-size:14px; font-weight:500; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:all .2s; }
+.tab-btn:hover { color:var(--ink); }
+.tab-btn.active { color:var(--ink); border-bottom-color:var(--teal); }
+
+/* CHALLENGES PLACEHOLDER */
+.challenges-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:100px 40px; text-align:center; }
+.challenges-icon { width:80px; height:80px; background:var(--teal-lt); border-radius:20px; display:flex; align-items:center; justify-content:center; color:var(--teal); margin-bottom:24px; }
+.challenges-icon svg { width:40px; height:40px; }
+.challenges-placeholder h2 { font-family:'Fraunces',serif; font-size:28px; font-weight:400; color:var(--ink); margin-bottom:16px; }
+.challenges-placeholder p { font-size:15px; line-height:1.7; color:var(--ink-soft); max-width:500px; margin-bottom:24px; }
+.challenges-coming-soon { display:inline-block; padding:8px 20px; background:var(--border); border-radius:50px; font-size:13px; font-weight:500; color:var(--ink-soft); }
+
 /* RESULTS */
 .results-area { display:flex; flex-direction:column; gap:20px; }
 
@@ -145,7 +159,7 @@ body { background:var(--pearl); padding-top:70px; }
 
 <!-- HERO -->
 <section class="disc-hero">
-  <div class="section-label" style="justify-content:center;display:flex">Innovation Discovery</div>
+  <div class="section-label" style="justify-content:center;display:flex">Discover</div>
   <h1>Discover <em style="font-style:italic;color:var(--teal)">breakthrough</em> innovations</h1>
   <p>Search thousands of ideas from innovators around the world</p>
   <div class="search-bar-outer">
@@ -158,8 +172,17 @@ body { background:var(--pearl); padding-top:70px; }
   </div>
 </section>
 
+<!-- TABS -->
+<div class="tabs-container">
+  <button class="tab-btn active" onclick="switchTab('ideas')" id="tab-ideas">Ideas</button>
+  <button class="tab-btn" onclick="switchTab('challenges')" id="tab-challenges">Challenges</button>
+</div>
+
 <!-- MAIN -->
 <div class="disc-layout">
+
+  <!-- IDEAS TAB CONTENT -->
+  <div id="tab-content-ideas">
 
   <!-- FILTER SIDEBAR -->
   <aside class="filter-sidebar">
@@ -240,6 +263,22 @@ body { background:var(--pearl); padding-top:70px; }
 
     <div class="pagination" id="pagination" style="display:none"></div>
   </div>
+  </div>
+  <!-- END IDEAS TAB CONTENT -->
+
+  <!-- CHALLENGES TAB CONTENT -->
+  <div id="tab-content-challenges" style="display:none;">
+    <div class="challenges-placeholder">
+      <div class="challenges-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
+      </div>
+      <h2>Innovation Challenges</h2>
+      <p>Innovation Challenges will allow people, startups, companies, universities and governments to publish real-world problems and receive innovative solutions from the global community.</p>
+      <div class="challenges-coming-soon">Coming Soon</div>
+    </div>
+  </div>
+  <!-- END CHALLENGES TAB CONTENT -->
+
 </div>
 
 <!-- LOGIN MODAL (lightweight) -->
@@ -476,6 +515,26 @@ async function loadIndustries() {
 // ─── LOGIN ────────────────────────────────────────────────────────
 function openLogin() { document.getElementById('modal-login').classList.add('active'); }
 
+// ─── TAB SWITCHING ─────────────────────────────────────────────────
+function switchTab(tab) {
+  const ideasTab = document.getElementById('tab-ideas');
+  const challengesTab = document.getElementById('tab-challenges');
+  const ideasContent = document.getElementById('tab-content-ideas');
+  const challengesContent = document.getElementById('tab-content-challenges');
+  
+  if (tab === 'ideas') {
+    ideasTab.classList.add('active');
+    challengesTab.classList.remove('active');
+    ideasContent.style.display = 'block';
+    challengesContent.style.display = 'none';
+  } else {
+    challengesTab.classList.add('active');
+    ideasTab.classList.remove('active');
+    challengesContent.style.display = 'block';
+    ideasContent.style.display = 'none';
+  }
+}
+
 async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
@@ -496,10 +555,10 @@ async function doLogin() {
 }
 
 function updateNavForAuth(user) {
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0]||'Dashboard';
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0]||'Workspace';
   const accountType = user?.user_metadata?.account_type;
   const dest = accountType==='organization'?'/public/org-dashboard.html':'/public/dashboard.html';
-  document.getElementById('nav-actions').innerHTML = `<a href="${dest}" class="btn btn-primary btn-sm">${escHtml(firstName)}'s Dashboard →</a>`;
+  document.getElementById('nav-actions').innerHTML = `<a href="${dest}" class="btn btn-primary btn-sm">${escHtml(firstName)}'s Workspace →</a>`;
 }
 
 // ─── NAV SCROLL ──────────────────────────────────────────────────
