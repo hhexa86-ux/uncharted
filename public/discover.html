@@ -474,6 +474,7 @@ function formatChallengeDeadline(deadline) {
 
 function viewChallenge(id) {
   if (!id) return;
+  window.location.href = `/challenge.html?id=${encodeURIComponent(id)}`;
 }
 
 async function fetchChallenges() {
@@ -517,7 +518,7 @@ async function fetchChallenges() {
           <div class="dc-desc">Deadline: ${escHtml(formatChallengeDeadline(challenge.deadline))}</div>
           <div class="dc-bottom">
             <div class="dc-files">${opportunityBadges}</div>
-            <button class="btn btn-primary btn-sm" type="button" disabled title="Challenge details coming soon">View Challenge</button>
+            <button class="btn btn-primary btn-sm" type="button" onclick="event.stopPropagation();event.preventDefault();viewChallenge('${challengeId}')">View Challenge</button>
           </div>
         </div>`;
     }).join('');

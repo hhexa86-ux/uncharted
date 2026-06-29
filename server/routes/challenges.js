@@ -51,6 +51,45 @@ router.get('/', async (req, res) => {
 // ---------------------------------------------------------------------------
 // POST /api/challenges â€” create new challenge
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// GET /api/challenges/:id — get single challenge
+// ---------------------------------------------------------------------------
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: challenge, error } = await supabaseAdmin
+      .from('challenges')
+      .select(`
+        id, user_id, title, short_description, problem_statement, industry, country,
+        technology, current_situation, expected_outcome, opportunity_types,
+        opportunity_details, deadline, presentation_file, report_file, video_file,
+        image_files, created_at, updated_at
+      `)
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('[GET /challenges/:id] Fetch challenge:', error);
+      return res.status(500).json({ error: 'Failed to fetch challenge.' });
+    }
+
+    if (!challenge) {
+      return res.status(404).json({ error: 'Challenge not found.' });
+    }
+
+    return res.json({
+      data: challenge,
+      challenge,
+      id: challenge.id,
+      creator_id: challenge.user_id,
+    });
+  } catch (err) {
+    console.error('[GET /challenges/:id] Unexpected:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 router.post('/', requireAuth, async (req, res) => {
   try {
     const {
