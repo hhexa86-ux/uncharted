@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Uncharted — Innovation Discovery</title>
+<title>Workspace — Uncharted</title>
 <meta name="description" content="Discover breakthrough innovations on Uncharted."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
@@ -196,9 +196,15 @@ body{background:var(--pearl);min-height:100vh;}
 <!-- NAV -->
 <nav class="dash-nav">
   <a class="logo" href="/">un<span>charted</span></a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Home</a>
+    <a href="/discover.html" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Discover</a>
+    <a href="#" onclick="openPublishModal()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Publish</a>
+    <a href="/org-dashboard.html" style="font-size:14px;color:var(--ink);text-decoration:none;font-weight:500;">Workspace</a>
+    <a href="#" onclick="document.getElementById('modal-edit-profile').classList.add('active')" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
+  </div>
   <div class="nav-right">
     <span class="nav-org-name">Welcome, <strong id="nav-org-name">Organization</strong></span>
-    <a href="/discover.html" class="btn-ghost" style="font-size:13px;padding:8px 18px;">Innovation Discovery</a>
     <button class="btn-ghost" style="font-size:13px;padding:8px 18px;" onclick="handleLogout()" id="logout-btn">Log out</button>
   </div>
 </nav>
@@ -216,7 +222,7 @@ body{background:var(--pearl);min-height:100vh;}
       <div class="sidebar-divider"></div>
       <nav class="sidebar-nav">
         <button class="sidebar-link active" onclick="scrollToSection('discovery-hero')">
-          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> Discovery
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span> Workspace
         </button>
         <button class="sidebar-link" onclick="scrollToSection('recently-viewed')">
           <span class="sidebar-link-icon">🕐</span> Recently Viewed
@@ -234,9 +240,9 @@ body{background:var(--pearl);min-height:100vh;}
   <!-- MAIN COLUMN -->
   <div class="main-col">
 
-    <!-- INNOVATION DISCOVERY HERO -->
+    <!-- DISCOVER HERO -->
     <div class="discovery-hero" id="discovery-hero">
-      <h1>Innovation Discovery</h1>
+      <h1>Discover</h1>
       <p>Search and discover breakthrough innovations from innovators around the world.</p>
       <div class="search-filters-grid">
         <div class="filter-group">
@@ -310,6 +316,15 @@ body{background:var(--pearl);min-height:100vh;}
         <div class="stat-label">Ideas Viewed</div>
       </div>
     </div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--border);padding-bottom:0;">
+      <button class="tab-btn active" onclick="switchTab('ideas')" id="tab-ideas" style="padding:12px 20px;border:none;background:none;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;border-bottom:2px solid var(--teal);margin-bottom:-1px;">Ideas</button>
+      <button class="tab-btn" onclick="switchTab('challenges')" id="tab-challenges" style="padding:12px 20px;border:none;background:none;font-size:14px;font-weight:500;color:var(--ink-soft);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;">Challenges</button>
+    </div>
+
+    <!-- IDEAS TAB CONTENT -->
+    <div id="tab-content-ideas">
 
     <!-- RECOMMENDED INNOVATIONS -->
     <div id="recommended-section">
@@ -388,6 +403,18 @@ body{background:var(--pearl);min-height:100vh;}
         <div class="contacts-list" id="contacts-skeleton">
           ${[1,2].map(()=>`<div class="contact-item"><div class="skel" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1"><div class="skel" style="height:14px;width:60%;margin-bottom:8px;"></div><div class="skel" style="height:12px;width:90%;"></div></div></div>`).join('')}
         </div>
+      </div>
+    </div>
+
+    </div>
+    <!-- END IDEAS TAB CONTENT -->
+
+    <!-- CHALLENGES TAB CONTENT -->
+    <div id="tab-content-challenges" style="display:none;">
+      <div style="text-align:center;padding:80px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
+        <div style="font-size:48px;margin-bottom:16px;">🚀</div>
+        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">Coming Soon</h3>
+        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto;">Innovation Challenges will allow organizations to publish open innovation calls and receive solutions from the community.</p>
       </div>
     </div>
 
@@ -820,6 +847,33 @@ async function handleLogout() {
   localStorage.removeItem('uncharted_token');
   localStorage.removeItem('uncharted_user');
   window.location.href = '/';
+}
+
+function openPublishModal() {
+  window.location.href = '/submit-idea.html';
+}
+
+function switchTab(tab) {
+  const ideasTab = document.getElementById('tab-ideas');
+  const challengesTab = document.getElementById('tab-challenges');
+  const ideasContent = document.getElementById('tab-content-ideas');
+  const challengesContent = document.getElementById('tab-content-challenges');
+  
+  if (tab === 'ideas') {
+    ideasTab.style.borderBottomColor = 'var(--teal)';
+    ideasTab.style.color = 'var(--ink)';
+    challengesTab.style.borderBottomColor = 'transparent';
+    challengesTab.style.color = 'var(--ink-soft)';
+    ideasContent.style.display = 'block';
+    challengesContent.style.display = 'none';
+  } else {
+    challengesTab.style.borderBottomColor = 'var(--teal)';
+    challengesTab.style.color = 'var(--ink)';
+    ideasTab.style.borderBottomColor = 'transparent';
+    ideasTab.style.color = 'var(--ink-soft)';
+    challengesContent.style.display = 'block';
+    ideasContent.style.display = 'none';
+  }
 }
 
 // BOOT

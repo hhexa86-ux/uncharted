@@ -131,9 +131,13 @@ body { background: var(--pearl); padding-top: 72px; }
 
 <!-- NAV -->
 <nav class="sub-nav">
-  <a href="/index.html" class="nav-logo">un<span>charted</span></a>
-  <div style="display:flex;gap:10px;align-items:center">
-    <a href="/dashboard.html" class="btn btn-ghost btn-sm">← My Dashboard</a>
+  <a href="/" class="nav-logo">un<span>charted</span></a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Home</a>
+    <a href="/discover.html" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Discover</a>
+    <a href="#" onclick="openPublishModal()" style="font-size:14px;color:var(--ink);text-decoration:none;font-weight:500;">Publish</a>
+    <a href="#" onclick="navigateToWorkspace()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Workspace</a>
+    <a href="#" onclick="navigateToProfile()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
   </div>
 </nav>
 
@@ -715,6 +719,25 @@ function previewPresentation() {
   if (uploadedFiles.presentation) {
     window.open(uploadedFiles.presentation, '_blank');
   }
+}
+
+function navigateToWorkspace() {
+  const accountType = localStorage.getItem('uncharted_user') ? JSON.parse(localStorage.getItem('uncharted_user')).user_metadata?.account_type : null;
+  const dest = accountType === 'organization' ? '/org-dashboard.html' : '/dashboard.html';
+  window.location.href = dest;
+}
+
+function navigateToProfile() {
+  const userId = localStorage.getItem('uncharted_user') ? JSON.parse(localStorage.getItem('uncharted_user')).id : null;
+  if (userId) {
+    window.location.href = '/profile.html?id=' + userId;
+  } else {
+    window.location.href = '/';
+  }
+}
+
+function openPublishModal() {
+  // Already on publish page
 }
 
 function replacePresentation() {

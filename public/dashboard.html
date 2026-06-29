@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>My Dashboard — Uncharted</title>
+<title>Workspace — Uncharted</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/css/shared.css"/>
@@ -130,6 +130,13 @@ body { background: var(--pearl); padding-top: 70px; }
 <!-- NAV -->
 <nav class="dash-nav">
   <a href="/" class="nav-logo">un<span>charted</span></a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Home</a>
+    <a href="/discover.html" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Discover</a>
+    <a href="#" onclick="openPublishModal()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Publish</a>
+    <a href="/dashboard.html" style="font-size:14px;color:var(--ink);text-decoration:none;font-weight:500;">Workspace</a>
+    <a href="#" onclick="document.getElementById('modal-edit-profile').classList.add('active')" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
+  </div>
   <div class="nav-right">
     <span class="nav-greeting">Hello, <strong id="nav-name">there</strong></span>
     <button class="notif-btn" id="notif-btn" onclick="toggleNotifPanel()" title="Notifications">
@@ -177,9 +184,9 @@ body { background: var(--pearl); padding-top: 70px; }
       <button class="btn btn-ghost btn-full" style="margin-top:16px" onclick="openEditProfile()">Edit Profile</button>
     </div>
 
-    <!-- Quick links -->
+    <!-- Workspace -->
     <div class="sidebar-card" style="padding:16px">
-      <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Quick Links</div>
+      <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Workspace</div>
       <div style="display:flex;flex-direction:column;gap:2px">
         <a href="/submit-idea.html" onclick="event.preventDefault();window.location.href='/submit-idea.html'" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> Submit New Idea</a>
         <a href="/public/discover.html" style="padding:8px 10px;border-radius:10px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:all .15s;display:flex;align-items:center;gap:8px" onmouseover="this.style.background='var(--pearl)'" onmouseout="this.style.background='transparent'">🔍 Discover Ideas</a>
@@ -730,6 +737,10 @@ async function handleLogout() {
   localStorage.removeItem('uncharted_token');
   localStorage.removeItem('uncharted_user');
   window.location.href = '/public/index.html';
+}
+
+function openPublishModal() {
+  window.location.href = '/submit-idea.html';
 }
 
 // ─── NOTIF PANEL TOGGLE ──────────────────────────────────────────

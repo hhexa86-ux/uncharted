@@ -99,10 +99,26 @@ body { background:var(--pearl); padding-top:68px; }
 
 <!-- NAV -->
 <nav class="prof-nav" id="main-nav">
-  <a href="/public/index.html" class="nav-logo">un<span>charted</span></a>
+  <a href="/" class="nav-logo">un<span>charted</span></a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Home</a>
+    <a href="/discover.html" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Discover</a>
+    <a href="#" onclick="openPublishModal()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Publish</a>
+    <a href="#" onclick="navigateToWorkspace()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Workspace</a>
+    <a href="#" style="font-size:14px;color:var(--ink);text-decoration:none;font-weight:500;">Profile</a>
+  </div>
   <div style="display:flex;gap:10px;align-items:center">
-    <a href="/public/discover.html" class="btn btn-ghost btn-sm">← Discover</a>
-    <span id="nav-user-area"></span>
+    <div style="position:relative;">
+      <button id="profile-menu-btn" onclick="toggleProfileMenu()" style="background:none;border:none;padding:8px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </button>
+      <div id="profile-menu" style="display:none;position:absolute;top:100%;right:0;margin-top:8px;background:white;border:1px solid var(--border);border-radius:12px;padding:8px 0;min-width:160px;box-shadow:0 4px 20px rgba(28,28,46,.12);z-index:1000;">
+        <a href="#" onclick="closeProfileMenu()" style="display:block;padding:10px 16px;font-size:14px;color:var(--ink);text-decoration:none;transition:background .15s;">Profile</a>
+        <a href="#" onclick="closeProfileMenu()" style="display:block;padding:10px 16px;font-size:14px;color:var(--ink);text-decoration:none;transition:background .15s;">Settings</a>
+        <hr style="border:none;border-top:1px solid var(--border);margin:8px 0;">
+        <a href="#" onclick="handleLogout()" style="display:block;padding:10px 16px;font-size:14px;color:var(--ink-soft);text-decoration:none;transition:background .15s;">Logout</a>
+      </div>
+    </div>
   </div>
 </nav>
 
@@ -397,18 +413,37 @@ window.addEventListener('scroll',()=>{
   document.getElementById('main-nav').style.boxShadow = window.scrollY>10?'0 4px 16px rgba(28,28,46,.08)':'none';
 });
 
+// ─── PROFILE MENU ───────────────────────────────────────────────────
+function toggleProfileMenu() {
+  const menu = document.getElementById('profile-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+function closeProfileMenu() {
+  document.getElementById('profile-menu').style.display = 'none';
+}
+function navigateToWorkspace() {
+  const accountType = localStorage.getItem('uncharted_user') ? JSON.parse(localStorage.getItem('uncharted_user')).user_metadata?.account_type : null;
+  const dest = accountType === 'organization' ? '/org-dashboard.html' : '/dashboard.html';
+  window.location.href = dest;
+}
+function openPublishModal() {
+  window.location.href = '/submit-idea.html';
+}
+async function handleLogout() {
+  await sb.auth.signOut();
+  localStorage.removeItem('uncharted_token');
+  localStorage.removeItem('uncharted_user');
+  window.location.href = '/';
+}
+
 // ─── INIT ─────────────────────────────────────────────────────────
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
   if(session) {
     currentUserId = session.user.id;
     localStorage.setItem('uncharted_token', session.access_token);
-    const firstName = session.user?.user_metadata?.full_name?.split(' ')[0]||'Dashboard';
-    const accountType = session.user?.user_metadata?.account_type;
-    const dest = accountType==='organization'?'/public/org-dashboard.html':'/public/dashboard.html';
-    document.getElementById('nav-user-area').innerHTML = `<a href="${dest}" class="btn btn-primary btn-sm">${escHtml(firstName)}'s Dashboard →</a>`;
   } else {
-    document.getElementById('nav-user-area').innerHTML = `<a href="/public/index.html" class="btn btn-ghost btn-sm">Join Uncharted</a>`;
+    window.location.href = '/';
   }
 
   await Promise.all([loadProfile(), loadIdeas()]);
