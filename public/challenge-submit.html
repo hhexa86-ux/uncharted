@@ -486,6 +486,18 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 const token = localStorage.getItem('uncharted_token');
 if (!token) window.location.href = '/index.html';
 
+async function syncSessionToken() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session?.access_token) {
+      localStorage.setItem('uncharted_token', session.access_token);
+      localStorage.setItem('uncharted_user', JSON.stringify(session.user));
+      return session.access_token;
+    }
+  } catch {}
+  return localStorage.getItem('uncharted_token');
+}
+
 // ─── STATE ────────────────────────────────────────────────────────
 let currentStep = 1;
 let selectedOpportunities = [];
@@ -634,7 +646,7 @@ function handleDrop(e, type) {
   const zoneId = 'zone-' + type;
   document.getElementById(zoneId).classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file) { uploadFileObj(file, type); }
+  if (file) { const input = document.getElementById('input-'+type); /* simulate */ uploadFileObj(file, type); }
 }
 
 async function uploadFile(input, type) {
@@ -657,7 +669,7 @@ async function uploadFileObj(file, type) {
   formData.append('file', file);
 
   try {
-    const t = localStorage.getItem('uncharted_token');
+    const t = await syncSessionToken();
     // Simulate progress
     let prog_val = 10;
     const progInterval = setInterval(() => { prog_val = Math.min(prog_val + 15, 85); fill.style.width = prog_val + '%'; }, 300);
@@ -672,6 +684,7 @@ async function uploadFileObj(file, type) {
     uploadedFiles[type] = uploadedUrl;
     
     if (type === 'presentation') {
+      // Show uploaded file card for presentation
       zone.classList.add('uploaded');
       zone.style.pointerEvents = '';
       prog.style.display = 'none';
@@ -684,26 +697,25 @@ async function uploadFileObj(file, type) {
       document.getElementById('card-presentation-size').textContent = formatFileSize(file.size);
       uploadedFiles.presentationFileName = file.name;
     } else {
+      // Original behavior for other file types
       zone.classList.add('uploaded');
-      zone.style.pointerEvents = '';
-      prog.style.display = 'none';
-      fill.style.width = '0%';
-      nameEl.innerHTML = '';
+      nameEl.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> ${escHtml(file.name)} <button onclick="removeFile('${type}')" title="Remove">×</button>`;
     }
     
-    showToast('File uploaded successfully', 'success');
+    showToast(type + ' uploaded successfully!');
   } catch (err) {
+    fill.style.width = '0%';
     zone.style.pointerEvents = '';
     prog.style.display = 'none';
-    fill.style.width = '0%';
-    showToast(err.message || 'Upload failed', 'error');
+    zone.classList.remove('uploaded');
+    showToast('Upload failed: ' + err.message, 'error');
   }
 }
 
 async function uploadImages(input) {
   const files = [...input.files].slice(0, 5);
   if (!files.length) return;
-  const t = localStorage.getItem('uncharted_token');
+  const t = await syncSessionToken();
   const grid = document.getElementById('images-grid-container');
   grid.style.display = 'grid';
   const zone = document.getElementById('zone-images');
@@ -739,23 +751,36 @@ function removeImage(idx, btn) {
 }
 
 function formatFileSize(bytes) {
-  if (bytes < 1024) return bytes + ' B';
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
 function replacePresentation() {
-  document.getElementById('card-presentation').classList.remove('active');
-  document.getElementById('zone-presentation').style.display = 'block';
   document.getElementById('input-presentation').click();
 }
 
 function removeFile(type) {
   uploadedFiles[type] = null;
+  const zone = document.getElementById('zone-'+type);
+  zone.classList.remove('uploaded');
+  zone.style.pointerEvents = '';
+  document.getElementById('prog-'+type).style.display = 'none';
+  document.getElementById('fill-'+type).style.width = '0%';
+  document.getElementById('name-'+type).innerHTML = '';
+  document.getElementById('input-'+type).value = '';
+  
   if (type === 'presentation') {
     document.getElementById('card-presentation').classList.remove('active');
-    document.getElementById('zone-presentation').style.display = 'block';
-    document.getElementById('prog-presentation').style.display = 'none';
+    uploadedFiles.presentationFileName = null;
+  }
+}
+
+function previewPresentation() {
+  if (uploadedFiles.presentation) {
+    window.open(uploadedFiles.presentation, '_blank');
   }
 }
 
@@ -789,6 +814,7 @@ async function submitChallenge() {
   msgEl.className = 'auth-message';
   
   try {
+    await syncSessionToken();
     const payload = {
       title: document.getElementById('f-title').value.trim(),
       short_description: document.getElementById('f-short-desc').value.trim(),
@@ -843,7 +869,10 @@ function openPublishModal() {
 }
 
 // ─── INIT ────────────────────────────────────────────────────────
-loadIndustries();
+(async () => {
+  await syncSessionToken();
+  loadIndustries();
+})();
 </script>
 </body>
 </html>
