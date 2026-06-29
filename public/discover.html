@@ -45,6 +45,7 @@ body { background:var(--pearl); padding-top:70px; }
 
 /* MAIN LAYOUT */
 .disc-layout { max-width:1300px; margin:0 auto; padding:32px 40px 80px; display:grid; grid-template-columns:260px 1fr; gap:28px; align-items:start; }
+#tab-content-ideas { display: contents; }
 
 /* FILTER SIDEBAR */
 .filter-sidebar { position:sticky; top:88px; }
@@ -268,13 +269,18 @@ body { background:var(--pearl); padding-top:70px; }
 
   <!-- CHALLENGES TAB CONTENT -->
   <div id="tab-content-challenges" style="display:none;">
-    <div class="challenges-placeholder">
-      <div class="challenges-icon">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
+    <div class="results-area">
+      <div class="results-header">
+        <div id="challenges-label" style="font-size:14px;color:var(--ink-soft);font-weight:300">Published challenges</div>
       </div>
-      <h2>Innovation Challenges</h2>
-      <p>Innovation Challenges will allow people, startups, companies, universities and governments to publish real-world problems and receive innovative solutions from the global community.</p>
-      <div class="challenges-coming-soon">Coming Soon</div>
+      <div class="ideas-grid" id="challenges-grid">
+        <div class="skeleton skel-disc-card"></div>
+        <div class="skeleton skel-disc-card"></div>
+        <div class="skeleton skel-disc-card"></div>
+        <div class="skeleton skel-disc-card"></div>
+        <div class="skeleton skel-disc-card"></div>
+        <div class="skeleton skel-disc-card"></div>
+      </div>
     </div>
   </div>
   <!-- END CHALLENGES TAB CONTENT -->
@@ -309,6 +315,7 @@ let currentPage = 1;
 const PAGE_SIZE = 12;
 let totalIdeas = 0;
 let debounceTimer = null;
+let challengesLoaded = false;
 
 // ─── API ─────────────────────────────────────────────────────────
 async function api(path, options = {}) {
@@ -458,6 +465,67 @@ total > 0 ? total.toLocaleString() + ' results' : '';
 }
 
 // ─── PAGINATION ───────────────────────────────────────────────────
+function formatChallengeDeadline(deadline) {
+  if (!deadline) return 'No deadline';
+  const parsed = new Date(deadline);
+  if (Number.isNaN(parsed.getTime())) return deadline;
+  return parsed.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function viewChallenge(id) {
+  if (!id) return;
+}
+
+async function fetchChallenges() {
+  const grid = document.getElementById('challenges-grid');
+  grid.innerHTML = Array(6).fill('<div class="skeleton skel-disc-card"></div>').join('');
+
+  try {
+    const data = await api('/challenges');
+    const challenges = data.challenges || data.data || data || [];
+    challengesLoaded = true;
+
+    if (!challenges.length) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1">
+          <div class="no-results">
+            <div class="no-results-icon">⌁</div>
+            <div class="no-results-title">No challenges have been published yet.</div>
+          </div>
+        </div>`;
+      document.getElementById('challenges-label').textContent = 'No challenges available';
+      return;
+    }
+
+    document.getElementById('challenges-label').textContent = `${challenges.length.toLocaleString()} challenge${challenges.length !== 1 ? 's' : ''} found`;
+
+    grid.innerHTML = challenges.map(challenge => {
+      const opportunityTypes = Array.isArray(challenge.opportunity_types) ? challenge.opportunity_types.slice(0, 2) : [];
+      const opportunityBadges = opportunityTypes.length
+        ? opportunityTypes.map(type => `<span class="badge badge-teal">${escHtml(type)}</span>`).join('')
+        : '<span class="badge badge-teal">Open challenge</span>';
+      const challengeId = String(challenge.id || '').replace(/'/g, "\\'");
+      return `
+        <div class="disc-card">
+          <div class="dc-top">
+            <div class="dc-badges">
+              <span class="badge ${industryClass(challenge.industry)}">${escHtml(challenge.industry || 'Challenge')}</span>
+              <span class="badge badge-amber">${escHtml(challenge.country || 'Global')}</span>
+            </div>
+          </div>
+          <div class="dc-title">${escHtml(challenge.title || 'Untitled challenge')}</div>
+          <div class="dc-desc">Deadline: ${escHtml(formatChallengeDeadline(challenge.deadline))}</div>
+          <div class="dc-bottom">
+            <div class="dc-files">${opportunityBadges}</div>
+            <button class="btn btn-primary btn-sm" type="button" disabled title="Challenge details coming soon">View Challenge</button>
+          </div>
+        </div>`;
+    }).join('');
+  } catch (err) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--ink-soft)">Error loading challenges: ${escHtml(err.message)}</div>`;
+  }
+}
+
 function renderPagination(current, total) {
   const pag = document.getElementById('pagination');
   pag.style.display = 'flex';
@@ -525,13 +593,14 @@ function switchTab(tab) {
   if (tab === 'ideas') {
     ideasTab.classList.add('active');
     challengesTab.classList.remove('active');
-    ideasContent.style.display = 'block';
+    ideasContent.style.display = 'contents';
     challengesContent.style.display = 'none';
   } else {
     challengesTab.classList.add('active');
     ideasTab.classList.remove('active');
     challengesContent.style.display = 'block';
     ideasContent.style.display = 'none';
+    if (!challengesLoaded) fetchChallenges();
   }
 }
 
@@ -586,4 +655,3 @@ window.addEventListener('scroll',()=>{
 </script>
 </body>
 </html>
-

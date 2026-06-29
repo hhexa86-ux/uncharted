@@ -23,7 +23,33 @@ function slugify(text) {
 }
 
 // ---------------------------------------------------------------------------
-// POST /api/challenges — create new challenge
+// GET /api/challenges — list challenges
+// ---------------------------------------------------------------------------
+router.get('/', async (req, res) => {
+  try {
+    const { data: challenges, error } = await supabaseAdmin
+      .from('challenges')
+      .select('id, title, industry, country, deadline, opportunity_types, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[GET /challenges] Fetch challenges:', error);
+      return res.status(500).json({ error: 'Failed to fetch challenges.' });
+    }
+
+    return res.json({
+      data: challenges || [],
+      challenges: challenges || [],
+      total: (challenges || []).length,
+    });
+  } catch (err) {
+    console.error('[GET /challenges] Unexpected:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/challenges â€” create new challenge
 // ---------------------------------------------------------------------------
 router.post('/', requireAuth, async (req, res) => {
   try {
