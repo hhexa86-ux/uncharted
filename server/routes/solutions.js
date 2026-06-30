@@ -7,6 +7,95 @@ const { requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
 // ---------------------------------------------------------------------------
+// GET /api/solutions/received — get solutions for challenges owned by user
+// ---------------------------------------------------------------------------
+router.get('/received', requireAuth, async (req, res) => {
+  try {
+    const { data: solutions, error } = await supabaseAdmin
+      .from('solutions')
+      .select(`
+        *,
+        challenges!inner (
+          id,
+          title,
+          user_id
+        )
+      `)
+      .eq('challenges.user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[GET /solutions/received]', error);
+      return res.status(500).json({ error: 'Failed to fetch received solutions.' });
+    }
+
+    return res.json({ data: solutions, solutions });
+  } catch (err) {
+    console.error('[GET /solutions/received] Unexpected:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/solutions/user/me — get solutions submitted by current user
+// ---------------------------------------------------------------------------
+router.get('/user/me', requireAuth, async (req, res) => {
+  try {
+    const { data: solutions, error } = await supabaseAdmin
+      .from('solutions')
+      .select(`
+        *,
+        challenges!inner (
+          id,
+          title
+        )
+      `)
+      .eq('user_id', req.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('[GET /solutions/user/me]', error);
+      return res.status(500).json({ error: 'Failed to fetch your solutions.' });
+    }
+
+    return res.json({ data: solutions, solutions });
+  } catch (err) {
+    console.error('[GET /solutions/user/me] Unexpected:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// GET /api/solutions/:id — get single solution by ID
+// ---------------------------------------------------------------------------
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { data: solution, error } = await supabaseAdmin
+      .from('solutions')
+      .select(`
+        *,
+        challenges!inner (
+          id,
+          title,
+          user_id
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error || !solution) {
+      return res.status(404).json({ error: 'Solution not found.' });
+    }
+
+    return res.json({ data: solution, solution });
+  } catch (err) {
+    console.error('[GET /solutions/:id] Unexpected:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // POST /api/solutions — create new solution
 // ---------------------------------------------------------------------------
 router.post('/', requireAuth, async (req, res) => {
