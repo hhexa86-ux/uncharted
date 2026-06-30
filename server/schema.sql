@@ -348,3 +348,61 @@ CREATE INDEX IF NOT EXISTS ideas_created_at_idx ON ideas(created_at DESC);
 
 -- Index: ideas_view_count_idx
 CREATE INDEX IF NOT EXISTS ideas_view_count_idx ON ideas(view_count DESC);
+
+-- Create solutions table
+CREATE TABLE IF NOT EXISTS solutions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  challenge_id UUID REFERENCES challenges(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  executive_summary TEXT,
+  full_description TEXT,
+  presentation_file TEXT,
+  report_file TEXT,
+  video_file TEXT,
+  image_files JSONB DEFAULT '[]',
+  status TEXT DEFAULT 'submitted',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS on solutions
+ALTER TABLE solutions ENABLE ROW LEVEL SECURITY;
+
+-- RLS: Users insert solutions
+DROP POLICY IF EXISTS "Users insert solutions" ON solutions;
+CREATE POLICY "Users insert solutions" ON solutions FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- RLS: Users update own solutions
+DROP POLICY IF EXISTS "Users update own solutions" ON solutions;
+CREATE POLICY "Users update own solutions" ON solutions FOR UPDATE USING (auth.uid() = user_id);
+
+-- RLS: Users delete own solutions
+DROP POLICY IF EXISTS "Users delete own solutions" ON solutions;
+CREATE POLICY "Users delete own solutions" ON solutions FOR DELETE USING (auth.uid() = user_id);
+
+-- RLS: Challenge owners can view solutions
+DROP POLICY IF EXISTS "Challenge owners view solutions" ON solutions;
+CREATE POLICY "Challenge owners view solutions" ON solutions FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM challenges 
+    WHERE challenges.id = solutions.challenge_id 
+    AND challenges.user_id = auth.uid()
+  )
+);
+
+-- RLS: Solution owners view own solutions
+DROP POLICY IF EXISTS "Solution owners view own solutions" ON solutions;
+CREATE POLICY "Solution owners view own solutions" ON solutions FOR SELECT USING (auth.uid() = user_id);
+
+-- Index: solutions_challenge_id_idx
+CREATE INDEX IF NOT EXISTS solutions_challenge_id_idx ON solutions(challenge_id);
+
+-- Index: solutions_user_id_idx
+CREATE INDEX IF NOT EXISTS solutions_user_id_idx ON solutions(user_id);
+
+-- Index: solutions_created_at_idx
+CREATE INDEX IF NOT EXISTS solutions_created_at_idx ON solutions(created_at DESC);
+
+-- Index: solutions_status_idx
+CREATE INDEX IF NOT EXISTS solutions_status_idx ON solutions(status);

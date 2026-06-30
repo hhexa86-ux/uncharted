@@ -20,6 +20,7 @@ const bookmarksRouter = require('./routes/bookmarks');
 const contactsRouter = require('./routes/contacts');
 const uploadRouter = require('./routes/upload');
 const challengesRouter = require('./routes/challenges');
+const solutionsRouter = require('./routes/solutions');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -161,6 +162,7 @@ app.use('/api/bookmarks', bookmarksRouter);
 app.use('/api/contacts', contactsRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/challenges', challengesRouter);
+app.use('/api/solutions', solutionsRouter);
 
 // ---------------------------------------------------------------------------
 // Static files — serve the frontend from /public
