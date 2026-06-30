@@ -318,7 +318,8 @@ function stageClass(stage) {
 async function loadProfile() {
   if(!userId) { document.getElementById('prof-name').textContent='Profile not found'; return; }
   try {
-    profileData = await api('/profiles/'+userId);
+    const profileResponse = await api('/profiles/'+userId);
+    profileData = profileResponse.profile || profileResponse.data || profileResponse || {};
     document.title = (profileData.full_name||'Profile') + ' — Uncharted';
 
     // Avatar

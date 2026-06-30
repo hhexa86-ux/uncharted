@@ -220,7 +220,7 @@ body{background:var(--pearl);min-height:100vh;}
     <a href="/discover.html" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Discover</a>
     <a href="#" onclick="openPublishModal()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Publish</a>
     <a href="/org-dashboard.html" style="font-size:14px;color:var(--ink);text-decoration:none;font-weight:500;">Workspace</a>
-    <a href="#" onclick="document.getElementById('modal-edit-profile').classList.add('active')" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
+    <a href="#" onclick="navigateToProfile()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
   </div>
   <div class="nav-right">
     <span class="nav-org-name">Welcome, <strong id="nav-org-name">Organization</strong></span>
@@ -260,7 +260,7 @@ body{background:var(--pearl);min-height:100vh;}
           <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg></span> My Challenges
         </button>
         <button class="sidebar-link" onclick="switchSection('my-solutions')" id="org-nav-my-solutions">
-          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span> My Solutions
+          <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></span> Received Solutions
         </button>
       </nav>
     </div>
@@ -279,7 +279,7 @@ body{background:var(--pearl);min-height:100vh;}
     <div class="org-card" style="margin-top:16px;padding:16px;">
       <div style="font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Account</div>
       <nav class="sidebar-nav">
-        <button class="sidebar-link" onclick="document.getElementById('modal-edit-profile').classList.add('active')" id="org-nav-profile">
+        <button class="sidebar-link" onclick="navigateToProfile()" id="org-nav-profile">
           <span class="sidebar-link-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></span> Profile
         </button>
         <button class="sidebar-link" onclick="switchSection('settings')" id="org-nav-settings">
@@ -403,7 +403,9 @@ body{background:var(--pearl);min-height:100vh;}
       <div id="bookmarks-container">
         <!-- Skeleton -->
         <div class="discovery-grid" id="bookmarks-skeleton">
-          ${[1,2,3].map(()=>`<div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>`).join('')}
+          <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+          <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
+          <div class="innovation-card skel-card"><div class="skel" style="height:24px;margin-bottom:12px;"></div><div class="skel" style="height:16px;width:80px;margin-bottom:8px;"></div><div class="skel" style="height:14px;margin-bottom:4px;"></div><div class="skel" style="height:14px;width:60%;margin-bottom:16px;"></div><div class="skel" style="height:36px;"></div></div>
         </div>
       </div>
     </div>
@@ -441,7 +443,8 @@ body{background:var(--pearl);min-height:100vh;}
       </div>
       <div id="recent-container">
         <div class="ideas-grid" id="recent-skeleton">
-          ${[1,2].map(()=>`<div class="idea-card-full"><div class="skel" style="width:80px;height:18px;margin-bottom:10px;"></div><div class="skel" style="height:20px;margin-bottom:8px;"></div><div class="skel" style="height:14px;width:70%;"></div></div>`).join('')}
+          <div class="idea-card-full"><div class="skel" style="width:80px;height:18px;margin-bottom:10px;"></div><div class="skel" style="height:20px;margin-bottom:8px;"></div><div class="skel" style="height:14px;width:70%;"></div></div>
+          <div class="idea-card-full"><div class="skel" style="width:80px;height:18px;margin-bottom:10px;"></div><div class="skel" style="height:20px;margin-bottom:8px;"></div><div class="skel" style="height:14px;width:70%;"></div></div>
         </div>
       </div>
     </div>
@@ -453,7 +456,8 @@ body{background:var(--pearl);min-height:100vh;}
       </div>
       <div id="contacts-container">
         <div class="contacts-list" id="contacts-skeleton">
-          ${[1,2].map(()=>`<div class="contact-item"><div class="skel" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1"><div class="skel" style="height:14px;width:60%;margin-bottom:8px;"></div><div class="skel" style="height:12px;width:90%;"></div></div></div>`).join('')}
+          <div class="contact-item"><div class="skel" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1"><div class="skel" style="height:14px;width:60%;margin-bottom:8px;"></div><div class="skel" style="height:12px;width:90%;"></div></div></div>
+          <div class="contact-item"><div class="skel" style="width:40px;height:40px;border-radius:50%;flex-shrink:0;"></div><div style="flex:1"><div class="skel" style="height:14px;width:60%;margin-bottom:8px;"></div><div class="skel" style="height:12px;width:90%;"></div></div></div>
         </div>
       </div>
     </div>
@@ -463,25 +467,24 @@ body{background:var(--pearl);min-height:100vh;}
 
     <!-- My Challenges Section -->
     <div id="section-my-challenges" style="display:none">
-      <div style="text-align:center;padding:80px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
-        <div style="width:64px;height:64px;background:var(--teal-lt);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--teal);">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
-        </div>
-        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">My Challenges</h3>
-        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto 24px;">You haven't published any innovation challenges yet.</p>
-        <button class="btn btn-ghost" disabled>Coming Soon</button>
+      <div class="section-header">
+        <h2>My Challenges</h2>
+      </div>
+      <div id="my-challenges-list">
+        <div class="skeleton skel-card" style="margin-bottom:12px"></div>
+        <div class="skeleton skel-card" style="margin-bottom:12px"></div>
+        <div class="skeleton skel-card" style="margin-bottom:12px"></div>
       </div>
     </div>
 
-    <!-- My Solutions Section -->
+    <!-- Received Solutions Section -->
     <div id="section-my-solutions" style="display:none">
-      <div style="text-align:center;padding:80px 40px;background:white;border-radius:16px;border:1px solid var(--border);">
-        <div style="width:64px;height:64px;background:var(--teal-lt);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;color:var(--teal);">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px;"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
-        </div>
-        <h3 style="font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--ink);margin-bottom:8px;">My Solutions</h3>
-        <p style="font-size:14px;color:var(--ink-soft);max-width:400px;margin:0 auto 24px;">Solutions you submit to innovation challenges will appear here.</p>
-        <button class="btn btn-ghost" disabled>Coming Soon</button>
+      <div class="section-header">
+        <h2>Received Solutions</h2>
+      </div>
+      <div id="received-solutions-list">
+        <div class="skeleton skel-card" style="margin-bottom:12px"></div>
+        <div class="skeleton skel-card" style="margin-bottom:12px"></div>
       </div>
     </div>
 
@@ -569,13 +572,13 @@ body{background:var(--pearl);min-height:100vh;}
         <p>Share an idea, prototype, research, business model, product concept or invention.</p>
         <button class="btn btn-primary">Continue →</button>
       </div>
-      <div class="publish-option-card disabled">
+      <div class="publish-option-card" onclick="handlePublishChallenge()">
         <div class="publish-option-icon">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
         </div>
         <h3>Innovation Challenge</h3>
         <p>Publish a real-world problem, industry challenge or research question for innovators to solve.</p>
-        <button class="btn btn-ghost" disabled>Coming Soon</button>
+        <button class="btn btn-primary">Continue →</button>
       </div>
     </div>
   </div>
@@ -589,6 +592,32 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
 
 let currentUser = null;
 let currentToken = null;
+
+// Loading flags to prevent duplicate API calls
+let industriesLoaded = false;
+let bookmarksLoaded = false;
+let recentlyViewedLoaded = false;
+let contactsSentLoaded = false;
+let recommendedLoaded = false;
+let recentlyAddedLoaded = false;
+let trendingLoaded = false;
+
+// ── ESCAPE HTML ──────────────────────────────────────────────────────────────
+function escHtml(str) {
+  if(!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── RELATIVE TIME ─────────────────────────────────────────────────────────────
+function relativeTime(dateStr) {
+  if(!dateStr) return '';
+  const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+  if(diff < 60) return 'Just now';
+  if(diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if(diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  if(diff < 604800) return Math.floor(diff/86400) + 'd ago';
+  return new Date(dateStr).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
 
 // ── Auth & boot ──────────────────────────────────────────────────────────────
 async function boot() {
@@ -624,9 +653,7 @@ async function boot() {
 
   // ── Load data in parallel
   loadIndustries();
-  loadBookmarks();
   loadRecentlyViewed();
-  loadContactsSent();
   loadRecommended();
   loadRecentlyAdded();
   loadTrending();
@@ -664,8 +691,10 @@ async function apiDelete(path) {
 
 // ── Load bookmarks ───────────────────────────────────────────────────────────
 async function loadBookmarks() {
+  if (bookmarksLoaded) return;
   try {
     const { data } = await apiGet('/api/bookmarks');
+    bookmarksLoaded = true;
     document.getElementById('bookmarks-skeleton').style.display = 'none';
 
     document.getElementById('stat-bookmarks').textContent = data?.length || 0;
@@ -681,6 +710,7 @@ async function loadBookmarks() {
       return;
     }
 
+    document.getElementById('bookmarks-container').innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'discovery-grid';
     grid.innerHTML = data.map(b => renderInnovationCard(b.idea || b)).join('');
@@ -691,12 +721,103 @@ async function loadBookmarks() {
   }
 }
 
+// ── Load received solutions ───────────────────────────────────────────────────
+async function loadReceivedSolutions() {
+  const list = document.getElementById('received-solutions-list');
+  try {
+    const response = await apiGet('/api/solutions/received');
+    const solutions = response.data || response || [];
+    
+    if (!solutions.length) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg></div>
+        <div class="empty-title">No solutions received yet</div>
+        <div class="empty-desc">Innovators will submit solutions to your challenges here.</div>
+      </div>`;
+      return;
+    }
+    
+    list.innerHTML = solutions.map(solution => {
+      const challengeTitle = solution.challenges?.title || 'Unknown Challenge';
+      const statusClass = {'submitted':'badge-active','reviewed':'badge-draft','accepted':'badge-archived'}[solution.status||'submitted'] || 'badge-active';
+      return `
+      <div class="my-idea-card">
+        <div>
+          <div class="mic-header">
+            <span class="badge ${statusClass}">${solution.status||'submitted'}</span>
+            <span class="badge badge-industry">${escHtml(challengeTitle)}</span>
+          </div>
+          <div class="mic-title">${escHtml(solution.title)}</div>
+          <div class="mic-desc">${escHtml(solution.executive_summary||'')}</div>
+          <div class="mic-meta">
+            <span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3 10 7 10 7 14 3 14"></rect><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16v-2"></path></svg> Submitted ${relativeTime(solution.created_at)}</span>
+          </div>
+        </div>
+        <div class="mic-actions">
+          <button class="btn btn-ghost btn-sm" onclick="viewSolution('${solution.id}')">View Solution</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></path></svg></div><div class="empty-desc">Could not load solutions. ${escHtml(err.message)}</div></div>`;
+  }
+}
+
+// ── Load my challenges ───────────────────────────────────────────────────────
+async function loadMyChallenges() {
+  const list = document.getElementById('my-challenges-list');
+  try {
+    const response = await apiGet('/api/challenges/user/me');
+    const challenges = response.data || response || [];
+    
+    if (!challenges.length) {
+      list.innerHTML = `<div class="empty-state">
+        <div class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg></div>
+        <div class="empty-title">No challenges published yet</div>
+        <div class="empty-desc">Publish innovation challenges to receive solutions from innovators.</div>
+        <button class="btn btn-primary" onclick="openPublishModal()">Publish Challenge</button>
+      </div>`;
+      return;
+    }
+    
+    list.innerHTML = challenges.map(challenge => {
+      const statusClass = challenge.deadline && new Date(challenge.deadline) < new Date() ? 'badge-archived' : 'badge-active';
+      const deadlineText = challenge.deadline ? `Deadline: ${formatDate(challenge.deadline)}` : 'No deadline';
+      return `
+      <div class="my-idea-card">
+        <div>
+          <div class="mic-header">
+            <span class="badge ${statusClass}">${challenge.deadline && new Date(challenge.deadline) < new Date() ? 'Closed' : 'Active'}</span>
+            <span class="badge badge-industry">${escHtml(challenge.industry || 'General')}</span>
+          </div>
+          <div class="mic-title">${escHtml(challenge.title)}</div>
+          <div class="mic-desc">${escHtml(challenge.short_description || '')}</div>
+          <div class="mic-meta">
+            <span><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3 10 7 10 7 14 3 14"></rect><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16v-2"></path></svg> ${deadlineText}</span>
+          </div>
+        </div>
+        <div class="mic-actions">
+          <button class="btn btn-ghost btn-sm" onclick="window.location.href='/challenge.html?id=${challenge.id}'">View Challenge</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (err) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></path></svg></div><div class="empty-desc">Could not load challenges. ${escHtml(err.message)}</div></div>`;
+  }
+}
+
+function viewSolution(solutionId) {
+  window.location.href = '/solution.html?id=' + solutionId;
+}
+
 // ── Load recently viewed (from localStorage) ─────────────────────────────────
 async function loadRecentlyViewed() {
+  if (recentlyViewedLoaded) return;
   const skeleton = document.getElementById('recent-skeleton');
   try {
     const recentStr = localStorage.getItem('uncharted_recently_viewed');
     const recentIds = recentStr ? JSON.parse(recentStr) : [];
+    recentlyViewedLoaded = true;
 
     skeleton.style.display = 'none';
     document.getElementById('stat-viewed').textContent = recentIds.length;
@@ -724,6 +845,7 @@ async function loadRecentlyViewed() {
       return;
     }
 
+    document.getElementById('recent-container').innerHTML = '';
     const grid = document.createElement('div');
     grid.className = 'discovery-grid';
     grid.innerHTML = loaded.map(idea => renderInnovationCard(idea)).join('');
@@ -743,9 +865,11 @@ async function loadRecentlyViewed() {
 
 // ── Load contacts sent ────────────────────────────────────────────────────────
 async function loadContactsSent() {
+  if (contactsSentLoaded) return;
   const skeleton = document.getElementById('contacts-skeleton');
   try {
     const { data } = await apiGet('/api/contacts/sent');
+    contactsSentLoaded = true;
     skeleton.style.display = 'none';
     document.getElementById('stat-contacts').textContent = data?.length || 0;
 
@@ -760,6 +884,7 @@ async function loadContactsSent() {
       return;
     }
 
+    document.getElementById('contacts-container').innerHTML = '';
     const list = document.createElement('div');
     list.className = 'contacts-list';
     list.innerHTML = data.map(c => `
@@ -785,9 +910,12 @@ async function loadContactsSent() {
 
 // ── Load industries for dropdown ─────────────────────────────────────────────
 async function loadIndustries() {
+  if (industriesLoaded) return;
   try {
     const { data } = await apiGet('/api/search/industries');
+    industriesLoaded = true;
     const select = document.getElementById('filter-sector');
+    select.innerHTML = '<option value="">All Sectors</option>';
     (data || []).forEach(ind => {
       const opt = document.createElement('option');
       opt.value = ind.name;
@@ -821,8 +949,10 @@ async function executeSearch() {
 
 // ── Load recommended innovations ─────────────────────────────────────────────
 async function loadRecommended() {
+  if (recommendedLoaded) return;
   try {
     const { data } = await apiGet('/api/ideas?limit=3&sort=bookmarks');
+    recommendedLoaded = true;
     document.getElementById('recommended-grid').innerHTML = (data || []).map(idea => renderInnovationCard(idea)).join('') || '<p style="color:var(--ink-soft);grid-column:1/-1;text-align:center;padding:20px;">No recommendations yet.</p>';
   } catch (err) {
     console.error('Failed to load recommended:', err);
@@ -831,8 +961,10 @@ async function loadRecommended() {
 
 // ── Load recently added innovations ───────────────────────────────────────────
 async function loadRecentlyAdded() {
+  if (recentlyAddedLoaded) return;
   try {
     const { data } = await apiGet('/api/ideas?limit=3&sort=created_at');
+    recentlyAddedLoaded = true;
     document.getElementById('recently-added-grid').innerHTML = (data || []).map(idea => renderInnovationCard(idea)).join('') || '<p style="color:var(--ink-soft);grid-column:1/-1;text-align:center;padding:20px;">No recent innovations.</p>';
   } catch (err) {
     console.error('Failed to load recently added:', err);
@@ -841,8 +973,10 @@ async function loadRecentlyAdded() {
 
 // ── Load trending technologies ───────────────────────────────────────────────
 async function loadTrending() {
+  if (trendingLoaded) return;
   try {
     const { data } = await apiGet('/api/ideas?limit=3&sort=view_count');
+    trendingLoaded = true;
     document.getElementById('trending-grid').innerHTML = (data || []).map(idea => renderInnovationCard(idea)).join('') || '<p style="color:var(--ink-soft);grid-column:1/-1;text-align:center;padding:20px;">No trending innovations.</p>';
   } catch (err) {
     console.error('Failed to load trending:', err);
@@ -969,6 +1103,15 @@ async function handleLogout() {
   window.location.href = '/';
 }
 
+function navigateToProfile() {
+  const userId = localStorage.getItem('uncharted_user') ? JSON.parse(localStorage.getItem('uncharted_user')).id : null;
+  if (userId) {
+    window.location.href = '/profile.html?id=' + userId;
+  } else {
+    window.location.href = '/';
+  }
+}
+
 function openPublishModal() {
   openModal('publish');
 }
@@ -978,6 +1121,16 @@ function handlePublishInnovation() {
   closeModal('publish');
   if (token) {
     window.location.href = '/submit-idea.html';
+  } else {
+    openModal('login');
+  }
+}
+
+function handlePublishChallenge() {
+  const token = localStorage.getItem('uncharted_token');
+  closeModal('publish');
+  if (token) {
+    window.location.href = '/challenge-submit.html';
   } else {
     openModal('login');
   }
@@ -1021,9 +1174,11 @@ function switchSection(section) {
   } else if (section === 'my-challenges') {
     if (myChallengesSection) myChallengesSection.style.display = 'block';
     document.getElementById('org-nav-my-challenges').classList.add('active');
+    loadMyChallenges();
   } else if (section === 'my-solutions') {
     if (mySolutionsSection) mySolutionsSection.style.display = 'block';
     document.getElementById('org-nav-my-solutions').classList.add('active');
+    loadReceivedSolutions();
   } else if (section === 'saved') {
     if (savedSection) savedSection.style.display = 'block';
     document.getElementById('org-nav-saved').classList.add('active');

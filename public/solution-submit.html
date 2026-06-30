@@ -550,13 +550,45 @@ async function submitSolution() {
   msgEl.textContent = '';
   msgEl.className = 'auth-message';
   
-  // For now, just show a message since backend is not implemented
-  setTimeout(() => {
+  try {
+    const payload = {
+      challenge_id: challengeId,
+      title: document.getElementById('f-title').value.trim(),
+      executive_summary: document.getElementById('f-executive-summary').value.trim(),
+      full_description: document.getElementById('f-description').value.trim(),
+      presentation_file: uploadedFiles.presentation,
+      report_file: uploadedFiles.report,
+      video_file: uploadedFiles.video,
+      image_files: uploadedFiles.images,
+    };
+
+    const t = localStorage.getItem('uncharted_token');
+    const res = await fetch('/api/solutions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + t },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Submission failed');
+    }
+
+    showToast('Solution submitted successfully!', 'success');
+    
+    // Redirect to Workspace → My Solutions
+    setTimeout(() => {
+      window.location.href = '/dashboard.html?section=my-solutions';
+    }, 1500);
+
+  } catch (err) {
     btn.disabled = false;
     btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg> Submit Solution';
-    msgEl.textContent = 'Solution submission will be available in a future update.';
+    msgEl.textContent = err.message || 'Failed to submit solution';
     msgEl.className = 'auth-message error';
-  }, 1000);
+    showToast(err.message || 'Failed to submit solution', 'error');
+  }
 }
 
 // ─── NAVIGATION HELPERS ───────────────────────────────────────────
