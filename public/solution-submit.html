@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Submit Solution — Uncharted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/css/shared.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+body { background: var(--pearl); padding-top: 72px; }
+
+/* NAV */
+.sub-nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 40px; background:rgba(250,248,245,0.95);
+  backdrop-filter:blur(14px); border-bottom:1px solid var(--border);
+}
+.nav-logo { font-family:'Fraunces',serif; font-weight:600; font-size:20px; color:var(--ink); text-decoration:none; }
+.nav-logo span { color:var(--teal); font-style:italic; }
+
+/* WIZARD CONTAINER */
+.wizard-container { max-width:800px; margin:0 auto; padding:40px 40px 80px; }
+
+/* STEP INDICATOR */
+.step-indicator { display:flex; align-items:center; margin-bottom:48px; }
+.step-item { display:flex; flex-direction:column; align-items:center; gap:8px; flex:1; position:relative; }
+.step-item:not(:last-child)::after { content:''; position:absolute; top:18px; left:calc(50% + 20px); right:calc(-50% + 20px); height:2px; background:var(--border); z-index:0; transition:background .4s; }
+.step-item.completed:not(:last-child)::after { background:var(--teal); }
+.step-dot { width:36px; height:36px; border-radius:50%; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:500; color:var(--ink-soft); background:white; transition:all .3s; z-index:1; position:relative; }
+.step-item.active .step-dot { border-color:var(--teal); background:var(--teal); color:white; font-weight:600; }
+.step-item.completed .step-dot { border-color:var(--teal); background:var(--teal); color:white; }
+.step-item.completed .step-dot::before { content:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%2338b2ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>'); }
+.step-name { font-size:11px; font-weight:500; color:var(--ink-soft); text-align:center; white-space:nowrap; }
+.step-item.active .step-name { color:var(--teal); font-weight:600; }
+
+/* STEP PANEL */
+.step-panel { display:none; animation:fadeIn .3s ease; }
+.step-panel.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+/* STEP CARD */
+.step-card { background:white; border:1px solid var(--border); border-radius:24px; padding:36px 40px; margin-bottom:20px; }
+.step-card-title { font-family:'Fraunces',serif; font-size:24px; font-weight:400; letter-spacing:-.4px; margin-bottom:6px; }
+.step-card-subtitle { font-size:14px; color:var(--ink-soft); font-weight:300; margin-bottom:28px; line-height:1.5; }
+
+/* Char counter */
+.field-with-counter { position:relative; }
+.field-counter { position:absolute; bottom:10px; right:14px; font-size:11px; color:#8A8A9A; pointer-events:none; }
+.field-counter.warn { color:#C47A2A; }
+.field-counter.over { color:var(--error); }
+
+/* Upload zones */
+.upload-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.upload-zone { border:2px dashed var(--border); border-radius:16px; padding:28px 20px; text-align:center; cursor:pointer; transition:all .2s; }
+.upload-zone:hover, .upload-zone.drag-over { border-color:var(--teal); background:rgba(91,143,168,.04); }
+.upload-zone.uploaded { display:none; }
+.upload-zone-icon { font-size:28px; margin-bottom:8px; }
+.upload-zone h4 { font-family:'Fraunces',serif; font-size:16px; font-weight:400; margin-bottom:6px; }
+.upload-zone p { font-size:12px; color:var(--ink-soft); font-weight:300; line-height:1.5; }
+.upload-hint { font-size:11px; color:#8A8A9A; margin-top:6px; }
+.upload-prog-wrap { margin-top:10px; }
+.upload-progress-bar { height:4px; background:var(--border); border-radius:50px; overflow:hidden; margin-top:6px; }
+.upload-progress-fill { height:100%; background:var(--teal); border-radius:50px; transition:width .3s; }
+.upload-file-name { font-size:12px; color:var(--teal); font-weight:500; margin-top:6px; display:flex; align-items:center; gap:6px; justify-content:center; }
+.upload-file-name button { background:none; border:none; cursor:pointer; color:var(--error); font-size:14px; padding:0; }
+.images-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; margin-top:10px; }
+.image-thumb { position:relative; border-radius:10px; overflow:hidden; aspect-ratio:1; }
+.image-thumb img { width:100%; height:100%; object-fit:cover; }
+.image-thumb-remove { position:absolute; top:4px; right:4px; width:20px; height:20px; background:rgba(192,57,43,.85); color:white; border:none; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; }
+
+/* Uploaded file card */
+.uploaded-file-card { background:white; border:1px solid var(--border); border-radius:16px; padding:20px; display:none; }
+.uploaded-file-card.active { display:block; }
+.file-card-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.file-card-icon { width:48px; height:48px; background:var(--amber); border-radius:12px; display:flex; align-items:center; justify-content:center; color:#7A5A1A; }
+.file-card-info { flex:1; min-width:0; }
+.file-card-name { font-size:14px; font-weight:500; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.file-card-meta { font-size:12px; color:var(--ink-soft); margin-top:2px; }
+.file-card-actions { display:flex; gap:8px; }
+.file-card-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--border); border-radius:8px; background:white; font-size:13px; font-weight:500; color:var(--ink); cursor:pointer; transition:all .15s; }
+.file-card-btn:hover { border-color:var(--teal); color:var(--teal); }
+.file-card-btn svg { width:16px; height:16px; }
+.file-card-btn.remove { color:var(--error); }
+.file-card-btn.remove:hover { border-color:var(--error); color:var(--error); }
+
+/* Review summary */
+.review-section { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.review-section:last-child { border-bottom:none; }
+.review-section h4 { font-size:12px; font-weight:600; color:var(--teal); text-transform:uppercase; letter-spacing:.1em; margin-bottom:10px; }
+.review-row { display:grid; grid-template-columns:140px 1fr; gap:8px; margin-bottom:6px; font-size:13px; }
+.review-label { color:var(--ink-soft); font-weight:400; }
+.review-val { color:var(--ink); font-weight:400; line-height:1.5; }
+
+/* NAVIGATION BUTTONS */
+.wizard-nav { display:flex; justify-content:space-between; align-items:center; margin-top:24px; }
+.draft-indicator { font-size:12px; color:#8A8A9A; display:flex; align-items:center; gap:6px; }
+.draft-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 2s ease-in-out infinite; }
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .wizard-container{padding:24px 16px 60px}
+  .step-card{padding:24px 20px}
+  .upload-grid{grid-template-columns:1fr}
+  .step-name{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="sub-nav">
+  <a href="/" class="nav-logo">un<span>charted</span></a>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <a href="/" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Home</a>
+    <a href="/discover.html" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Discover</a>
+    <a href="#" onclick="openPublishModal()" style="font-size:14px;color:var(--ink);text-decoration:none;font-weight:500;">Publish</a>
+    <a href="#" onclick="navigateToWorkspace()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Workspace</a>
+    <a href="#" onclick="navigateToProfile()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
+  </div>
+</nav>
+
+<div class="wizard-container">
+
+  <!-- STEP INDICATOR -->
+  <div class="step-indicator" id="step-indicator">
+    <div class="step-item active" data-step="1">
+      <div class="step-dot">1</div>
+      <div class="step-name">Solution Info</div>
+    </div>
+    <div class="step-item" data-step="2">
+      <div class="step-dot">2</div>
+      <div class="step-name">Attachments</div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-dot">3</div>
+      <div class="step-name">Review</div>
+    </div>
+  </div>
+
+  <!-- STEP 1 — Solution Information -->
+  <div class="step-panel active" id="panel-1">
+    <div class="step-card">
+      <div class="step-card-title">Solution Information</div>
+      <div class="step-card-subtitle">Describe your solution to the challenge.</div>
+
+      <div class="field">
+        <label>Solution Title <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <div class="field-with-counter">
+          <input id="f-title" type="text" placeholder="e.g. AI-powered water purification system" maxlength="120" oninput="updateCounter('title-cnt',this.value.length,120)"/>
+          <span class="field-counter" id="title-cnt">0/120</span>
+        </div>
+        <div class="field-error" id="err-title">Title is required</div>
+      </div>
+
+      <div class="field">
+        <label>Executive Summary <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <div class="field-with-counter">
+          <textarea id="f-executive-summary" rows="4" placeholder="A concise overview of your solution, its key benefits, and how it addresses the challenge..." maxlength="500" oninput="updateCounter('summary-cnt',this.value.length,500)"></textarea>
+          <span class="field-counter" id="summary-cnt" style="bottom:18px">0/500</span>
+        </div>
+        <div class="field-error" id="err-executive-summary">Executive summary is required</div>
+      </div>
+
+      <div class="field" style="margin-bottom:0">
+        <label>Full Solution Description <span style="font-size:11px;color:#B0ADAA;text-transform:none;letter-spacing:0;font-weight:300">required</span></label>
+        <textarea id="f-description" rows="8" placeholder="Provide detailed information about your solution, including technical approach, implementation plan, expected impact, and any supporting evidence..."></textarea>
+        <div class="field-error" id="err-description">Full description is required</div>
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <div class="draft-indicator"><div class="draft-dot"></div>Auto-saving draft</div>
+      <button class="btn btn-primary btn-large" onclick="goStep(2)">Next: Attachments →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Attachments -->
+  <div class="step-panel" id="panel-2">
+    <div class="step-card">
+      <div class="step-card-title">Upload your materials</div>
+      <div class="step-card-subtitle">All uploads are optional, but adding materials strengthens your solution. Files are stored securely.</div>
+
+      <div class="upload-grid">
+        <!-- Video -->
+        <div class="upload-zone" id="zone-video" onclick="document.getElementById('input-video').click()" ondragover="handleDragOver(event,'zone-video')" ondragleave="handleDragLeave('zone-video')" ondrop="handleDrop(event,'video')">
+          <div class="upload-zone-icon">🎬</div>
+          <h4>Video Demo</h4>
+          <p>Explain your solution on camera or show a demo</p>
+          <div class="upload-hint">MP4, MOV, WebM · Max 500MB</div>
+          <div id="prog-video" class="upload-prog-wrap" style="display:none">
+            <div class="upload-progress-bar"><div class="upload-progress-fill" id="fill-video" style="width:0%"></div></div>
+            <div id="name-video" class="upload-file-name"></div>
+          </div>
+          <input type="file" id="input-video" accept="video/*" style="display:none" onchange="uploadFile(this,'video')"/>
+        </div>
+
+        <!-- Report/PDF -->
+        <div class="upload-zone" id="zone-report" onclick="document.getElementById('input-report').click()" ondragover="handleDragOver(event,'zone-report')" ondragleave="handleDragLeave('zone-report')" ondrop="handleDrop(event,'report')">
+          <div class="upload-zone-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+          <h4>Written Report</h4>
+          <p>Detailed documentation, technical specs, or research paper</p>
+          <div class="upload-hint">PDF, DOCX · Max 50MB</div>
+          <div id="prog-report" class="upload-prog-wrap" style="display:none">
+            <div class="upload-progress-bar"><div class="upload-progress-fill" id="fill-report" style="width:0%"></div></div>
+            <div id="name-report" class="upload-file-name"></div>
+          </div>
+          <input type="file" id="input-report" accept=".pdf,.doc,.docx" style="display:none" onchange="uploadFile(this,'report')"/>
+        </div>
+
+        <!-- Presentation -->
+        <div>
+          <div class="upload-zone" id="zone-presentation" onclick="document.getElementById('input-presentation').click()" ondragover="handleDragOver(event,'zone-presentation')" ondragleave="handleDragLeave('zone-presentation')" ondrop="handleDrop(event,'presentation')">
+            <div class="upload-zone-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg></div>
+            <h4>Presentation Deck</h4>
+            <p>Slide deck with solution overview and key points</p>
+            <div class="upload-hint">PPTX, PDF · Max 50MB</div>
+            <div id="prog-presentation" class="upload-prog-wrap" style="display:none">
+              <div class="upload-progress-bar"><div class="upload-progress-fill" id="fill-presentation" style="width:0%"></div></div>
+              <div id="name-presentation" class="upload-file-name"></div>
+            </div>
+            <input type="file" id="input-presentation" accept=".pdf,.ppt,.pptx" style="display:none" onchange="uploadFile(this,'presentation')"/>
+          </div>
+          <div class="uploaded-file-card" id="card-presentation">
+            <div class="file-card-header">
+              <div class="file-card-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><rect x="7" y="10" width="4" height="7"></rect><rect x="15" y="4" width="4" height="13"></rect></svg></div>
+              <div class="file-card-info">
+                <div class="file-card-name" id="card-presentation-name">presentation.pptx</div>
+                <div class="file-card-meta" id="card-presentation-size">2.4 MB</div>
+              </div>
+            </div>
+            <div class="file-card-actions">
+              <button class="file-card-btn" onclick="replacePresentation()">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Replace
+              </button>
+              <button class="file-card-btn remove" onclick="removeFile('presentation')">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Images -->
+        <div class="upload-zone" id="zone-images" onclick="document.getElementById('input-images').click()" ondragover="handleDragOver(event,'zone-images')" ondragleave="handleDragLeave('zone-images')">
+          <div class="upload-zone-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></div>
+          <h4>Solution Images</h4>
+          <p>Up to 5 images showing your solution, diagrams, or prototypes</p>
+          <div class="upload-hint">JPG, PNG, WebP · Max 10MB each</div>
+          <div id="images-grid-container" class="images-grid" style="display:none"></div>
+          <input type="file" id="input-images" accept="image/*" multiple style="display:none" onchange="uploadImages(this)"/>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px 16px;background:var(--amber);border-radius:12px;font-size:13px;color:#7A5A1A;line-height:1.5">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg> <strong>Tip:</strong> Solutions with a video demo receive 3× more engagement from challenge creators.
+      </div>
+    </div>
+
+    <div class="wizard-nav">
+      <button class="btn btn-ghost btn-large" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-primary btn-large" onclick="goStep(3)">Next: Review →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 — Review -->
+  <div class="step-panel" id="panel-3">
+    <div class="step-card">
+      <div class="step-card-title">Review & submit</div>
+      <div class="step-card-subtitle">Review your solution before submitting.</div>
+
+      <!-- Review summary -->
+      <div style="border:1.5px solid var(--border);border-radius:16px;padding:24px">
+        <div class="review-section">
+          <h4>Solution Information</h4>
+          <div class="review-row"><span class="review-label">Title</span><span class="review-val" id="rv-title">—</span></div>
+          <div class="review-row"><span class="review-label">Executive Summary</span><span class="review-val" id="rv-summary">—</span></div>
+          <div class="review-row"><span class="review-label">Description</span><span class="review-val" id="rv-description">—</span></div>
+        </div>
+        <div class="review-section">
+          <h4>Files</h4>
+          <div class="review-row"><span class="review-label">Video</span><span class="review-val" id="rv-video">Not uploaded</span></div>
+          <div class="review-row"><span class="review-label">Report</span><span class="review-val" id="rv-report">Not uploaded</span></div>
+          <div class="review-row"><span class="review-label">Presentation</span><span class="review-val" id="rv-pres">Not uploaded</span></div>
+          <div class="review-row"><span class="review-label">Images</span><span class="review-val" id="rv-images">None</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="submit-message" class="auth-message" style="margin-top:12px"></div>
+    <div class="wizard-nav">
+      <button class="btn btn-ghost btn-large" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-primary btn-large" id="submit-btn" onclick="submitSolution()"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg> Submit Solution</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ─── SUPABASE + AUTH ─────────────────────────────────────────────
+const SUPABASE_URL = 'https://iynmyhckxnnyttdvjedp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_lwZWKe2QTik3eGIp4tM6hQ_fIgwcafA';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const token = localStorage.getItem('uncharted_token');
+if (!token) window.location.href = '/index.html';
+
+// Get challenge ID from URL
+const urlParams = new URLSearchParams(window.location.search);
+const challengeId = urlParams.get('challenge');
+
+// ─── STATE ────────────────────────────────────────────────────────
+let currentStep = 1;
+let uploadedFiles = { video: null, report: null, presentation: null, images: [] };
+
+// ─── API HELPER ──────────────────────────────────────────────────
+async function api(path, options = {}) {
+  const t = localStorage.getItem('uncharted_token');
+  const res = await fetch('/api' + path, {
+    ...options,
+    headers: { 'Content-Type':'application/json', ...(t?{'Authorization':'Bearer '+t}:{}), ...(options.headers||{}) }
+  });
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(data.error || 'API error');
+  return data;
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────
+function showToast(message, type='success') {
+  const icons = {success:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',error:'✕',info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',warning:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></path></svg>'};
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]||'•'}</span><span>${message}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),300); },3500);
+}
+
+function escHtml(s){if(!s)return '';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ─── STEP NAVIGATION ─────────────────────────────────────────────
+function goStep(n) {
+  if (n > currentStep && !validateStep(currentStep)) return;
+
+  // Update indicators
+  document.querySelectorAll('.step-item').forEach((item, i) => {
+    item.classList.remove('active','completed');
+    if (i+1 === n) item.classList.add('active');
+    if (i+1 < n) item.classList.add('completed');
+  });
+
+  // Show panels
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+n).classList.add('active');
+  currentStep = n;
+
+  if (n === 3) populateReview();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ─── VALIDATION ──────────────────────────────────────────────────
+function validateStep(step) {
+  let valid = true;
+  if (step === 1) {
+    const checks = [
+      {id:'f-title',   err:'err-title',    msg:'Title is required'},
+      {id:'f-executive-summary', err:'err-executive-summary', msg:'Executive summary is required'},
+      {id:'f-description', err:'err-description', msg:'Full description is required'}
+    ];
+    checks.forEach(c => {
+      const el = document.getElementById(c.id);
+      const errEl = document.getElementById(c.err);
+      const parent = el.closest('.field');
+      if (!el.value.trim()) {
+        parent.classList.add('has-error');
+        errEl.style.display = 'block';
+        valid = false;
+      } else {
+        parent.classList.remove('has-error');
+        errEl.style.display = 'none';
+      }
+    });
+  }
+  return valid;
+}
+
+// ─── CHAR COUNTER ────────────────────────────────────────────────
+function updateCounter(id, cur, max) {
+  const el = document.getElementById(id);
+  el.textContent = cur + '/' + max;
+  el.className = 'field-counter' + (cur > max ? ' over' : cur > max*0.85 ? ' warn' : '');
+}
+
+// ─── FILE UPLOAD ─────────────────────────────────────────────────
+function handleDragOver(e, zoneId) { e.preventDefault(); document.getElementById(zoneId).classList.add('drag-over'); }
+function handleDragLeave(zoneId) { document.getElementById(zoneId).classList.remove('drag-over'); }
+function handleDrop(e, type) {
+  e.preventDefault();
+  const zoneId = 'zone-' + type;
+  document.getElementById(zoneId).classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) { uploadFileObj(file, type); }
+}
+
+async function uploadFile(input, type) {
+  const file = input.files[0];
+  if (!file) return;
+  await uploadFileObj(file, type);
+}
+
+async function uploadFileObj(file, type) {
+  const zone = document.getElementById('zone-'+type);
+  const prog = document.getElementById('prog-'+type);
+  const fill = document.getElementById('fill-'+type);
+  const nameEl = document.getElementById('name-'+type);
+
+  zone.style.pointerEvents = 'none';
+  prog.style.display = 'block';
+  fill.style.width = '10%';
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const t = localStorage.getItem('uncharted_token');
+    // Simulate progress
+    let prog_val = 10;
+    const progInterval = setInterval(() => { prog_val = Math.min(prog_val + 15, 85); fill.style.width = prog_val + '%'; }, 300);
+
+    const res = await fetch('/api/upload/'+type, { method:'POST', headers:{ Authorization:'Bearer '+t }, body: formData });
+    clearInterval(progInterval);
+    fill.style.width = '100%';
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Upload failed');
+
+    const uploadedUrl = data.url || data.data?.url;
+    uploadedFiles[type] = uploadedUrl;
+    
+    if (type === 'presentation') {
+      zone.classList.add('uploaded');
+      zone.style.pointerEvents = '';
+      prog.style.display = 'none';
+      fill.style.width = '0%';
+      nameEl.innerHTML = '';
+      
+      const card = document.getElementById('card-presentation');
+      card.classList.add('active');
+      document.getElementById('card-presentation-name').textContent = file.name;
+      document.getElementById('card-presentation-size').textContent = formatFileSize(file.size);
+      uploadedFiles.presentationFileName = file.name;
+    } else {
+      zone.classList.add('uploaded');
+      zone.style.pointerEvents = '';
+      prog.style.display = 'none';
+      fill.style.width = '0%';
+      nameEl.innerHTML = '';
+    }
+    
+    showToast('File uploaded successfully', 'success');
+  } catch (err) {
+    zone.style.pointerEvents = '';
+    prog.style.display = 'none';
+    fill.style.width = '0%';
+    showToast(err.message || 'Upload failed', 'error');
+  }
+}
+
+async function uploadImages(input) {
+  const files = [...input.files].slice(0, 5);
+  if (!files.length) return;
+  const t = localStorage.getItem('uncharted_token');
+  const grid = document.getElementById('images-grid-container');
+  grid.style.display = 'grid';
+  const zone = document.getElementById('zone-images');
+
+  for (const file of files) {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/upload/image', { method:'POST', headers:{Authorization:'Bearer '+t}, body:formData });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const uploadedUrl = data.url || data.data?.url;
+      uploadedFiles.images.push(uploadedUrl);
+      const thumb = document.createElement('div');
+      thumb.className = 'image-thumb';
+      const idx = uploadedFiles.images.length - 1;
+      thumb.innerHTML = `<img src="${escHtml(uploadedUrl)}" alt=""/><button class="image-thumb-remove" onclick="removeImage(${idx},this)">&times;</button>`;
+      grid.appendChild(thumb);
+    } catch(err) {
+      showToast('Image upload error: ' + err.message, 'error');
+    }
+  }
+  zone.classList.add('uploaded');
+}
+
+function removeImage(idx, btn) {
+  uploadedFiles.images.splice(idx, 1);
+  btn.closest('.image-thumb').remove();
+  if (!uploadedFiles.images.length) {
+    document.getElementById('zone-images').classList.remove('uploaded');
+    document.getElementById('images-grid-container').style.display = 'none';
+  }
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function replacePresentation() {
+  document.getElementById('card-presentation').classList.remove('active');
+  document.getElementById('zone-presentation').style.display = 'block';
+  document.getElementById('input-presentation').click();
+}
+
+function removeFile(type) {
+  uploadedFiles[type] = null;
+  if (type === 'presentation') {
+    document.getElementById('card-presentation').classList.remove('active');
+    document.getElementById('zone-presentation').style.display = 'block';
+    document.getElementById('prog-presentation').style.display = 'none';
+  }
+}
+
+// ─── POPULATE REVIEW ─────────────────────────────────────────────
+function populateReview() {
+  document.getElementById('rv-title').textContent = document.getElementById('f-title').value || '—';
+  document.getElementById('rv-summary').textContent = document.getElementById('f-executive-summary').value || '—';
+  document.getElementById('rv-description').textContent = document.getElementById('f-description').value || '—';
+  document.getElementById('rv-video').textContent = uploadedFiles.video ? 'Uploaded' : 'Not uploaded';
+  document.getElementById('rv-report').textContent = uploadedFiles.report ? 'Uploaded' : 'Not uploaded';
+  document.getElementById('rv-pres').textContent = uploadedFiles.presentation ? 'Uploaded' : 'Not uploaded';
+  document.getElementById('rv-images').textContent = uploadedFiles.images.length ? uploadedFiles.images.length + ' image(s)' : 'None';
+}
+
+// ─── SUBMIT SOLUTION ─────────────────────────────────────────────
+async function submitSolution() {
+  const btn = document.getElementById('submit-btn');
+  const msgEl = document.getElementById('submit-message');
+  
+  btn.disabled = true;
+  btn.innerHTML = 'Submitting…';
+  msgEl.textContent = '';
+  msgEl.className = 'auth-message';
+  
+  // For now, just show a message since backend is not implemented
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg> Submit Solution';
+    msgEl.textContent = 'Solution submission will be available in a future update.';
+    msgEl.className = 'auth-message error';
+  }, 1000);
+}
+
+// ─── NAVIGATION HELPERS ───────────────────────────────────────────
+function navigateToWorkspace() {
+  window.location.href = '/dashboard.html';
+}
+
+function navigateToProfile() {
+  const userId = localStorage.getItem('uncharted_user') ? JSON.parse(localStorage.getItem('uncharted_user')).id : null;
+  if (userId) {
+    window.location.href = '/profile.html?id=' + userId;
+  } else {
+    window.location.href = '/';
+  }
+}
+
+function openPublishModal() {
+  window.location.href = '/index.html#publish';
+}
+</script>
+</body>
+</html>
