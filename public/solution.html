@@ -714,7 +714,7 @@ a { color: inherit; text-decoration: none; }
         <a href="#" id="innovator-profile-link" class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;">View Profile</a>
       </div>
 
-      <div class="card action-card">
+      <div class="card action-card" id="actions-card">
         <div class="card-header">
           <div>
             <h2 class="card-title">Actions</h2>
@@ -724,7 +724,21 @@ a { color: inherit; text-decoration: none; }
         <div class="action-buttons">
           <button class="btn btn-primary" disabled>Shortlist</button>
           <button class="btn btn-ghost" disabled>Reject</button>
-          <button class="btn btn-ghost" disabled>Contact Innovator</button>
+          <button class="btn btn-ghost" id="contact-innovator-btn" onclick="openContactModal()">Contact Innovator</button>
+        </div>
+      </div>
+
+      <div class="card action-card" id="owner-status-card" style="display:none">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Your Solution</h2>
+          </div>
+        </div>
+        <div style="padding:16px 0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span class="badge badge-active" id="owner-status-badge">submitted</span>
+          </div>
+          <p style="font-size:14px;color:var(--ink-subtle);margin:0">Waiting for organization review.</p>
         </div>
       </div>
     </aside>
@@ -734,6 +748,30 @@ a { color: inherit; text-decoration: none; }
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
   <button class="lightbox-close" onclick="closeLightbox()">&#10005;</button>
   <img id="lightbox-img" src="" alt=""/>
+</div>
+
+<!-- CONTACT REQUEST MODAL -->
+<div class="modal-overlay" id="modal-contact-request" onclick="if(event.target===this)closeContactModal()">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeContactModal()">✕</button>
+    <div class="modal-logo">un<span>charted</span></div>
+    <h2 class="modal-title">Contact Innovator</h2>
+    <p class="modal-subtitle">Send a contact request to connect with this innovator about their solution.</p>
+    <div class="field">
+      <label>Subject</label>
+      <input type="text" id="contact-subject" placeholder="Brief subject line..." />
+    </div>
+    <div class="field">
+      <label>Message</label>
+      <textarea id="contact-message" rows="5" placeholder="Introduce yourself and explain your interest in this solution..."></textarea>
+    </div>
+    <div class="field">
+      <label>Meeting Link (optional)</label>
+      <input type="text" id="contact-meeting-link" placeholder="https://calendly.com/..." />
+    </div>
+    <div id="contact-request-msg" class="auth-message"></div>
+    <button class="modal-submit" id="contact-request-submit-btn" onclick="sendContactRequest()">Send Request →</button>
+  </div>
 </div>
 
 <div id="toast-container"></div>
@@ -1036,6 +1074,19 @@ async function loadSolution() {
     renderAttachments();
     renderInnovator(profile);
 
+    // Determine viewer and show appropriate card
+    const currentUser = JSON.parse(localStorage.getItem('uncharted_user') || '{}');
+    const isOwner = currentUser.id === solution.user_id;
+    
+    if (isOwner) {
+      document.getElementById('actions-card').style.display = 'none';
+      document.getElementById('owner-status-card').style.display = 'block';
+      document.getElementById('owner-status-badge').textContent = solution.status || 'submitted';
+    } else {
+      document.getElementById('actions-card').style.display = 'block';
+      document.getElementById('owner-status-card').style.display = 'none';
+    }
+
     document.getElementById('hero-skeleton').style.display = 'none';
     document.getElementById('hero-content').style.display = 'block';
     document.getElementById('innovator-skeleton').style.display = 'none';
@@ -1047,6 +1098,78 @@ async function loadSolution() {
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape') closeLightbox();
 });
+
+// ── TOAST ─────────────────────────────────────────────────────────────────
+function showToast(message, type = 'success') {
+  const icons = {success:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',error:'✕',info:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',warning:'<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'};
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.innerHTML = `<span>${icons[type]||'•'}</span><span>${message}</span>`;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),300); },3500);
+}
+
+// ── Contact Request Modal ─────────────────────────────────────────────────────
+function openContactModal() {
+  const token = localStorage.getItem('uncharted_token');
+  if (!token) {
+    showToast('Please sign in to send a contact request', 'info');
+    return;
+  }
+  document.getElementById('modal-contact-request').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeContactModal() {
+  document.getElementById('modal-contact-request').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+async function sendContactRequest() {
+  const subject = document.getElementById('contact-subject').value.trim();
+  const message = document.getElementById('contact-message').value.trim();
+  const meetingLink = document.getElementById('contact-meeting-link').value.trim();
+  const msgEl = document.getElementById('contact-request-msg');
+  const btn = document.getElementById('contact-request-submit-btn');
+
+  if (!message) {
+    msgEl.textContent = 'Message is required.';
+    msgEl.className = 'auth-message error';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const response = await api('/contact-requests', {
+      method: 'POST',
+      body: JSON.stringify({
+        solution_id: solutionId,
+        subject: subject || null,
+        message,
+        meeting_link: meetingLink || null,
+      }),
+    });
+
+    msgEl.textContent = 'Contact request sent successfully!';
+    msgEl.className = 'auth-message success';
+    
+    setTimeout(() => {
+      closeContactModal();
+      document.getElementById('contact-subject').value = '';
+      document.getElementById('contact-message').value = '';
+      document.getElementById('contact-meeting-link').value = '';
+      msgEl.textContent = '';
+    }, 1500);
+  } catch (err) {
+    msgEl.textContent = err.message || 'Failed to send contact request.';
+    msgEl.className = 'auth-message error';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Request →';
+  }
+}
 
 loadSolution();
 </script>

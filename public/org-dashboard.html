@@ -360,7 +360,17 @@ body{background:var(--pearl);min-height:100vh;}
       <div class="stat-card">
         <span class="stat-icon">✉️</span>
         <div class="stat-number" id="stat-contacts">—</div>
-        <div class="stat-label">Contacts Sent</div>
+        <div class="stat-label">Contact Requests</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#27ae60">✓</span>
+        <div class="stat-number" id="stat-accepted">—</div>
+        <div class="stat-label">Accepted Contacts</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" style="color:#f39c12">⏱</span>
+        <div class="stat-number" id="stat-pending">—</div>
+        <div class="stat-label">Pending Requests</div>
       </div>
       <div class="stat-card">
         <span class="stat-icon"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
@@ -453,6 +463,12 @@ body{background:var(--pearl);min-height:100vh;}
     <div id="contact-requests">
       <div class="section-header">
         <div class="section-label">Contact Requests Sent</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button class="filter-chip active" onclick="filterContactRequests('all')" id="filter-all" style="padding:6px 14px;border:1px solid var(--border);background:var(--teal);color:white;border-radius:20px;font-size:13px;cursor:pointer;">All</button>
+        <button class="filter-chip" onclick="filterContactRequests('pending')" id="filter-pending" style="padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--ink-soft);border-radius:20px;font-size:13px;cursor:pointer;">Pending</button>
+        <button class="filter-chip" onclick="filterContactRequests('accepted')" id="filter-accepted" style="padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--ink-soft);border-radius:20px;font-size:13px;cursor:pointer;">Accepted</button>
+        <button class="filter-chip" onclick="filterContactRequests('rejected')" id="filter-rejected" style="padding:6px 14px;border:1px solid var(--border);background:transparent;color:var(--ink-soft);border-radius:20px;font-size:13px;cursor:pointer;">Rejected</button>
       </div>
       <div id="contacts-container">
         <div class="contacts-list" id="contacts-skeleton">
@@ -657,6 +673,7 @@ async function boot() {
   loadRecommended();
   loadRecentlyAdded();
   loadTrending();
+  loadContactsSent();
 }
 
 // ── API helpers ──────────────────────────────────────────────────────────────
@@ -864,48 +881,93 @@ async function loadRecentlyViewed() {
 }
 
 // ── Load contacts sent ────────────────────────────────────────────────────────
+let allContactRequests = [];
+let currentContactFilter = 'all';
+
 async function loadContactsSent() {
   if (contactsSentLoaded) return;
   const skeleton = document.getElementById('contacts-skeleton');
   try {
-    const { data } = await apiGet('/api/contacts/sent');
+    const response = await apiGet('/api/contact-requests/outgoing');
+    const data = response.data || response.requests || response || [];
+    allContactRequests = data;
     contactsSentLoaded = true;
     skeleton.style.display = 'none';
-    document.getElementById('stat-contacts').textContent = data?.length || 0;
 
-    if (!data || data.length === 0) {
-      document.getElementById('contacts-container').innerHTML = `
-        <div class="empty-state">
-          <span class="empty-icon">✉️</span>
-          <h3>No contact requests sent</h3>
-          <p>Visit an idea page and reach out to the innovator.</p>
-          <a href="/discover.html" class="btn-teal-small">Browse Ideas</a>
-        </div>`;
-      return;
-    }
+    // Update statistics
+    const total = data.length;
+    const accepted = data.filter(r => r.status === 'accepted').length;
+    const pending = data.filter(r => r.status === 'pending').length;
+    
+    document.getElementById('stat-contacts').textContent = total;
+    document.getElementById('stat-accepted').textContent = accepted;
+    document.getElementById('stat-pending').textContent = pending;
 
-    document.getElementById('contacts-container').innerHTML = '';
-    const list = document.createElement('div');
-    list.className = 'contacts-list';
-    list.innerHTML = data.map(c => `
-      <div class="contact-item">
-        <div class="contact-avatar">${(c.receiver_name || 'I').charAt(0).toUpperCase()}</div>
-        <div class="contact-body">
-          <div class="contact-name">${c.receiver_name || 'Innovator'}</div>
-          <div class="contact-idea">Re: ${c.idea_title || 'An idea'}</div>
-          <div class="contact-msg">${c.message || '—'}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
-          <div class="contact-date">${formatDate(c.created_at)}</div>
-          <span class="contact-status status-${c.status || 'pending'}">${c.status || 'Pending'}</span>
-        </div>
-      </div>
-    `).join('');
-    document.getElementById('contacts-container').appendChild(list);
-
+    renderContactRequests(data);
   } catch (err) {
     skeleton.innerHTML = `<p style="color:var(--ink-soft);font-size:13px;">Could not load contact requests.</p>`;
   }
+}
+
+function renderContactRequests(requests) {
+  if (!requests || requests.length === 0) {
+    document.getElementById('contacts-container').innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">✉️</span>
+        <h3>No contact requests yet</h3>
+        <p>Contact requests you send to innovators will appear here.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('contacts-container').innerHTML = '';
+  const list = document.createElement('div');
+  list.className = 'contacts-list';
+  list.innerHTML = requests.map(r => {
+    const statusColor = r.status === 'accepted' ? '#27ae60' : r.status === 'rejected' ? '#e74c3c' : '#f39c12';
+    const messageLines = (r.message || '').split('\n').slice(0, 2).join('\n');
+    const meetingButton = r.meeting_link ? `<a href="${escHtml(r.meeting_link)}" target="_blank" class="btn btn-sm" style="background:#27ae60;color:white;border:none;padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">Join Meeting</a>` : '';
+    
+    return `
+      <div class="contact-item" style="padding:16px;background:white;border:1px solid var(--border);border-radius:12px;display:flex;gap:12px;align-items:flex-start;">
+        <div class="contact-avatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--lavender),var(--teal-lt));color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;flex-shrink:0;">${(r.innovator?.full_name || 'I').charAt(0).toUpperCase()}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <div style="font-weight:600;font-size:14px;color:var(--ink);">${escHtml(r.innovator?.full_name || 'Innovator')}</div>
+            <span style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;background:${statusColor};color:white;">${r.status || 'Pending'}</span>
+          </div>
+          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:4px;">${escHtml(r.solution?.title || 'A solution')}</div>
+          ${r.challenge?.title ? `<div style="font-size:12px;color:var(--ink-subtle);margin-bottom:6px;">Challenge: ${escHtml(r.challenge.title)}</div>` : ''}
+          <div style="font-size:13px;color:var(--ink);margin-bottom:8px;line-height:1.4;max-height:40px;overflow:hidden;">${escHtml(messageLines || '—')}</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/solution.html?id=${escHtml(r.solution_id)}" class="btn btn-sm" style="background:var(--pearl);color:var(--ink);border:1px solid var(--border);padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">View Solution</a>
+            <a href="/profile.html?id=${escHtml(r.innovator_id)}" class="btn btn-sm" style="background:var(--pearl);color:var(--ink);border:1px solid var(--border);padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">View Innovator</a>
+            ${meetingButton}
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--ink-subtle);flex-shrink:0;">${relativeTime(r.created_at)}</div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('contacts-container').appendChild(list);
+}
+
+function filterContactRequests(filter) {
+  currentContactFilter = filter;
+  
+  // Update filter chip styles
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.style.background = 'transparent';
+    chip.style.color = 'var(--ink-soft)';
+  });
+  document.getElementById('filter-' + filter).style.background = 'var(--teal)';
+  document.getElementById('filter-' + filter).style.color = 'white';
+  
+  // Filter and render
+  const filtered = filter === 'all' 
+    ? allContactRequests 
+    : allContactRequests.filter(r => r.status === filter);
+  renderContactRequests(filtered);
 }
 
 // ── Load industries for dropdown ─────────────────────────────────────────────
@@ -1171,6 +1233,7 @@ function switchSection(section) {
   if (section === 'overview') {
     if (overviewSection) overviewSection.style.display = 'block';
     document.getElementById('org-nav-overview').classList.add('active');
+    loadContactsSent();
   } else if (section === 'my-challenges') {
     if (myChallengesSection) myChallengesSection.style.display = 'block';
     document.getElementById('org-nav-my-challenges').classList.add('active');
