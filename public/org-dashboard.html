@@ -1224,31 +1224,65 @@ function switchSection(section) {
   if (savedSection) savedSection.style.display = 'none';
   if (settingsSection) settingsSection.style.display = 'none';
 
-  // Remove active state from all sidebar links
+  // Remove active state from all sidebar links and reset styling
   document.querySelectorAll('.sidebar-link').forEach(link => {
     link.classList.remove('active');
+    link.style.background = 'transparent';
+    link.style.color = 'var(--ink-soft)';
   });
 
-  // Show selected section
+  // Show selected section and apply active styling
   if (section === 'overview') {
     if (overviewSection) overviewSection.style.display = 'block';
-    document.getElementById('org-nav-overview').classList.add('active');
+    const nav = document.getElementById('org-nav-overview');
+    if (nav) {
+      nav.classList.add('active');
+      nav.style.background = 'var(--pearl)';
+      nav.style.color = 'var(--ink)';
+    }
     loadContactsSent();
   } else if (section === 'my-challenges') {
     if (myChallengesSection) myChallengesSection.style.display = 'block';
-    document.getElementById('org-nav-my-challenges').classList.add('active');
+    const nav = document.getElementById('org-nav-my-challenges');
+    if (nav) {
+      nav.classList.add('active');
+      nav.style.background = 'var(--pearl)';
+      nav.style.color = 'var(--ink)';
+    }
     loadMyChallenges();
   } else if (section === 'my-solutions') {
     if (mySolutionsSection) mySolutionsSection.style.display = 'block';
-    document.getElementById('org-nav-my-solutions').classList.add('active');
+    const nav = document.getElementById('org-nav-my-solutions');
+    if (nav) {
+      nav.classList.add('active');
+      nav.style.background = 'var(--pearl)';
+      nav.style.color = 'var(--ink)';
+    }
     loadReceivedSolutions();
   } else if (section === 'saved') {
     if (savedSection) savedSection.style.display = 'block';
-    document.getElementById('org-nav-saved').classList.add('active');
+    const nav = document.getElementById('org-nav-saved');
+    if (nav) {
+      nav.classList.add('active');
+      nav.style.background = 'var(--pearl)';
+      nav.style.color = 'var(--ink)';
+    }
   } else if (section === 'settings') {
     if (settingsSection) settingsSection.style.display = 'block';
-    document.getElementById('org-nav-settings').classList.add('active');
+    const nav = document.getElementById('org-nav-settings');
+    if (nav) {
+      nav.classList.add('active');
+      nav.style.background = 'var(--pearl)';
+      nav.style.color = 'var(--ink)';
+    }
   }
+
+  // Scroll to top and reset scroll for the displayed section
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => {
+    const el = document.getElementById(section === 'overview' ? 'discovery-hero' : 'section-' + section);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 0);
 }
 
 function switchTab(tab) {

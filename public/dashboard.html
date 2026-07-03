@@ -1023,6 +1023,8 @@ function switchSection(section) {
   document.getElementById('section-saved').style.display = 'none';
   document.getElementById('section-settings').style.display = 'none';
   document.getElementById('section-contact-requests').style.display = 'none';
+  // Hide notifications when not in overview
+  document.getElementById('notif-list').style.display = 'none';
 
   // Remove active state from all sidebar links
   document.querySelectorAll('.sidebar-link').forEach(link => {
@@ -1048,14 +1050,14 @@ function switchSection(section) {
     document.getElementById('nav-my-ideas').classList.add('active');
     document.getElementById('nav-my-ideas').style.background = 'var(--pearl)';
     document.getElementById('nav-my-ideas').style.color = 'var(--ink)';
-    // Scroll to my-ideas section
-    setTimeout(() => document.getElementById('my-ideas').scrollIntoView({behavior:'smooth'}), 100);
+
   } else if (section === 'my-challenges') {
     document.getElementById('section-my-challenges').style.display = 'block';
     document.getElementById('nav-my-challenges').classList.add('active');
     document.getElementById('nav-my-challenges').style.background = 'var(--pearl)';
     document.getElementById('nav-my-challenges').style.color = 'var(--ink)';
     loadMyChallenges();
+
   } else if (section === 'my-solutions') {
     document.getElementById('section-my-solutions').style.display = 'block';
     document.getElementById('nav-my-solutions').classList.add('active');
@@ -1071,7 +1073,13 @@ function switchSection(section) {
     document.getElementById('section-settings').style.display = 'block';
     document.getElementById('nav-settings').classList.add('active');
     document.getElementById('nav-settings').style.background = 'var(--pearl)';
-    document.getElementById('nav-settings').style.color = 'var(--ink)';
+  // Scroll to top of the workspace after changing sections
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Generic scroll reset for any section
+  setTimeout(() => {
+    const el = document.getElementById('section-' + section);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 0);
   }
 }
 
