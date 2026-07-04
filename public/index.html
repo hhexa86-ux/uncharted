@@ -212,30 +212,89 @@ h1.hero-h1 em { font-style:italic; color:var(--teal); }
 /* Showcase skeleton (kept for compat) */
 .skel-isc { height:160px; border-radius:var(--r-lg); margin-bottom:0; }
 
+/* ── MOBILE HAMBURGER BUTTON ── */
+.nav-hamburger {
+  display:none; flex-direction:column; justify-content:center; align-items:center;
+  gap:5px; width:40px; height:40px; background:none; border:1.5px solid var(--border);
+  border-radius:8px; cursor:pointer; padding:8px; flex-shrink:0;
+}
+.nav-hamburger span { display:block; width:18px; height:2px; background:var(--ink); border-radius:2px; transition:all .25s; }
+
+/* Mobile nav panel */
+.mobile-nav-panel {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(250,248,245,.98); z-index:99; flex-direction:column;
+  align-items:center; justify-content:center; gap:32px;
+  backdrop-filter:blur(14px);
+}
+.mobile-nav-panel.open { display:flex; }
+.mobile-nav-panel a, .mobile-nav-panel button {
+  font-family:'Fraunces',serif; font-size:26px; font-weight:400;
+  color:var(--ink); text-decoration:none; background:none; border:none; cursor:pointer;
+  letter-spacing:-.5px;
+}
+.mobile-nav-panel a:hover, .mobile-nav-panel button:hover { color:var(--teal); }
+.mobile-nav-close {
+  position:absolute; top:20px; right:20px; background:none; border:none;
+  font-size:28px; cursor:pointer; color:var(--ink-soft); width:44px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+}
+.mobile-nav-actions { display:flex; gap:12px; margin-top:8px; }
+
 /* RESPONSIVE */
 @media(max-width:1100px){ .featured-grid{grid-template-columns:repeat(2,1fr)} }
+
 @media(max-width:900px){
   nav.land-nav{padding:14px 20px}
   .nav-center-links{display:none}
-  .hero{grid-template-columns:1fr;padding:100px 24px 60px;gap:32px}
-  .hero-visual{height:280px}
-  .orbit{width:220px;height:220px}
-  .featured-section{padding:48px 24px}
-  .how{padding:70px 24px}
+  .nav-hamburger{display:flex}
+  .land-nav-actions .btn:not(:last-child){display:none} /* hide "Log in" on tablet, keep "Get started" */
+  .hero{grid-template-columns:1fr;padding:100px 20px 60px;gap:32px}
+  .hero-visual{height:260px}
+  .orbit{width:200px;height:200px}
+  .hero-sub{max-width:100%}
+  .hero-value-cards{grid-template-columns:1fr 1fr}
+  .cta-cards{grid-template-columns:1fr}
+  .showcase-grid{grid-template-columns:1fr 1fr}
+  .featured-section{padding:48px 20px}
+  .how{padding:70px 20px}
   .steps{grid-template-columns:1fr;gap:16px}
-  .user-types{padding:60px 24px}
+  .user-types{padding:60px 20px}
   .user-type-grid{grid-template-columns:1fr}
-  .upload-section{padding:70px 24px}
-  .upload-cards{grid-template-columns:1fr}
-  .quote-band{padding:60px 24px}
-  footer{padding:40px 24px 28px}
+  .upload-section{padding:70px 20px}
+  .upload-cards{grid-template-columns:1fr 1fr}
+  .cta-section{padding:60px 20px}
+  .quote-band{padding:60px 20px}
+  footer{padding:40px 20px 28px}
   .footer-top{grid-template-columns:1fr 1fr;gap:32px}
-  .featured-divider{margin:0 24px}
+  .featured-divider{margin:0 20px}
 }
+
 @media(max-width:600px){
-  .featured-grid{grid-template-columns:1fr 1fr}
-  .footer-top{grid-template-columns:1fr}
+  nav.land-nav{padding:12px 16px}
+  .land-nav-actions{display:none} /* hamburger replaces all nav actions */
+  .nav-hamburger{display:flex}
+  .hero{padding:88px 16px 48px;gap:24px}
+  .hero-value-cards{grid-template-columns:1fr}
+  .hero-cta{flex-direction:column;align-items:stretch}
+  .hero-cta .btn{text-align:center}
+  .featured-grid{grid-template-columns:1fr}
+  .showcase-grid{grid-template-columns:1fr}
+  .cta-cards{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .upload-cards{grid-template-columns:1fr}
+  .user-type-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr;gap:24px}
   .live-counter{flex-wrap:wrap;justify-content:center}
+  .footer-bottom{flex-direction:column;text-align:center;gap:8px}
+}
+
+@media(max-width:480px){
+  .hero-visual{display:none} /* hide floating cards on tiny screens */
+  .quote-band{padding:48px 16px}
+  .how{padding:52px 16px}
+  .user-types{padding:48px 16px}
+  .cta-section{padding:48px 16px}
 }
 
 /* UPLOAD FORMATS */
@@ -306,7 +365,23 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
     <button class="btn btn-ghost" onclick="openModal('login')">Log in</button>
     <button class="btn btn-primary" onclick="openModal('signup')">Get started</button>
   </div>
+  <button class="nav-hamburger" id="hamburger-btn" aria-label="Open menu" onclick="document.getElementById('mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV PANEL -->
+<div class="mobile-nav-panel" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <button class="mobile-nav-close" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow=''" aria-label="Close menu">✕</button>
+  <a href="/">Home</a>
+  <a href="/discover.html">Discover</a>
+  <a href="#" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal()">Publish</a>
+  <a href="#how" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow=''">How It Works</a>
+  <div class="mobile-nav-actions">
+    <button class="btn btn-ghost" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openModal('login')">Log in</button>
+    <button class="btn btn-primary" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openModal('signup')">Get started</button>
+  </div>
+</div>
 
 <!-- HERO -->
 <section>

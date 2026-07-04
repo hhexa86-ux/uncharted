@@ -119,12 +119,42 @@ body { background: var(--pearl); padding-top: 72px; }
 .draft-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:pulse 2s ease-in-out infinite; }
 
 /* RESPONSIVE */
-@media(max-width:640px){
-  .wizard-container{padding:24px 16px 60px}
-  .step-card{padding:24px 20px}
-  .upload-grid{grid-template-columns:1fr}
-  .step-name{display:none}
+@media(max-width:768px){
+  .sub-nav { padding:12px 16px; }
+  .sub-nav > div { display:none; } /* hide nav links */
+  .wizard-container { padding:28px 16px 60px; }
+  .step-card { padding:24px 16px; border-radius:16px; }
+  .step-card-title { font-size:20px; }
+  /* Side-by-side grids collapse */
+  div[style*="grid-template-columns:1fr 1fr"] { display:flex !important; flex-direction:column; gap:0; }
+  /* Upload grid */
+  .upload-grid { grid-template-columns:1fr; }
+  /* Wizard nav */
+  .wizard-nav { gap:12px; }
+  /* Review rows */
+  .review-row { grid-template-columns:1fr; gap:2px; margin-bottom:10px; }
+  .review-label { font-size:11px; color:var(--teal); text-transform:uppercase; letter-spacing:.06em; }
 }
+@media(max-width:640px){
+  .wizard-container { padding:20px 12px 60px; }
+  .step-card { padding:20px 14px; }
+  /* Step names hidden */
+  .step-name { display:none; }
+  /* External link row goes vertical */
+  .external-link-row { flex-direction:column; gap:6px; }
+  .external-link-row select { width:100%; }
+  .external-link-row input { width:100%; }
+  .external-link-row button { align-self:flex-end; }
+  /* Tag select items wrap nicely */
+  .tag-select-wrap { gap:6px; }
+  /* Wizard nav buttons fill width */
+  .wizard-nav .btn-large { flex:1; }
+}
+@media(max-width:480px){
+  .step-dot { width:30px; height:30px; font-size:12px; }
+  .step-item:not(:last-child)::after { top:15px; }
+}
+
 </style>
 </head>
 <body>
