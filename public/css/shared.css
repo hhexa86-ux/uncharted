@@ -617,3 +617,90 @@ p  { font-size: 15px; line-height: 1.7; color: var(--ink-soft); font-weight: 300
 
 /* Focus */
 :focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+
+/* ── UI POLISH OVERRIDES ─────────────────────────────────────── */
+/* Spacing scale */
+:root {
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 16px;
+  --sp-lg: 24px;
+  --sp-xl: 32px;
+}
+
+/* Sections spacing */
+section { margin-bottom: var(--sp-lg); }
+
+/* Headings spacing */
+h1, h2, h3, h4, h5, h6 { margin-bottom: var(--sp-md); }
+
+/* Paragraph spacing */
+p { margin-bottom: var(--sp-sm); }
+
+/* Card improvements */
+.fi-card {
+  display: block;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-md);
+  transition: transform var(--t-base), box-shadow var(--t-base);
+  text-decoration: none;
+  color: inherit;
+}
+.fi-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.fi-card .fi-title { margin-bottom: var(--sp-xs); line-height: 1.3; }
+.fi-card .fi-meta { margin-top: var(--sp-xs); font-size: 12px; color: var(--ink-soft); }
+
+/* Button standardization */
+.btn {
+  min-height: 40px;
+  padding: 0 var(--sp-lg);
+  border-radius: var(--r-sm);
+  font-weight: 500;
+  transition: all var(--t-base);
+}
+.btn-primary, .btn-teal, .btn-ghost, .btn-ghost-white, .btn-danger {
+  border-radius: var(--r-sm);
+}
+.btn:hover:not(:disabled) { transform: translateY(-2px); }
+
+/* Typography consistency */
+h1 { font-weight: 400; line-height: 1.2; }
+h2 { font-weight: 400; line-height: 1.25; }
+h3 { font-weight: 400; line-height: 1.3; }
+
+/* Forms improvements */
+.field { margin-bottom: var(--sp-lg); }
+.field label { margin-bottom: var(--sp-xs); }
+.field input, .field select, .field textarea {
+  padding: var(--sp-sm) var(--sp-md);
+  border-radius: var(--r-sm);
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  box-shadow: 0 0 0 3px rgba(91,143,168,0.12);
+}
+
+/* Empty state spacing */
+.empty-state { gap: var(--sp-md); }
+.empty-title { margin-bottom: var(--sp-xs); }
+
+/* Hover effects for links */
+a { transition: color var(--t-fast), opacity var(--t-fast); }
+a:hover { opacity: 0.85; }
+
+/* Icons size consistency */
+.icon { width: 1.2rem; height: 1.2rem; }
+
+/* Featured grid gap */
+.featured-grid { gap: var(--sp-md); }
+
+/* Button size tweaks */
+.btn-sm { min-height: 32px; padding: 0 var(--sp-sm); }
+.btn-large { min-height: 48px; }
+
+/* Consistent border radius for cards and modals */
+.card, .modal { border-radius: var(--r-md); }
