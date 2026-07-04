@@ -1,0 +1,22 @@
+# Environment files
+server/.env
+.env
+
+# Dependencies
+node_modules/
+server/node_modules/
+
+# Logs
+*.log
+
+# VS Code
+.vscode/
+
+# JetBrains IDE
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
