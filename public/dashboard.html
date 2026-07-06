@@ -135,6 +135,31 @@ body { background: var(--pearl); padding-top: 70px; }
   .publish-options { grid-template-columns:1fr; }
 }
 
+/* Mobile hamburger for dashboard */
+.dash-hamburger {
+  display:none; flex-direction:column; justify-content:center; align-items:center;
+  gap:5px; width:40px; height:40px; background:none; border:1.5px solid var(--border);
+  border-radius:8px; cursor:pointer; padding:8px; flex-shrink:0;
+}
+.dash-hamburger span { display:block; width:18px; height:2px; background:var(--ink); border-radius:2px; }
+.dash-mobile-nav {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(250,248,245,.98); z-index:199; flex-direction:column;
+  align-items:center; justify-content:center; gap:24px;
+  backdrop-filter:blur(14px);
+}
+.dash-mobile-nav.open { display:flex; }
+.dash-mobile-nav a, .dash-mobile-nav button {
+  font-family:'Fraunces',serif; font-size:24px; font-weight:400;
+  color:var(--ink); text-decoration:none; background:none; border:none; cursor:pointer; letter-spacing:-.5px;
+}
+.dash-mobile-nav a:hover, .dash-mobile-nav button:hover { color:var(--teal); }
+.dash-mobile-nav-close {
+  position:absolute; top:20px; right:20px; background:none; border:none;
+  font-size:28px; cursor:pointer; color:var(--ink-soft); width:44px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+}
+
 /* RESPONSIVE */
 @media(max-width:900px){
   .dash-layout { grid-template-columns:1fr; padding:16px 16px 60px; }
@@ -154,12 +179,21 @@ body { background: var(--pearl); padding-top: 70px; }
   .stat-val { font-size:22px; }
   .cta-card { padding:20px 16px; }
   .cta-card h3 { font-size:18px; }
+  .dash-hamburger { display:flex; }
+  /* Collapse inline two-column grids inside modals / step cards */
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr"] { display:flex !important; flex-direction:column; gap:0; }
 }
 @media(max-width:480px){
   .my-idea-card { padding:16px; }
   .mic-actions { justify-content:flex-start; flex-wrap:wrap; }
   .publish-options { grid-template-columns:1fr; }
   .avatar-upload-area { flex-direction:column; align-items:flex-start; }
+  .dash-nav { padding:10px 12px; }
+}
+@media(max-width:360px){
+  .dash-nav { padding:10px 10px; }
+  .dash-layout { padding:10px 10px 60px; }
 }
 
 </style>
@@ -184,7 +218,21 @@ body { background: var(--pearl); padding-top: 70px; }
     </button>
     <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Log out</button>
   </div>
+  <button class="dash-hamburger" id="dash-hamburger-btn" aria-label="Open menu" onclick="document.getElementById('dash-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV PANEL -->
+<div class="dash-mobile-nav" id="dash-mobile-nav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <button class="dash-mobile-nav-close" onclick="document.getElementById('dash-mobile-nav').classList.remove('open');document.body.style.overflow=''" aria-label="Close menu">✕</button>
+  <a href="/">Home</a>
+  <a href="/discover.html">Discover</a>
+  <a href="#" onclick="document.getElementById('dash-mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal()">Publish</a>
+  <a href="/dashboard.html">Workspace</a>
+  <a href="#" onclick="document.getElementById('dash-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToProfile()">Profile</a>
+  <button class="btn btn-ghost" style="font-size:16px;" onclick="document.getElementById('dash-mobile-nav').classList.remove('open');document.body.style.overflow='';handleLogout()">Log out</button>
+</div>
 
 <div class="dash-layout">
   <!-- SIDEBAR -->

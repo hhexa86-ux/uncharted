@@ -119,6 +119,10 @@ body { background: var(--pearl); padding-top: 72px; }
   .wizard-nav { gap:12px; }
   .review-row { grid-template-columns:1fr; gap:2px; margin-bottom:10px; }
   .review-label { font-size:11px; color:var(--teal); text-transform:uppercase; letter-spacing:.06em; }
+  /* Collapse inline two-column grids inside step cards */
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr"] { display:flex !important; flex-direction:column; gap:0; }
+  .file-card-actions { flex-wrap: wrap; }
 }
 @media(max-width:640px){
   .wizard-container { padding:20px 12px 60px; }

@@ -147,6 +147,27 @@ body { background:var(--pearl); padding-top:70px; }
 }
 .filter-toggle-btn:hover { border-color:var(--teal); }
 
+/* Mobile nav panel */
+.disc-mobile-nav {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(250,248,245,.98); z-index:199; flex-direction:column;
+  align-items:center; justify-content:center; gap:28px;
+  backdrop-filter:blur(14px);
+}
+.disc-mobile-nav.open { display:flex; }
+.disc-mobile-nav a, .disc-mobile-nav button {
+  font-family:'Fraunces',serif; font-size:24px; font-weight:400;
+  color:var(--ink); text-decoration:none; background:none; border:none;
+  cursor:pointer; letter-spacing:-.5px;
+}
+.disc-mobile-nav a:hover, .disc-mobile-nav button:hover { color:var(--teal); }
+.disc-mobile-nav-close {
+  position:absolute; top:20px; right:20px; background:none; border:none;
+  font-size:28px; cursor:pointer; color:var(--ink-soft); width:44px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+}
+.disc-mobile-nav-actions { display:flex; gap:12px; margin-top:8px; }
+
 /* RESPONSIVE */
 @media(max-width:1000px){ .disc-layout{grid-template-columns:220px 1fr;padding:24px 20px 60px} }
 
@@ -162,6 +183,8 @@ body { background:var(--pearl); padding-top:70px; }
   .disc-nav{padding:12px 16px}
   .nav-links-disc{display:none}
   .nav-hamburger{display:flex}
+  /* Hide action buttons on mobile — hamburger handles nav */
+  #nav-actions{display:none}
   /* Make tabs horizontally scrollable */
   .tabs-container{overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;padding-bottom:2px;scrollbar-width:none}
   .tabs-container::-webkit-scrollbar{display:none}
@@ -181,6 +204,14 @@ body { background:var(--pearl); padding-top:70px; }
   .disc-layout{padding:12px 12px 60px}
 }
 
+@media(max-width:360px){
+  .disc-nav{padding:10px 10px}
+  .disc-hero{padding:20px 10px 20px}
+  .disc-layout{padding:10px 10px 60px}
+  .search-bar{padding:4px 4px 4px 10px}
+  .search-bar-btn{padding:8px 12px;font-size:12px}
+  .filter-toggle-btn{padding:10px 12px;font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -197,10 +228,22 @@ body { background:var(--pearl); padding-top:70px; }
     <button class="btn btn-ghost btn-sm" onclick="openLogin()">Log in</button>
     <a href="/public/index.html" class="btn btn-primary btn-sm">Get started</a>
   </div>
-  <button class="nav-hamburger" aria-label="Open menu" onclick="this.closest('nav').querySelector('.nav-links-disc').style.display='flex'" style="display:none">
+  <button class="nav-hamburger" id="disc-hamburger" aria-label="Open menu" onclick="document.getElementById('disc-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
     <span></span><span></span><span></span>
   </button>
 </nav>
+
+<!-- MOBILE NAV PANEL -->
+<div class="disc-mobile-nav" id="disc-mobile-nav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <button class="disc-mobile-nav-close" onclick="document.getElementById('disc-mobile-nav').classList.remove('open');document.body.style.overflow=''" aria-label="Close menu">✕</button>
+  <a href="/">Home</a>
+  <a href="/discover.html">Discover</a>
+  <a href="#" onclick="document.getElementById('disc-mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal()" id="disc-mobile-publish-btn">Publish</a>
+  <div class="disc-mobile-nav-actions" id="disc-mobile-nav-actions">
+    <button class="btn btn-ghost" onclick="document.getElementById('disc-mobile-nav').classList.remove('open');document.body.style.overflow='';openLogin()">Log in</button>
+    <a href="/public/index.html" class="btn btn-primary">Get started</a>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="disc-hero">
