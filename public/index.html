@@ -241,87 +241,6 @@ h1.hero-h1 em { font-style:italic; color:var(--teal); }
 }
 .mobile-nav-actions { display:flex; gap:12px; margin-top:8px; }
 
-/* RESPONSIVE */
-@media(max-width:1100px){ .featured-grid{grid-template-columns:repeat(2,1fr)} }
-
-@media(max-width:900px){
-  nav.land-nav{padding:14px 20px}
-  .nav-center-links{display:none}
-  .nav-hamburger{display:flex}
-  .land-nav-actions .btn:not(:last-child){display:none} /* hide "Log in" on tablet, keep "Get started" */
-  .hero{grid-template-columns:1fr;padding:100px 20px 60px;gap:32px}
-  .hero-visual{height:260px}
-  .orbit{width:200px;height:200px}
-  .hero-sub{max-width:100%}
-  .hero-value-cards{grid-template-columns:1fr 1fr}
-  .cta-cards{grid-template-columns:1fr}
-  .showcase{padding:70px 20px}
-  .showcase-grid{grid-template-columns:1fr 1fr}
-  .featured-section{padding:48px 20px}
-  .how{padding:70px 20px}
-  .steps{grid-template-columns:1fr;gap:16px}
-  .user-types{padding:60px 20px}
-  .user-type-grid{grid-template-columns:1fr}
-  .upload-section{padding:70px 20px}
-  .upload-cards{grid-template-columns:1fr 1fr}
-  .cta-section{padding:60px 20px}
-  .quote-band{padding:60px 20px}
-  footer{padding:40px 20px 28px}
-  .footer-top{grid-template-columns:1fr 1fr;gap:32px}
-  .featured-divider{margin:0 20px}
-}
-
-@media(max-width:600px){
-  nav.land-nav{padding:12px 16px}
-  .land-nav-actions{display:none} /* hamburger replaces all nav actions */
-  .nav-hamburger{display:flex}
-  .hero{padding:88px 16px 48px;gap:24px}
-  .hero-value-cards{grid-template-columns:1fr}
-  .hero-cta{flex-direction:column;align-items:stretch}
-  .hero-cta .btn{text-align:center}
-  .featured-grid{grid-template-columns:1fr}
-  .showcase-grid{grid-template-columns:1fr}
-  .cta-cards{grid-template-columns:1fr}
-  .steps{grid-template-columns:1fr}
-  .upload-cards{grid-template-columns:1fr}
-  .user-type-grid{grid-template-columns:1fr}
-  .footer-top{grid-template-columns:1fr;gap:24px}
-  .live-counter{flex-wrap:wrap;justify-content:center}
-  .footer-bottom{flex-direction:column;text-align:center;gap:8px}
-}
-
-@media(max-width:480px){
-  .hero-visual{display:none} /* hide floating cards on tiny screens */
-  .quote-band{padding:48px 16px}
-  .how{padding:52px 16px}
-  .user-types{padding:48px 16px}
-  .cta-section{padding:48px 16px}
-  .showcase{padding:48px 16px}
-  .upload-section{padding:48px 16px}
-}
-
-@media(max-width:360px){
-  nav.land-nav{padding:10px 10px}
-  .hero{padding:76px 10px 40px;gap:16px}
-  .hero-value-cards{gap:8px}
-  .hvc{padding:14px 12px}
-  .hero-cta{gap:8px}
-  .how{padding:40px 10px}
-  .steps{gap:12px}
-  .step{padding:20px 16px}
-  .cta-section{padding:36px 10px}
-  .cta-card{padding:20px 16px}
-  .user-types{padding:36px 10px}
-  .user-type-card{padding:24px 16px}
-  footer{padding:32px 10px 24px}
-  .footer-top{gap:16px}
-  .upload-section{padding:48px 10px}
-  .upload-card{padding:28px 16px}
-  .featured-section{padding:36px 10px}
-  .featured-divider{margin:0 10px}
-  .showcase{padding:36px 10px}
-}
-
 /* UPLOAD FORMATS */
 .upload-section { padding:100px 48px; max-width:1100px; margin:0 auto; }
 .upload-header { text-align:center; margin-bottom:60px; }
@@ -370,8 +289,86 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
 .publish-option-card p { font-size:13px; line-height:1.5; color:var(--ink-soft); margin:0; flex:1; }
 .publish-option-card button { margin-top:8px; }
 
+/* RESPONSIVE */
+@media(max-width:1100px){ .featured-grid{grid-template-columns:repeat(2,1fr)} }
+
+@media(max-width:900px){
+  nav.land-nav{padding:14px 20px}
+  .nav-center-links{display:none}
+  .nav-hamburger{display:flex}
+  .land-nav-actions .btn:not(:last-child){display:none} /* hide "Log in" on tablet, keep "Get started" */
+  .hero{grid-template-columns:1fr;padding:100px 20px 60px;gap:32px}
+  .hero-visual{height:260px}
+  .orbit{width:200px;height:200px}
+  .hero-sub{max-width:100%}
+  .hero-value-cards{grid-template-columns:1fr 1fr}
+  .cta-cards{grid-template-columns:1fr}
+  .showcase{padding:70px 20px}
+  .showcase-grid{grid-template-columns:1fr 1fr}
+  .featured-section{padding:48px 20px}
+  .how{padding:70px 20px}
+  .steps{grid-template-columns:1fr;gap:16px}
+  .user-types{padding:60px 20px}
+  .user-type-grid{grid-template-columns:1fr}
+  .upload-section{padding:70px 20px}
+  .upload-cards{grid-template-columns:1fr 1fr}
+  .cta-section{padding:60px 20px}
+  .quote-band{padding:60px 20px}
+  footer{padding:40px 20px 28px}
+  .footer-top{grid-template-columns:1fr 1fr;gap:32px}
+  .featured-divider{margin:0 20px}
+}
+
 @media(max-width:600px){
+  nav.land-nav{padding:12px 16px}
+  .land-nav-actions{display:none} /* hamburger replaces all nav actions */
+  .nav-hamburger{display:flex}
+  .hero{padding:88px 16px 48px;gap:24px}
+  .hero-value-cards{grid-template-columns:1fr}
+  .hero-cta{flex-direction:column;align-items:stretch}
+  .hero-cta .btn{text-align:center}
+  .featured-grid{grid-template-columns:1fr}
+  .showcase-grid{grid-template-columns:1fr}
+  .cta-cards{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+  .upload-cards{grid-template-columns:1fr}
+  .user-type-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr;gap:24px}
+  .live-counter{flex-wrap:wrap;justify-content:center}
+  .footer-bottom{flex-direction:column;text-align:center;gap:8px}
   .publish-options { grid-template-columns:1fr; }
+}
+
+@media(max-width:480px){
+  .hero-visual{display:none} /* hide floating cards on tiny screens */
+  .quote-band{padding:48px 16px}
+  .how{padding:52px 16px}
+  .user-types{padding:48px 16px}
+  .cta-section{padding:48px 16px}
+  .showcase{padding:48px 16px}
+  .upload-section{padding:48px 16px}
+}
+
+@media(max-width:360px){
+  nav.land-nav{padding:10px 10px}
+  .hero{padding:76px 10px 40px;gap:16px}
+  .hero-value-cards{gap:8px}
+  .hvc{padding:14px 12px}
+  .hero-cta{gap:8px}
+  .how{padding:40px 10px}
+  .steps{gap:12px}
+  .step{padding:20px 16px}
+  .cta-section{padding:36px 10px}
+  .cta-card{padding:20px 16px}
+  .user-types{padding:36px 10px}
+  .user-type-card{padding:24px 16px}
+  footer{padding:32px 10px 24px}
+  .footer-top{gap:16px}
+  .upload-section{padding:48px 10px}
+  .upload-card{padding:28px 16px}
+  .featured-section{padding:36px 10px}
+  .featured-divider{margin:0 10px}
+  .showcase{padding:36px 10px}
 }
 </style>
 </head>
