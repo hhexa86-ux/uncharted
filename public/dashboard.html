@@ -398,12 +398,28 @@ body { background: var(--pearl); padding-top: 70px; }
 
     <!-- Contact Requests Section -->
     <div id="section-contact-requests" style="display:none">
-      <div class="section-head">
-        <h3>Contact Requests</h3>
+      <!-- Section 1: Protected Content Access Requests -->
+      <div class="section-head" style="margin-bottom:16px;">
+        <h3 style="display:flex; align-items:center; gap:8px;">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px; height:20px; color:var(--teal);"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          Protected Content Access Requests
+        </h3>
       </div>
-      <div id="contacts-list" style="display:flex;flex-direction:column;gap:8px">
-        <div class="skeleton" style="height:64px;border-radius:14px;margin-bottom:0"></div>
-        <div class="skeleton" style="height:64px;border-radius:14px;margin-bottom:0"></div>
+      <div id="access-requests-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:32px;">
+        <div class="skeleton" style="height:64px; border-radius:14px; margin-bottom:0"></div>
+        <div class="skeleton" style="height:64px; border-radius:14px; margin-bottom:0"></div>
+      </div>
+
+      <!-- Section 2: Innovation Collaboration Requests -->
+      <div class="section-head" style="margin-bottom:16px;">
+        <h3 style="display:flex; align-items:center; gap:8px;">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px; height:20px; color:var(--teal);"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Innovation Collaboration Requests
+        </h3>
+      </div>
+      <div id="collaboration-requests-list" style="display:flex; flex-direction:column; gap:8px;">
+        <div class="skeleton" style="height:64px; border-radius:14px; margin-bottom:0"></div>
+        <div class="skeleton" style="height:64px; border-radius:14px; margin-bottom:0"></div>
       </div>
     </div>
 
@@ -873,34 +889,106 @@ async function loadNotifications() {
 
 // ─── LOAD CONTACTS ───────────────────────────────────────────────
 async function loadContacts() {
-  const list = document.getElementById('contacts-list');
+  const accessList = document.getElementById('access-requests-list');
+  const collabList = document.getElementById('collaboration-requests-list');
   try {
-    const data = await api('/contact-requests/incoming');
-    const requests = data.requests || data.data || data || [];
-    if(!requests.length) {
-      list.innerHTML = `<div class="empty-state" style="padding:30px 24px"><div class="empty-icon" style="font-size:32px">✉️</div><div class="empty-desc">No contact requests yet.</div></div>`;
-      return;
+    const [reqRes, generalRes] = await Promise.all([
+      api('/contact-requests/incoming').catch(() => ({ requests: [] })),
+      api('/contacts/inbox').catch(() => ({ data: [] }))
+    ]);
+    
+    const requests = reqRes.requests || reqRes.data || reqRes || [];
+    const contacts = generalRes.data || generalRes || [];
+    
+    // Separate Access Requests (Protected Content)
+    const accessReqs = contacts.filter(c => c.contact_type === 'request_access').map(c => ({
+      id: c.id,
+      status: c.status,
+      created_at: c.created_at,
+      message: c.message,
+      senderName: c.sender?.full_name || 'Innovator',
+      senderOrg: c.sender?.organization || '',
+      title: c.idea?.title || 'an idea',
+    }));
+    accessReqs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Separate Collaboration Requests
+    const collabReqs = [
+      ...requests.map(r => ({ ...r, isSolutionReq: true })),
+      ...contacts.filter(c => c.contact_type !== 'request_access').map(c => ({
+        id: c.id,
+        status: c.status,
+        created_at: c.created_at,
+        message: c.message,
+        senderName: c.sender?.full_name || 'Innovator',
+        senderOrg: c.sender?.organization || '',
+        subject: 'General Inquiry',
+        title: c.idea?.title || 'an idea',
+        isSolutionReq: false
+      }))
+    ];
+    collabReqs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Render Access Requests
+    if (!accessReqs.length) {
+      accessList.innerHTML = `<div class="empty-state" style="padding:20px 24px"><div class="empty-icon" style="font-size:24px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px; color:var(--teal);"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><div class="empty-desc" style="font-size:13px;">No access requests yet.</div></div>`;
+    } else {
+      accessList.innerHTML = accessReqs.map(r => `
+      <div class="contact-item" data-id="${r.id}">
+        <div class="avatar avatar-sm">${r.senderName[0].toUpperCase()}</div>
+        <div class="contact-body">
+          <div class="contact-name">${escHtml(r.senderName)}</div>
+          <div class="contact-idea">re: ${escHtml(r.title)}</div>
+          <div class="contact-preview">${escHtml(r.message||'')}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+          <span class="badge ${r.status === 'pending' ? 'badge-draft' : r.status === 'accepted' ? 'badge-active' : 'badge-archived'}" style="font-size:10px;">${escHtml(r.status || 'pending')}</span>
+          <div style="font-size:11px; color:#8A8A9A; white-space:nowrap">${relativeTime(r.created_at)}</div>
+          ${r.status === 'pending' ? `
+          <div style="display:flex; gap:4px; margin-top:4px;">
+            <button class="btn btn-sm" style="padding:4px 8px; font-size:11px;" onclick="updateAccessRequest('${r.id}','accepted')">Accept</button>
+            <button class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:11px;" onclick="updateAccessRequest('${r.id}','rejected')">Reject</button>
+          </div>` : r.status === 'accepted' ? `
+          <div style="font-size:11px; color:#1A5A1A; display:flex; align-items:center; gap:2px; margin-top:4px;">
+            <svg class="icon" style="width:12px; height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Access Granted
+          </div>` : `
+          <div style="font-size:11px; color:#7A3A3A; display:flex; align-items:center; gap:2px; margin-top:4px;">
+            <svg class="icon" style="width:12px; height:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            Access Denied
+          </div>`}
+        </div>
+      </div>`).join('');
     }
-    list.innerHTML = requests.slice(0,3).map(r=>`
-    <div class="contact-item" data-id="${r.id}">
-      <div class="avatar avatar-sm">${(r.organization?.full_name||r.organization?.organization||'?')[0].toUpperCase()}</div>
-      <div class="contact-body">
-        <div class="contact-name">${escHtml(r.organization?.full_name||r.organization?.organization||'Organization')}</div>
-        <div class="contact-idea">re: ${escHtml(r.solution?.title||'a solution')}</div>
-        <div class="contact-preview">${escHtml(r.message||'')}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <span class="badge badge-${r.status === 'pending' ? 'active' : r.status === 'accepted' ? 'archived' : 'draft'}" style="font-size:10px;">${r.status||'pending'}</span>
-        <div style="font-size:11px;color:#8A8A9A;white-space:nowrap">${relativeTime(r.created_at)}</div>
-        ${r.status === 'pending' ? `
-        <div style="display:flex;gap:4px;margin-top:4px;">
-          <button class="btn btn-sm" style="padding:4px 8px;font-size:11px;" onclick="updateContactRequest('${r.id}','accepted')">Accept</button>
-          <button class="btn btn-ghost btn-sm" style="padding:4px 8px;font-size:11px;" onclick="updateContactRequest('${r.id}','rejected')">Reject</button>
-        </div>` : ''}
-      </div>
-    </div>`).join('');
-  } catch {
-    list.innerHTML = `<div style="padding:20px;font-size:13px;color:var(--ink-soft);text-align:center">No contact requests.</div>`;
+
+    // Render Collaboration Requests
+    if (!collabReqs.length) {
+      collabList.innerHTML = `<div class="empty-state" style="padding:20px 24px"><div class="empty-icon" style="font-size:24px"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:32px;height:32px; color:var(--teal);"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div><div class="empty-desc" style="font-size:13px;">No collaboration requests yet.</div></div>`;
+    } else {
+      collabList.innerHTML = collabReqs.map(r => `
+      <div class="contact-item" data-id="${r.id}">
+        <div class="avatar avatar-sm">${(r.isSolutionReq ? (r.organization?.full_name||r.organization?.organization||'?') : r.senderName)[0].toUpperCase()}</div>
+        <div class="contact-body">
+          <div class="contact-name">${escHtml(r.isSolutionReq ? (r.organization?.full_name||r.organization?.organization||'Organization') : r.senderName)}</div>
+          <div class="contact-idea">re: ${escHtml(r.isSolutionReq ? (r.solution?.title||'a solution') : r.title)} (${escHtml(r.isSolutionReq ? 'Solution' : r.subject)})</div>
+          <div class="contact-preview">${escHtml(r.message||'')}</div>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+          <span class="badge badge-${r.status === 'pending' ? 'active' : r.status === 'accepted' ? 'archived' : 'draft'}" style="font-size:10px;">${r.status||'pending'}</span>
+          <div style="font-size:11px; color:#8A8A9A; white-space:nowrap">${relativeTime(r.created_at)}</div>
+          ${r.isSolutionReq && r.status === 'pending' ? `
+          <div style="display:flex; gap:4px; margin-top:4px;">
+            <button class="btn btn-sm" style="padding:4px 8px; font-size:11px;" onclick="updateContactRequest('${r.id}','accepted')">Accept</button>
+            <button class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:11px;" onclick="updateContactRequest('${r.id}','rejected')">Reject</button>
+          </div>` : ''}
+        </div>
+      </div>`).join('');
+    }
+
+  } catch(err) {
+    console.error('Failed to load contacts:', err);
+    accessList.innerHTML = `<div style="padding:20px;font-size:13px;color:var(--ink-soft);text-align:center">Could not load access requests.</div>`;
+    collabList.innerHTML = `<div style="padding:20px;font-size:13px;color:var(--ink-soft);text-align:center">Could not load collaboration requests.</div>`;
   }
 }
 
@@ -913,6 +1001,19 @@ async function updateContactRequest(id, status) {
     loadContacts();
   } catch (err) {
     console.error('Failed to update contact request:', err);
+  }
+}
+
+async function updateAccessRequest(id, status) {
+  try {
+    await api('/contacts/' + id + '/status', {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+    loadContacts();
+  } catch (err) {
+    console.error('Failed to update access request:', err);
+    showToast(err.message || 'Failed to update access request', 'error');
   }
 }
 
@@ -1178,6 +1279,13 @@ function toggleNotifPanel() {
   if(accountType === 'organization') { window.location.href = '/public/org-dashboard.html'; return; }
 
   await Promise.all([loadProfile(), loadStats(), loadMyIdeas(), loadNotifications(), loadContacts()]);
+
+  // Check URL parameter to switch section on load
+  const urlParams = new URLSearchParams(window.location.search);
+  const section = urlParams.get('section');
+  if (section) {
+    switchSection(section);
+  }
 
   // Scroll-based nav shadow
   window.addEventListener('scroll', ()=>{

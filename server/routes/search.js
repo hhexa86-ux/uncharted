@@ -28,24 +28,96 @@ async function enrichWithProfiles(ideas) {
   }));
 }
 
+async function enrichChallengesWithProfiles(challenges) {
+  if (!challenges || challenges.length === 0) return challenges;
+  const userIds = [...new Set(challenges.map((c) => c.user_id).filter(Boolean))];
+  const { data: profiles } = await supabaseAdmin
+    .from('profiles')
+    .select('id, full_name, avatar_url, user_role, city, country, organization, bio, location')
+    .in('id', userIds);
+  const profileMap = {};
+  (profiles || []).forEach((profile) => {
+    profileMap[profile.id] = profile;
+  });
+  return challenges.map((challenge) => ({
+    ...challenge,
+    profiles: profileMap[challenge.user_id] || null,
+    creator_name: profileMap[challenge.user_id]?.full_name || null,
+    creator_role: profileMap[challenge.user_id]?.user_role || null,
+    creator_location: profileMap[challenge.user_id]?.country || profileMap[challenge.user_id]?.location || null,
+  }));
+}
+
 // ---------------------------------------------------------------------------
 // GET /api/search — full-text search with filters and pagination
 // ---------------------------------------------------------------------------
 router.get('/', optionalAuth, async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-
-    if (!q || q.length < 2) {
-      return res.status(400).json({ error: 'Search query must be at least 2 characters.' });
-    }
+    const type = req.query.type || 'ideas';
 
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
 
-    const { industry, country, stage } = req.query;
+    const { industry, country, stage, patent, date_range, sort } = req.query;
 
-    const { data: ideas, error } = await supabaseAdmin
+    if (type === 'challenges') {
+      const { data: challenges, error } = await supabaseAdmin
+        .from('challenges')
+        .select(`
+          id, user_id, title, short_description, problem_statement, industry, country,
+          technology, current_situation, expected_outcome, opportunity_types,
+          opportunity_details, deadline, presentation_file, report_file, video_file,
+          image_files, created_at, updated_at
+        `);
+
+      if (error) {
+        console.error('[GET /search] Fetch challenges error:', error);
+        return res.status(500).json({ error: 'Search challenges failed.' });
+      }
+
+      let results = await enrichChallengesWithProfiles(challenges || []);
+
+      if (q) {
+        const qLower = q.toLowerCase();
+        results = results.filter((c) => {
+          const title = (c.title || '').toLowerCase();
+          const shortSummary = (c.short_description || '').toLowerCase();
+          const fullDesc = `${c.problem_statement || ''} ${c.current_situation || ''} ${c.expected_outcome || ''} ${c.opportunity_details || ''}`.toLowerCase();
+          const industryVal = (c.industry || '').toLowerCase();
+          const countryVal = `${c.country || ''} ${c.profiles?.country || ''} ${c.profiles?.location || ''}`.toLowerCase();
+          const keywords = (c.opportunity_types || []).join(' ').toLowerCase();
+          const innovatorName = (c.profiles?.full_name || '').toLowerCase();
+          const organizationName = (c.profiles?.organization || '').toLowerCase();
+
+          return title.includes(qLower) ||
+                 shortSummary.includes(qLower) ||
+                 fullDesc.includes(qLower) ||
+                 industryVal.includes(qLower) ||
+                 countryVal.includes(qLower) ||
+                 keywords.includes(qLower) ||
+                 innovatorName.includes(qLower) ||
+                 organizationName.includes(qLower);
+        });
+      }
+
+      results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const total = results.length;
+      const paginatedResults = results.slice(offset, offset + limit);
+
+      return res.json({
+        data: paginatedResults,
+        challenges: paginatedResults,
+        pagination: { page, limit, total, query: q },
+        total,
+        count: total,
+      });
+    }
+
+    // Default: Search Ideas
+    let query = supabaseAdmin
       .from('ideas')
       .select(
         `
@@ -58,66 +130,147 @@ router.get('/', optionalAuth, async (req, res) => {
         )
         `
       )
-      .eq('status', 'active')
-      .eq('visibility', 'public')
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .eq('status', 'active');
+
+    if (req.user) {
+      // Correct visibility filter syntax and include user's own ideas
+      query = query.or(`visibility.eq.public,visibility.eq.authenticated,visibility.eq.protected,user_id.eq.${req.user.id}`);
+    } else {
+      query = query.in('visibility', ['public', 'authenticated', 'protected']);
+    }
+
+    const { data: ideas, error } = await query;
 
     if (error) {
-      console.error('[GET /search] Query error:', error);
+      console.error('[GET /search] Fetch ideas error:', error);
       return res.status(500).json({ error: 'Search failed.' });
     }
 
-    const qLower = q.toLowerCase();
-    let results = (ideas || []).filter((idea) => {
-      const haystack = [
-        idea.title,
-        idea.short_description,
-        idea.problem,
-        idea.solution,
-        idea.technology,
-        idea.industry,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return haystack.includes(qLower);
+    // Load access requests to check authorization for protected ideas
+    let accessStatusMap = {};
+    if (req.user) {
+      const { data: contacts } = await supabaseAdmin
+        .from('contacts')
+        .select('idea_id, status')
+        .eq('sender_id', req.user.id)
+        .eq('contact_type', 'request_access');
+      if (contacts) {
+        contacts.forEach(c => {
+          if (c.idea_id) accessStatusMap[c.idea_id] = c.status;
+        });
+      }
+    }
+
+    // Sanitize ideas based on visibility and authorization
+    const sanitizedIdeas = (ideas || []).map(idea => {
+      let accessStatus = 'accepted';
+      if (idea.visibility === 'protected') {
+        if (req.user && req.user.id === idea.user_id) {
+          accessStatus = 'accepted';
+        } else {
+          accessStatus = (req.user && accessStatusMap[idea.id]) || 'none';
+        }
+
+        if (accessStatus !== 'accepted') {
+          idea.problem = null;
+          idea.solution = null;
+          idea.video_url = null;
+          idea.report_url = null;
+          idea.presentation_url = null;
+          idea.prototype_images = [];
+          idea.external_links = [];
+        }
+      } else if (idea.visibility === 'authenticated') {
+        if (!req.user) {
+          accessStatus = 'none';
+          idea.problem = null;
+          idea.solution = null;
+          idea.video_url = null;
+          idea.report_url = null;
+          idea.presentation_url = null;
+          idea.prototype_images = [];
+          idea.external_links = [];
+        }
+      }
+      
+      return {
+        ...idea,
+        access_status: accessStatus
+      };
     });
 
+    let results = await enrichWithProfiles(sanitizedIdeas);
+
+    if (q) {
+      const qLower = q.toLowerCase();
+      results = results.filter((idea) => {
+        const title = (idea.title || '').toLowerCase();
+        const shortSummary = (idea.short_description || '').toLowerCase();
+        const fullDesc = `${idea.problem || ''} ${idea.solution || ''}`.toLowerCase();
+        const industryVal = (idea.industry || '').toLowerCase();
+        const countryVal = `${idea.profiles?.country || ''} ${idea.profiles?.location || ''}`.toLowerCase();
+        const tags = (idea.tags || []).map(t => t.name || '').join(' ').toLowerCase();
+        const keywords = (idea.technology || '').toLowerCase();
+        const innovatorName = (idea.profiles?.full_name || '').toLowerCase();
+        const organizationName = (idea.profiles?.organization || '').toLowerCase();
+
+        return title.includes(qLower) ||
+               shortSummary.includes(qLower) ||
+               fullDesc.includes(qLower) ||
+               industryVal.includes(qLower) ||
+               countryVal.includes(qLower) ||
+               tags.includes(qLower) ||
+               keywords.includes(qLower) ||
+               innovatorName.includes(qLower) ||
+               organizationName.includes(qLower);
+      });
+    }
+
     if (industry) {
-      results = results.filter((idea) => idea.industry === industry);
+      results = results.filter(idea => idea.industry && idea.industry.toLowerCase() === industry.toLowerCase());
     }
     if (stage) {
-      results = results.filter((idea) => idea.development_stage === stage);
+      const stageList = stage.split(',').map(s => s.trim().toLowerCase());
+      results = results.filter(idea => idea.development_stage && stageList.includes(idea.development_stage.toLowerCase()));
     }
-
-    results = await enrichWithProfiles(results);
-
-    // Post-filter by country (on joined profile)
+    if (patent) {
+      const patentList = patent.split(',').map(p => p.trim().toLowerCase());
+      results = results.filter(idea => idea.patent_status && patentList.includes(idea.patent_status.toLowerCase()));
+    }
     if (country) {
-      results = results.filter(
-        (idea) => idea.profiles && idea.profiles.country === country
+      const cLower = country.toLowerCase();
+      results = results.filter(idea => 
+        (idea.profiles?.country && idea.profiles.country.toLowerCase().includes(cLower)) ||
+        (idea.profiles?.location && idea.profiles.location.toLowerCase().includes(cLower))
       );
     }
+    if (date_range) {
+      const now = new Date();
+      let minDate = new Date();
+      if (date_range === 'week') minDate.setDate(now.getDate() - 7);
+      else if (date_range === 'month') minDate.setMonth(now.getMonth() - 1);
+      else if (date_range === 'year') minDate.setFullYear(now.getFullYear() - 1);
+      
+      results = results.filter(idea => new Date(idea.created_at) >= minDate);
+    }
 
-    // Flatten tags
-    results = results.map((idea) => ({
-      ...idea,
-      tags: (idea.idea_tags || []).map((it) => it.tags).filter(Boolean),
-      idea_tags: undefined,
-    }));
+    if (sort === 'most_viewed') {
+      results.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+    } else if (sort === 'most_bookmarked') {
+      results.sort((a, b) => (b.bookmark_count || 0) - (a.bookmark_count || 0));
+    } else {
+      results.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    }
+
+    const total = results.length;
+    const paginatedResults = results.slice(offset, offset + limit);
 
     return res.json({
-      data: results,
-      ideas: results,
-      pagination: {
-        page,
-        limit,
-        total: results.length,
-        query: q,
-      },
-      total: results.length,
-      count: results.length,
+      data: paginatedResults,
+      ideas: paginatedResults,
+      pagination: { page, limit, total, query: q },
+      total,
+      count: total,
     });
   } catch (err) {
     console.error('[GET /search] Unexpected:', err);

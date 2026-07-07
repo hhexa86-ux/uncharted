@@ -22,9 +22,10 @@ const uploadRouter = require('./routes/upload');
 const challengesRouter = require('./routes/challenges');
 const solutionsRouter = require('./routes/solutions');
 const contactRequestsRouter = require('./routes/contact-requests');
+const notificationsRouter = require('./routes/notifications');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 // ---------------------------------------------------------------------------
@@ -165,6 +166,7 @@ app.use('/api/upload', uploadRouter);
 app.use('/api/challenges', challengesRouter);
 app.use('/api/solutions', solutionsRouter);
 app.use('/api/contact-requests', contactRequestsRouter);
+app.use('/api/notifications', notificationsRouter);
 
 // ---------------------------------------------------------------------------
 // Static files — serve the frontend from /public

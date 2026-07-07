@@ -115,6 +115,17 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', requireAuth, async (req, res) => {
   try {
+    // Verify user role is organization
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('account_type')
+      .eq('id', req.user.id)
+      .single();
+
+    if (profileError || !profile || profile.account_type !== 'organization') {
+      return res.status(403).json({ error: 'Only organizations can publish challenges.' });
+    }
+
     const {
       title,
       short_description,

@@ -956,11 +956,26 @@ let allContactRequests = [];
 let currentContactFilter = 'all';
 
 async function loadContactsSent() {
-  if (contactsSentLoaded) return;
   const skeleton = document.getElementById('contacts-skeleton');
   try {
-    const response = await apiGet('/api/contact-requests/outgoing');
-    const data = response.data || response.requests || response || [];
+    const [solRequestsRes, accessRequestsRes] = await Promise.all([
+      apiGet('/api/contact-requests/outgoing'),
+      apiGet('/api/contacts/sent')
+    ]);
+    console.log('Response from /api/contact-requests/outgoing:', solRequestsRes);
+    console.log('Response from /api/contacts/sent:', accessRequestsRes);
+    
+    const solRequests = solRequestsRes.requests || solRequestsRes.data || solRequestsRes || [];
+    const accessRequests = accessRequestsRes.data || accessRequestsRes || [];
+    
+    // Merge the two arrays
+    const data = [...solRequests, ...accessRequests];
+    console.log('Loaded contacts sent data:', data);
+    
+    // Sort by created_at descending
+    data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    console.log('Merged contacts array before rendering:', data);
+    
     allContactRequests = data;
     contactsSentLoaded = true;
     skeleton.style.display = 'none';
@@ -995,24 +1010,33 @@ function renderContactRequests(requests) {
   const list = document.createElement('div');
   list.className = 'contacts-list';
   list.innerHTML = requests.map(r => {
+    const isAccessRequest = r.contact_type === 'request_access';
+    const innovator = isAccessRequest ? r.receiver : r.innovator;
+    const innovatorId = isAccessRequest ? r.receiver_id : r.innovator_id;
+    const titleText = isAccessRequest ? (r.idea?.title || 'A protected idea') : (r.solution?.title || 'A solution');
+    const typeLabel = isAccessRequest ? 'Access Request' : 'Solution Contact';
+    const viewButtonHref = isAccessRequest ? `/idea.html?id=${escHtml(r.idea_id)}` : `/solution.html?id=${escHtml(r.solution_id)}`;
+    const viewButtonText = isAccessRequest ? 'View Idea' : 'View Solution';
+    
     const statusColor = r.status === 'accepted' ? '#27ae60' : r.status === 'rejected' ? '#e74c3c' : '#f39c12';
     const messageLines = (r.message || '').split('\n').slice(0, 2).join('\n');
     const meetingButton = r.meeting_link ? `<a href="${escHtml(r.meeting_link)}" target="_blank" class="btn btn-sm" style="background:#27ae60;color:white;border:none;padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">Join Meeting</a>` : '';
     
     return `
       <div class="contact-item" style="padding:16px;background:white;border:1px solid var(--border);border-radius:12px;display:flex;gap:12px;align-items:flex-start;">
-        <div class="contact-avatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--lavender),var(--teal-lt));color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;flex-shrink:0;">${(r.innovator?.full_name || 'I').charAt(0).toUpperCase()}</div>
+        <div class="contact-avatar" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--lavender),var(--teal-lt));color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;flex-shrink:0;">${(innovator?.full_name || 'I').charAt(0).toUpperCase()}</div>
         <div style="flex:1;min-width:0;">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-            <div style="font-weight:600;font-size:14px;color:var(--ink);">${escHtml(r.innovator?.full_name || 'Innovator')}</div>
+            <div style="font-weight:600;font-size:14px;color:var(--ink);">${escHtml(innovator?.full_name || 'Innovator')}</div>
             <span style="padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600;text-transform:uppercase;background:${statusColor};color:white;">${r.status || 'Pending'}</span>
+            <span style="padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;background:#eef2f3;color:#7f8c8d;border:1px solid #dcdde1;display:inline-block;">${typeLabel}</span>
           </div>
-          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:4px;">${escHtml(r.solution?.title || 'A solution')}</div>
+          <div style="font-size:13px;color:var(--ink-soft);margin-bottom:4px;">${escHtml(titleText)}</div>
           ${r.challenge?.title ? `<div style="font-size:12px;color:var(--ink-subtle);margin-bottom:6px;">Challenge: ${escHtml(r.challenge.title)}</div>` : ''}
           <div style="font-size:13px;color:var(--ink);margin-bottom:8px;line-height:1.4;max-height:40px;overflow:hidden;">${escHtml(messageLines || '—')}</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="/solution.html?id=${escHtml(r.solution_id)}" class="btn btn-sm" style="background:var(--pearl);color:var(--ink);border:1px solid var(--border);padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">View Solution</a>
-            <a href="/profile.html?id=${escHtml(r.innovator_id)}" class="btn btn-sm" style="background:var(--pearl);color:var(--ink);border:1px solid var(--border);padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">View Innovator</a>
+            <a href="${viewButtonHref}" class="btn btn-sm" style="background:var(--pearl);color:var(--ink);border:1px solid var(--border);padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">${viewButtonText}</a>
+            <a href="/profile.html?id=${escHtml(innovatorId)}" class="btn btn-sm" style="background:var(--pearl);color:var(--ink);border:1px solid var(--border);padding:6px 12px;font-size:12px;border-radius:8px;text-decoration:none;">View Innovator</a>
             ${meetingButton}
           </div>
         </div>

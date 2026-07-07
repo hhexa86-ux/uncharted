@@ -1134,6 +1134,9 @@ body {
         </div>
       </div>
       
+      <!-- PRIVACY WALL -->
+      <div class="card" id="privacy-wall" style="display:none; padding:48px 32px; text-align:center; border:1px solid var(--border); border-radius:18px; background:white; margin-bottom:20px;"></div>
+
       <!-- EXECUTIVE SUMMARY -->
       <div class="card" id="executive-summary" style="display:none;">
         <div class="card-header">
@@ -1321,31 +1324,49 @@ body {
   </div>
 </div>
 
-<!-- PUBLISH MODAL -->
-<div class="modal-overlay" id="modal-publish" onclick="handleOverlayClick(event,'publish')">
+<!-- LOGIN MODAL (lightweight) -->
+<div class="modal-overlay" id="modal-login" onclick="if(event.target===this)this.classList.remove('active');document.body.style.overflow=''">
   <div class="modal">
-    <button class="modal-close" onclick="closeModal('publish')">✕</button>
-    <div class="modal-logo">un<span>charted</span></div>
-    <h2 class="modal-title">What would you like to publish?</h2>
-    <p class="modal-subtitle">Choose the type of innovation you want to contribute.</p>
-    <div class="publish-options">
-      <div class="publish-option-card" onclick="handlePublishInnovation()">
-        <div class="publish-option-icon">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg>
-        </div>
-        <h3>Innovation</h3>
-        <p>Share an idea, prototype, research, business model, product concept or invention.</p>
-        <button class="btn btn-primary">Continue →</button>
-      </div>
-      <div class="publish-option-card disabled">
-        <div class="publish-option-icon">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="4" rx="1" ry="1"></rect><path d="M6 6v12"></path><path d="M10 6v12"></path><path d="M14 6v12"></path><path d="M18 6v12"></path><rect x="2" y="18" width="20" height="4" rx="1" ry="1"></rect></svg>
-        </div>
-        <h3>Innovation Challenge</h3>
-        <p>Publish a real-world problem, industry challenge or research question for innovators to solve.</p>
-        <button class="btn btn-ghost" disabled>Coming Soon</button>
-      </div>
+    <button class="modal-close" onclick="document.getElementById('modal-login').classList.remove('active');document.body.style.overflow=''">✕</button>
+    <div class="modal-logo" style="margin-bottom:12px;">un<span>charted</span></div>
+    <h2 class="modal-title" style="margin-bottom:8px;">Sign in</h2>
+    <p class="modal-subtitle" style="margin-bottom:20px;">Sign in to request access and view details.</p>
+    <div id="login-msg" class="auth-message"></div>
+    <div style="margin-bottom:16px;text-align:left;">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Email</label>
+      <input id="login-email" type="email" placeholder="you@example.com" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;outline:none;" />
     </div>
+    <div style="margin-bottom:20px;text-align:left;">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Password</label>
+      <input id="login-password" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;outline:none;" />
+    </div>
+    <button class="btn btn-primary" id="login-btn" onclick="doLogin()" style="width:100%">Sign in</button>
+    <div style="text-align:center;margin-top:16px;font-size:13px;"><a href="/public/index.html" onclick="document.getElementById('modal-login').classList.remove('active');document.body.style.overflow=''">Create an account on the homepage →</a></div>
+  </div>
+</div>
+
+<!-- REQUEST ACCESS MODAL -->
+<div class="modal-overlay" id="modal-request-access" onclick="handleOverlayClick(event, 'request-access')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('request-access')">✕</button>
+    <div class="modal-logo" style="margin-bottom:12px;">un<span>charted</span></div>
+    <h2 class="modal-title" style="margin-bottom:8px;">Request Access</h2>
+    <p class="modal-subtitle" style="margin-bottom:20px;">Request access to view the complete details of this innovation.</p>
+    
+    <div style="margin-bottom:16px;text-align:left;">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Name</label>
+      <input type="text" id="req-name" readonly style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--pearl);cursor:not-allowed;" />
+    </div>
+    <div style="margin-bottom:16px;text-align:left;">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Email</label>
+      <input type="email" id="req-email" readonly style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--pearl);cursor:not-allowed;" />
+    </div>
+    <div style="margin-bottom:20px;text-align:left;">
+      <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;">Message</label>
+      <textarea id="req-message" rows="4" placeholder="Why would you like to access this innovation?" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;outline:none;resize:vertical;"></textarea>
+    </div>
+    
+    <button class="btn btn-primary" id="req-submit-btn" onclick="submitRequestAccess()" style="width:100%">Submit Request</button>
   </div>
 </div>
 
@@ -1445,13 +1466,103 @@ async function loadInnovation() {
       isOrganization = profile?.user_role === 'organization';
       
       updateNavForAuth(session);
+
+      // Show correct nav action buttons
+      document.getElementById('idea-nav-logout').style.display = 'block';
+      document.getElementById('idea-mob-logout').style.display = 'block';
+    } else {
+      document.getElementById('idea-nav-login').style.display = 'block';
+      document.getElementById('idea-nav-started').style.display = 'block';
+      document.getElementById('idea-mob-login').style.display = 'block';
     }
 
     renderHero();
-    renderExecutiveSummary();
-    renderInnovationDetails();
-    renderAttachments();
-    renderTimeline();
+
+    // Check privacy model
+    const visibility = idea.visibility || 'public';
+    let shouldHideContent = false;
+    let isAuthenticatedOnly = false;
+    let isProtected = false;
+
+    if (visibility === 'authenticated') {
+      if (!currentUserId) {
+        shouldHideContent = true;
+        isAuthenticatedOnly = true;
+      }
+    } else if (visibility === 'protected') {
+      if (idea.access_status !== 'accepted') {
+        shouldHideContent = true;
+        isProtected = true;
+      }
+    }
+
+    if (shouldHideContent) {
+      // Hide sections
+      document.getElementById('executive-summary').style.display = 'none';
+      document.getElementById('attachments').style.display = 'none';
+      document.getElementById('timeline').style.display = 'none';
+      
+      // Show privacy wall
+      const wall = document.getElementById('privacy-wall');
+      wall.style.display = 'block';
+      
+      if (isAuthenticatedOnly) {
+        wall.innerHTML = `
+          <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <div style="width:64px; height:64px; background:var(--teal-lt); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--teal);">
+              <svg class="icon" style="width:32px; height:32px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </div>
+            <h3 style="font-family:'Fraunces',serif; font-size:22px; font-weight:400; color:var(--ink); margin:0;">Authentication Required</h3>
+            <p style="font-size:14px; color:var(--ink-soft); max-width:360px; margin:0 0 8px 0; line-height:1.5;">This content is only available to registered members. Please log in or register to continue.</p>
+            <div style="display:flex; gap:12px;">
+              <button class="btn btn-primary" onclick="openLogin()">Log in</button>
+              <a href="/public/index.html" class="btn btn-ghost">Create Account</a>
+            </div>
+          </div>
+        `;
+      } else if (isProtected) {
+        const accessStatus = idea.access_status || 'none';
+        
+        if (accessStatus === 'pending') {
+          wall.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="width:64px; height:64px; background:var(--teal-lt); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--teal);">
+                <svg class="icon" style="width:32px; height:32px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <h3 style="font-family:'Fraunces',serif; font-size:22px; font-weight:400; color:var(--ink); margin:0;">Access Request Pending</h3>
+              <p style="font-size:14px; color:var(--ink-soft); max-width:360px; margin:0 0 8px 0; line-height:1.5;">Your request has been sent to the innovator.</p>
+            </div>
+          `;
+        } else if (accessStatus === 'rejected') {
+          wall.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="width:64px; height:64px; background:rgba(217,83,79,.1); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#d9534f;">
+                <svg class="icon" style="width:32px; height:32px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              </div>
+              <h3 style="font-family:'Fraunces',serif; font-size:22px; font-weight:400; color:var(--ink); margin:0;">Access Request Declined</h3>
+              <p style="font-size:14px; color:var(--ink-soft); max-width:360px; margin:0 0 8px 0; line-height:1.5;">The innovator has declined your request.</p>
+            </div>
+          `;
+        } else {
+          wall.innerHTML = `
+            <div style="display:flex; flex-direction:column; align-items:center; gap:16px;">
+              <div style="width:64px; height:64px; background:var(--teal-lt); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--teal);">
+                <svg class="icon" style="width:32px; height:32px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <h3 style="font-family:'Fraunces',serif; font-size:22px; font-weight:400; color:var(--ink); margin:0;">Protected Content</h3>
+              <p style="font-size:14px; color:var(--ink-soft); max-width:360px; margin:0 0 8px 0; line-height:1.5;">This content is protected by the owner. Request access to continue.</p>
+              <button class="btn btn-primary" onclick="openRequestAccessModal()">Request Access</button>
+            </div>
+          `;
+        }
+      }
+    } else {
+      renderExecutiveSummary();
+      renderInnovationDetails();
+      renderAttachments();
+      renderTimeline();
+    }
+
     renderCreator();
     renderSimilar();
     renderActions();
@@ -1714,6 +1825,87 @@ function closeModal(type) {
 }
 function handleOverlayClick(e, type) {
   if (e.target === e.currentTarget) closeModal(type);
+}
+
+function openLogin() {
+  document.getElementById('modal-login').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const msgEl = document.getElementById('login-msg');
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in…'; msgEl.className = 'auth-message';
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    localStorage.setItem('uncharted_token', data.session.access_token);
+    localStorage.setItem('uncharted_user', JSON.stringify(data.user));
+    msgEl.textContent = 'Signed in!'; msgEl.className = 'auth-message success';
+    setTimeout(() => {
+      window.location.reload();
+    }, 600);
+  } catch (err) {
+    msgEl.textContent = err.message || 'Login failed'; msgEl.className = 'auth-message error';
+    btn.disabled = false; btn.textContent = 'Sign in';
+  }
+}
+
+async function handleLogout() {
+  await sb.auth.signOut();
+  localStorage.removeItem('uncharted_token');
+  localStorage.removeItem('uncharted_user');
+  window.location.reload();
+}
+
+function openRequestAccessModal() {
+  if (!currentUserId) {
+    showToast('Please sign in to request access', 'info');
+    openLogin();
+    return;
+  }
+  
+  const user = JSON.parse(localStorage.getItem('uncharted_user') || '{}');
+  document.getElementById('req-name').value = user.user_metadata?.full_name || '';
+  document.getElementById('req-email').value = user.email || '';
+  document.getElementById('req-message').value = 'I would like to request access to view your protected innovation details.';
+  
+  openModal('request-access');
+}
+
+async function submitRequestAccess() {
+  const message = document.getElementById('req-message').value.trim();
+  if (!message) {
+    showToast('Please enter a message', 'error');
+    return;
+  }
+  
+  const btn = document.getElementById('req-submit-btn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  
+  try {
+    await api('/contacts', {
+      method: 'POST',
+      body: JSON.stringify({
+        idea_id: ideaId,
+        receiver_id: idea.creator_id || idea.user_id,
+        message,
+        contact_type: 'request_access'
+      })
+    });
+    
+    showToast('Access request sent successfully!');
+    closeModal('request-access');
+    
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  } catch (err) {
+    showToast(err.message || 'Failed to send request', 'error');
+    btn.disabled = false; btn.textContent = 'Submit Request';
+  }
 }
 
 // ─── ACTIONS ───────────────────────────────────────────────────────────

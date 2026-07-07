@@ -82,11 +82,11 @@ router.get('/', optionalAuth, async (req, res) => {
       .select(baseIdeaSelect())
       .eq('status', 'active');
 
-    // Visibility: public ideas OR own ideas if authenticated
+    // Visibility: public, authenticated, and protected ideas are all discoverable. Also show own ideas.
     if (req.user) {
-      query = query.or(`visibility.eq.public,user_id.eq.${req.user.id}`);
+      query = query.or(`visibility.in.(public,authenticated,protected),user_id.eq.${req.user.id}`);
     } else {
-      query = query.eq('visibility', 'public');
+      query = query.in('visibility', ['public', 'authenticated', 'protected']);
     }
 
     // Filters
@@ -111,8 +111,8 @@ router.get('/', optionalAuth, async (req, res) => {
       .from('ideas')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'active');
-    if (req.user) countQuery = countQuery.or(`visibility.eq.public,user_id.eq.${req.user.id}`);
-    else countQuery = countQuery.eq('visibility', 'public');
+    if (req.user) countQuery = countQuery.or(`visibility.in.(public,authenticated,protected),user_id.eq.${req.user.id}`);
+    else countQuery = countQuery.in('visibility', ['public', 'authenticated', 'protected']);
     if (industry)  countQuery = countQuery.eq('industry', industry);
     if (stage)     countQuery = countQuery.eq('development_stage', stage);
     if (patent)    countQuery = countQuery.eq('patent_status', patent);
@@ -193,6 +193,17 @@ router.get('/user/me', requireAuth, async (req, res) => {
 // ---------------------------------------------------------------------------
 router.post('/', requireAuth, async (req, res) => {
   try {
+    // Verify user role is innovator
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('account_type')
+      .eq('id', req.user.id)
+      .single();
+
+    if (profileError || !profile || profile.account_type !== 'innovator') {
+      return res.status(403).json({ error: 'Only innovators can publish ideas.' });
+    }
+
     const {
       title,
       short_description,
@@ -281,10 +292,59 @@ router.get('/:idOrSlug', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'Idea not found.' });
     }
 
-    // Visibility check for private ideas
-    if (idea.visibility !== 'public') {
+    // Visibility check
+    // public, authenticated, protected — all serve metadata to the frontend.
+    // The frontend renders the privacy wall for authenticated/protected ideas.
+    // Only truly private/unlisted ideas are blocked from non-owners.
+    const knownVisibilities = ['public', 'authenticated', 'protected'];
+    if (!knownVisibilities.includes(idea.visibility)) {
+      // Legacy 'private' or unknown — only owner may access
       if (!req.user || req.user.id !== idea.user_id) {
         return res.status(403).json({ error: 'This idea is private.' });
+      }
+    }
+
+    let accessStatus = 'accepted';
+    if (idea.visibility === 'protected') {
+      if (req.user && req.user.id === idea.user_id) {
+        accessStatus = 'accepted';
+      } else {
+        accessStatus = 'none';
+        if (req.user) {
+          const { data: contact } = await supabaseAdmin
+            .from('contacts')
+            .select('status')
+            .eq('sender_id', req.user.id)
+            .eq('receiver_id', idea.user_id)
+            .eq('idea_id', idea.id)
+            .eq('contact_type', 'request_access')
+            .maybeSingle();
+          if (contact) {
+            accessStatus = contact.status; // 'pending', 'accepted', 'rejected'
+          }
+        }
+      }
+      
+      // If access is not accepted, sanitize the protected fields!
+      if (accessStatus !== 'accepted') {
+        idea.problem = null;
+        idea.solution = null;
+        idea.video_url = null;
+        idea.report_url = null;
+        idea.presentation_url = null;
+        idea.prototype_images = [];
+        idea.external_links = [];
+      }
+    } else if (idea.visibility === 'authenticated') {
+      if (!req.user) {
+        accessStatus = 'none';
+        idea.problem = null;
+        idea.solution = null;
+        idea.video_url = null;
+        idea.report_url = null;
+        idea.presentation_url = null;
+        idea.prototype_images = [];
+        idea.external_links = [];
       }
     }
 
@@ -323,6 +383,7 @@ router.get('/:idOrSlug', optionalAuth, async (req, res) => {
     const result = {
       ...enriched,
       is_bookmarked: isBookmarked,
+      access_status: accessStatus,
     };
 
     return res.json({ data: result, idea: result, ...result });

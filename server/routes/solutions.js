@@ -68,7 +68,7 @@ router.get('/user/me', requireAuth, async (req, res) => {
 // ---------------------------------------------------------------------------
 // GET /api/solutions/:id — get single solution by ID
 // ---------------------------------------------------------------------------
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { data: solution, error } = await supabaseAdmin
@@ -88,6 +88,11 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Solution not found.' });
     }
 
+    // Check authorization: must be the submitter or the challenge owner
+    if (solution.user_id !== req.user.id && solution.challenges.user_id !== req.user.id) {
+      return res.status(403).json({ error: 'You are not authorized to view this solution.' });
+    }
+
     return res.json({ data: solution, solution });
   } catch (err) {
     console.error('[GET /solutions/:id] Unexpected:', err);
@@ -100,6 +105,17 @@ router.get('/:id', async (req, res) => {
 // ---------------------------------------------------------------------------
 router.post('/', requireAuth, async (req, res) => {
   try {
+    // Verify user role is innovator
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('account_type')
+      .eq('id', req.user.id)
+      .single();
+
+    if (profileError || !profile || profile.account_type !== 'innovator') {
+      return res.status(403).json({ error: 'Only innovators can submit solutions.' });
+    }
+
     const {
       challenge_id,
       title,

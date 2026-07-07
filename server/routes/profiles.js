@@ -94,6 +94,28 @@ router.get('/me/stats', requireAuth, async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /api/profiles/me — get own profile (must be before /:id)
+// ---------------------------------------------------------------------------
+router.get('/me', requireAuth, async (req, res) => {
+  try {
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error || !profile) {
+      return res.status(404).json({ error: 'Profile not found.' });
+    }
+
+    return res.json({ data: profile, profile, ...profile });
+  } catch (err) {
+    console.error('[GET /profiles/me] Unexpected:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET /api/profiles/:id — get public profile by user_id
 // ---------------------------------------------------------------------------
 router.get('/:id', optionalAuth, async (req, res) => {
