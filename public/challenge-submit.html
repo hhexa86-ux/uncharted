@@ -135,6 +135,35 @@ body { background: var(--pearl); padding-top: 72px; }
   .step-item:not(:last-child)::after { top:15px; }
 }
 
+/* Mobile hamburger for submit pages */
+.sub-hamburger {
+  display:none; flex-direction:column; justify-content:center; align-items:center;
+  gap:5px; width:40px; height:40px; background:none; border:1.5px solid var(--border);
+  border-radius:8px; cursor:pointer; padding:8px; flex-shrink:0;
+}
+.sub-hamburger span { display:block; width:18px; height:2px; background:var(--ink); border-radius:2px; }
+.sub-mobile-nav {
+  display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+  background:rgba(250,248,245,.98); z-index:199; flex-direction:column;
+  align-items:center; justify-content:center; gap:24px;
+  backdrop-filter:blur(14px);
+}
+.sub-mobile-nav.open { display:flex; }
+.sub-mobile-nav a, .sub-mobile-nav button {
+  font-family:'Fraunces',serif; font-size:24px; font-weight:400;
+  color:var(--ink); text-decoration:none; background:none; border:none; cursor:pointer; letter-spacing:-.5px;
+}
+.sub-mobile-nav a:hover, .sub-mobile-nav button:hover { color:var(--teal); }
+.sub-mobile-nav-close {
+  position:absolute; top:20px; right:20px; background:none; border:none;
+  font-size:28px; cursor:pointer; color:var(--ink-soft); width:44px; height:44px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+@media(max-width:768px){
+  .sub-hamburger { display:flex; }
+}
+
 </style>
 </head>
 <body>
@@ -149,7 +178,20 @@ body { background: var(--pearl); padding-top: 72px; }
     <a href="#" onclick="navigateToWorkspace()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Workspace</a>
     <a href="#" onclick="navigateToProfile()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
   </div>
+  <button class="sub-hamburger" id="sub-hamburger-btn" aria-label="Open menu" onclick="document.getElementById('sub-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV PANEL -->
+<div class="sub-mobile-nav" id="sub-mobile-nav" role="dialog" aria-modal="true" aria-label="Navigation menu">
+  <button class="sub-mobile-nav-close" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow=''" aria-label="Close menu">✕</button>
+  <a href="/">Home</a>
+  <a href="/discover.html">Discover</a>
+  <a href="#" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal && openPublishModal()">Publish</a>
+  <a href="#" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToWorkspace && navigateToWorkspace()">Workspace</a>
+  <a href="#" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToProfile && navigateToProfile()">Profile</a>
+</div>
 
 <div class="wizard-container">
 
