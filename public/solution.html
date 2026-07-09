@@ -380,6 +380,10 @@ body { background: var(--pearl); padding-top: 70px; }
   <a href="/discover.html">Discover</a>
   <a href="#" onclick="document.getElementById('sol-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToWorkspace && navigateToWorkspace()">Workspace</a>
   <a href="#" onclick="document.getElementById('sol-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToProfile && navigateToProfile()">Profile</a>
+  <div class="sol-mobile-nav-actions" id="sol-mobile-nav-actions">
+    <button class="btn btn-ghost" id="sol-mob-login" onclick="document.getElementById('sol-mobile-nav').classList.remove('open');document.body.style.overflow='';openLogin && openLogin()" style="display:none">Log in</button>
+    <button class="btn btn-ghost" id="sol-mob-logout" onclick="document.getElementById('sol-mobile-nav').classList.remove('open');document.body.style.overflow='';handleLogout && handleLogout()" style="display:none">Log out</button>
+  </div>
 </div>
 
 <div class="solution-layout">
@@ -792,6 +796,20 @@ async function loadSolution() {
     if (session) {
       localStorage.setItem('uncharted_token', session.access_token);
       localStorage.setItem('uncharted_user', JSON.stringify(session.user));
+
+      // Update mobile nav auth state
+      const mobileActions = document.getElementById('sol-mobile-nav-actions');
+      if (mobileActions) {
+        document.getElementById('sol-mob-login').style.display = 'none';
+        document.getElementById('sol-mob-logout').style.display = 'block';
+      }
+    } else {
+      // Update mobile nav for logged out state
+      const mobileActions = document.getElementById('sol-mobile-nav-actions');
+      if (mobileActions) {
+        document.getElementById('sol-mob-login').style.display = 'block';
+        document.getElementById('sol-mob-logout').style.display = 'none';
+      }
     }
 
     const solutionResponse = await api('/solutions/' + encodeURIComponent(solutionId));

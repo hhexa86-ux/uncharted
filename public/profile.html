@@ -592,6 +592,10 @@ async function handleLogout() {
   if(session) {
     currentUserId = session.user.id;
     localStorage.setItem('uncharted_token', session.access_token);
+    localStorage.setItem('uncharted_user', JSON.stringify(session.user));
+
+    // Update mobile nav auth state - profile page always shows logout when logged in
+    // The logout button is already present in HTML, just ensure it's visible
   } else {
     window.location.href = '/';
   }

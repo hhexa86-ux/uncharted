@@ -181,6 +181,10 @@ body { background: var(--pearl); padding-top: 72px; }
   <a href="#" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal && openPublishModal()">Publish</a>
   <a href="#" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToWorkspace && navigateToWorkspace()">Workspace</a>
   <a href="#" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToProfile && navigateToProfile()">Profile</a>
+  <div class="sub-mobile-nav-actions" id="sub-mobile-nav-actions">
+    <button class="btn btn-ghost" id="sub-mob-login" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';openLogin && openLogin()" style="display:none">Log in</button>
+    <button class="btn btn-ghost" id="sub-mob-logout" onclick="document.getElementById('sub-mobile-nav').classList.remove('open');document.body.style.overflow='';handleLogout && handleLogout()" style="display:none">Log out</button>
+  </div>
 </div>
 
 <div class="wizard-container">
@@ -669,6 +673,22 @@ function navigateToProfile() {
 function openPublishModal() {
   window.location.href = '/index.html#publish';
 }
+
+// ─── INIT ─────────────────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    localStorage.setItem('uncharted_token', session.access_token);
+    localStorage.setItem('uncharted_user', JSON.stringify(session.user));
+
+    // Update mobile nav auth state
+    const mobileActions = document.getElementById('sub-mobile-nav-actions');
+    if (mobileActions) {
+      document.getElementById('sub-mob-login').style.display = 'none';
+      document.getElementById('sub-mob-logout').style.display = 'block';
+    }
+  }
+})();
 </script>
 </body>
 </html>

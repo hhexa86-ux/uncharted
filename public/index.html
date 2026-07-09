@@ -383,9 +383,10 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
   <a href="/discover.html">Discover</a>
   <a href="#" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal()">Publish</a>
   <a href="#how" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow=''">How It Works</a>
-  <div class="mobile-nav-actions">
-    <button class="btn btn-ghost" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openModal('login')">Log in</button>
-    <button class="btn btn-primary" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openModal('signup')">Get started</button>
+  <div class="mobile-nav-actions" id="mobile-nav-actions">
+    <button class="btn btn-ghost" id="mobile-nav-login" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openModal('login')">Log in</button>
+    <button class="btn btn-primary" id="mobile-nav-signup" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';openModal('signup')">Get started</button>
+    <button class="btn btn-ghost" id="mobile-nav-logout" onclick="document.getElementById('mobile-nav').classList.remove('open');document.body.style.overflow='';handleLogout()" style="display:none">Log out</button>
   </div>
 </div>
 
@@ -991,6 +992,14 @@ async function handleReset() {
   }
 }
 
+// ─── LOGOUT ───────────────────────────────────────────────────────
+async function handleLogout() {
+  await sb.auth.signOut();
+  localStorage.removeItem('uncharted_token');
+  localStorage.removeItem('uncharted_user');
+  window.location.reload();
+}
+
 // ─── AUTO-REDIRECT / RECOVERY STATE ────────────────────────────
 (async () => {
   // Check if this is a password recovery flow
@@ -1007,11 +1016,19 @@ async function handleReset() {
     localStorage.setItem('uncharted_user', JSON.stringify(session.user));
     const accountType = session.user?.user_metadata?.account_type;
     const dest = accountType === 'organization' ? '/org-dashboard.html' : '/dashboard.html';
-    
-    // Update nav actions to show Workspace
+
+    // Update desktop nav actions to show Workspace
     const actions = document.getElementById('nav-actions');
     if (actions) actions.innerHTML = `<a href="${dest}" class="btn btn-primary">Workspace</a>`;
-    
+
+    // Update mobile nav actions to show Logout
+    const mobileActions = document.getElementById('mobile-nav-actions');
+    if (mobileActions) {
+      document.getElementById('mobile-nav-login').style.display = 'none';
+      document.getElementById('mobile-nav-signup').style.display = 'none';
+      document.getElementById('mobile-nav-logout').style.display = 'block';
+    }
+
     // Update hero CTAs to show Workspace instead of Sign In
     const heroCta = document.getElementById('hero-cta');
     if (heroCta) {
