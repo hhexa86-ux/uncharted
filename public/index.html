@@ -371,7 +371,7 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
     <button class="btn btn-ghost" onclick="openModal('login')">Log in</button>
     <button class="btn btn-primary" onclick="openModal('signup')">Get started</button>
   </div>
-  <button class="nav-hamburger" id="hamburger-btn" aria-label="Open menu" onclick="document.getElementById('mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+  <button class="nav-hamburger" id="hamburger-btn" aria-label="Toggle menu" onclick="const nav=document.getElementById('mobile-nav');if(nav.classList.contains('open')){nav.classList.remove('open');document.body.style.overflow=''}else{nav.classList.add('open');document.body.style.overflow='hidden'}">
     <span></span><span></span><span></span>
   </button>
 </nav>

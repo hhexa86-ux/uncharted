@@ -178,7 +178,7 @@ body { background: var(--pearl); padding-top: 72px; }
     <a href="#" onclick="navigateToWorkspace()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Workspace</a>
     <a href="#" onclick="navigateToProfile()" style="font-size:14px;color:var(--ink-soft);text-decoration:none;transition:color .15s;">Profile</a>
   </div>
-  <button class="sub-hamburger" id="sub-hamburger-btn" aria-label="Open menu" onclick="document.getElementById('sub-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+  <button class="sub-hamburger" id="sub-hamburger-btn" aria-label="Toggle menu" onclick="const nav=document.getElementById('sub-mobile-nav');if(nav.classList.contains('open')){nav.classList.remove('open');document.body.style.overflow=''}else{nav.classList.add('open');document.body.style.overflow='hidden'}">
     <span></span><span></span><span></span>
   </button>
 </nav>

@@ -228,7 +228,7 @@ body { background:var(--pearl); padding-top:70px; }
     <button class="btn btn-ghost btn-sm" onclick="openLogin()">Log in</button>
     <a href="/public/index.html" class="btn btn-primary btn-sm">Get started</a>
   </div>
-  <button class="nav-hamburger" id="disc-hamburger" aria-label="Open menu" onclick="document.getElementById('disc-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+  <button class="nav-hamburger" id="disc-hamburger" aria-label="Toggle menu" onclick="const nav=document.getElementById('disc-mobile-nav');if(nav.classList.contains('open')){nav.classList.remove('open');document.body.style.overflow=''}else{nav.classList.add('open');document.body.style.overflow='hidden'}">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -753,6 +753,11 @@ function updateNavForAuth(user) {
   const accountType = user?.user_metadata?.account_type;
   const dest = accountType==='organization'?'/public/org-dashboard.html':'/public/dashboard.html';
   document.getElementById('nav-actions').innerHTML = `<a href="${dest}" class="btn btn-primary btn-sm">${escHtml(firstName)}'s Workspace →</a>`;
+  // Update mobile nav panel
+  const mobileActions = document.getElementById('disc-mobile-nav-actions');
+  if(mobileActions) {
+    mobileActions.innerHTML = `<a href="${dest}" class="btn btn-primary">${escHtml(firstName)}'s Workspace →</a>`;
+  }
 }
 
 // ─── NAV SCROLL ──────────────────────────────────────────────────

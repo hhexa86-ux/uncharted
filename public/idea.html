@@ -555,7 +555,7 @@ body { background: var(--pearl); padding-top: 70px; }
     <a href="/" class="btn btn-primary btn-sm" id="idea-nav-started" style="display:none">Get started</a>
     <button class="btn btn-ghost btn-sm" onclick="handleLogout && handleLogout()" id="idea-nav-logout" style="display:none">Log out</button>
   </div>
-  <button class="idea-nav-hamburger" id="idea-hamburger" aria-label="Open menu" onclick="document.getElementById('idea-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+  <button class="idea-nav-hamburger" id="idea-hamburger" aria-label="Toggle menu" onclick="const nav=document.getElementById('idea-mobile-nav');if(nav.classList.contains('open')){nav.classList.remove('open');document.body.style.overflow=''}else{nav.classList.add('open');document.body.style.overflow='hidden'}">
     <span></span><span></span><span></span>
   </button>
 </nav>

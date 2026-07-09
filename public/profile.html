@@ -194,7 +194,7 @@ body { background:var(--pearl); padding-top:68px; }
       </div>
     </div>
   </div>
-  <button class="prof-hamburger" id="prof-hamburger-btn" aria-label="Open menu" onclick="document.getElementById('prof-mobile-nav').classList.add('open');document.body.style.overflow='hidden'">
+  <button class="prof-hamburger" id="prof-hamburger-btn" aria-label="Toggle menu" onclick="const nav=document.getElementById('prof-mobile-nav');if(nav.classList.contains('open')){nav.classList.remove('open');document.body.style.overflow=''}else{nav.classList.add('open');document.body.style.overflow='hidden'}">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -206,7 +206,7 @@ body { background:var(--pearl); padding-top:68px; }
   <a href="/discover.html">Discover</a>
   <a href="#" onclick="document.getElementById('prof-mobile-nav').classList.remove('open');document.body.style.overflow='';openPublishModal && openPublishModal()">Publish</a>
   <a href="#" onclick="document.getElementById('prof-mobile-nav').classList.remove('open');document.body.style.overflow='';navigateToWorkspace && navigateToWorkspace()">Workspace</a>
-  <a href="#">Profile</a>
+  <a href="#" onclick="document.getElementById('prof-mobile-nav').classList.remove('open');document.body.style.overflow='';const uid=localStorage.getItem('uncharted_user')?JSON.parse(localStorage.getItem('uncharted_user')).id:null;if(uid){window.location.href='/profile.html?id='+uid}">Profile</a>
   <button style="font-size:18px;font-family:'Fraunces',serif;background:none;border:none;cursor:pointer;color:var(--ink-soft);" onclick="document.getElementById('prof-mobile-nav').classList.remove('open');document.body.style.overflow='';handleLogout && handleLogout()">Log out</button>
 </div>
 
