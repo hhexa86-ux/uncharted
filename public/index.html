@@ -33,16 +33,16 @@ nav.land-nav {
 .hero {
   min-height:100vh;
   display:grid; grid-template-columns:1fr 1fr;
-  align-items:center; padding:120px 48px 80px;
-  gap:60px; max-width:1200px; margin:0 auto;
+  align-items:center; padding:clamp(80px,12vw,120px) clamp(24px,5vw,48px) clamp(60px,8vw,80px);
+  gap:clamp(24px,5vw,60px); max-width:1200px; margin:0 auto;
 }
-.hero-eyebrow { display:none; }
 @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)} }
-h1.hero-h1 { font-family:'Fraunces',serif; font-weight:400; font-size:clamp(38px,5vw,58px); line-height:1.12; letter-spacing:-1.5px; color:var(--ink); margin-bottom:24px; }
+h1.hero-h1 { font-family:'Fraunces',serif; font-weight:400; font-size:clamp(32px,5vw,58px); line-height:1.12; letter-spacing:-1.5px; color:var(--ink); margin-bottom:clamp(12px,2vw,16px); }
 h1.hero-h1 em { font-style:italic; color:var(--teal); }
-.hero-sub { font-size:16px; line-height:1.7; color:var(--ink-soft); max-width:420px; margin-bottom:32px; font-weight:300; }
-.hero-cta { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:36px; }
-.hero-note { font-size:13px; color:var(--ink-soft); font-weight:300; }
+.hero-welcome { font-family:'Fraunces',serif; font-size:clamp(14px,2.5vw,18px); font-weight:400; color:var(--ink); margin-bottom:clamp(10px,1.5vw,16px); letter-spacing:-0.3px; }
+.hero-sub { font-size:clamp(13px,1.8vw,15px); line-height:1.7; color:var(--ink-soft); max-width:min(90%,520px); margin-bottom:clamp(28px,4vw,36px); font-weight:300; }
+.hero-cta { display:flex; gap:clamp(8px,1.5vw,12px); align-items:center; flex-wrap:wrap; margin-bottom:clamp(20px,3vw,28px); }
+.hero-note { font-size:clamp(12px,1.5vw,13px); color:var(--ink-soft); font-weight:300; }
 
 /* Live counter bar — kept for JS compat, visually replaced */
 .live-counter { display:none; }
@@ -51,60 +51,53 @@ h1.hero-h1 em { font-style:italic; color:var(--teal); }
 .counter-label { font-size:11px; color:var(--ink-soft); font-weight:400; }
 .counter-sep { width:1px; height:28px; background:var(--border); }
 
-/* Hero value cards */
-.hero-value-cards {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:14px;
-  margin-bottom:32px;
+/* Hero eyebrow */
+.hero-eyebrow {
+  display:inline-block;
+  font-size:clamp(9px,1.5vw,11px);
+  font-weight:500;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-bottom:clamp(16px,2.5vw,24px);
 }
-.hvc {
-  background:#fff; border:1px solid var(--border);
-  border-radius:16px; padding:20px 18px;
-  display:flex; flex-direction:column; align-items:flex-start; gap:10px;
-  box-shadow:0 2px 12px rgba(28,28,46,.06);
-  transition:transform .22s ease, box-shadow .22s ease;
-}
-.hvc:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(28,28,46,.1); }
-.hvc-icon { color:var(--teal); display:flex; }
-.hvc-title { font-size:14px; font-weight:500; color:var(--ink); letter-spacing:-.1px; margin:0; }
-.hvc-desc { font-size:12px; color:var(--ink-soft); font-weight:300; line-height:1.55; margin:0; }
-@media(max-width:600px){ .hero-value-cards{ grid-template-columns:1fr; } }
 
 /* Floating cards */
-.hero-visual { position:relative; height:480px; display:flex; align-items:center; justify-content:center; }
-.orbit { position:relative; width:320px; height:320px; }
+.hero-visual { position:relative; height:clamp(280px,40vw,480px); display:flex; align-items:center; justify-content:center; }
+.orbit { position:relative; width:clamp(180px,25vw,320px); height:clamp(180px,25vw,320px); }
 .center-orb {
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-  width:120px; height:120px;
+  width:clamp(80px,12vw,120px); height:clamp(80px,12vw,120px);
   background:linear-gradient(135deg,var(--lavender),var(--teal-lt));
   border-radius:50%; display:flex; align-items:center; justify-content:center;
-  box-shadow:0 0 0 20px rgba(91,143,168,.06),0 0 0 40px rgba(91,143,168,.03);
+  box-shadow:0 0 0 clamp(16px,2.5vw,24px) rgba(91,143,168,.05),0 0 0 clamp(32px,5vw,48px) rgba(91,143,168,.025);
   animation:breathe 4s ease-in-out infinite;
 }
 @keyframes breathe {
-  0%,100%{box-shadow:0 0 0 20px rgba(91,143,168,.06),0 0 0 40px rgba(91,143,168,.03)}
-  50%{box-shadow:0 0 0 30px rgba(91,143,168,.09),0 0 0 60px rgba(91,143,168,.04)}
+  0%,100%{box-shadow:0 0 0 clamp(16px,2.5vw,24px) rgba(91,143,168,.05),0 0 0 clamp(32px,5vw,48px) rgba(91,143,168,.025)}
+  50%{box-shadow:0 0 0 clamp(20px,3vw,32px) rgba(91,143,168,.08),0 0 0 clamp(36px,5.5vw,56px) rgba(91,143,168,.035)}
 }
-.center-icon { font-size:36px; }
+.center-icon { font-size:clamp(24px,5vw,36px); }
 
 .fc {
   position:absolute; background:white; border:1px solid var(--border);
-  border-radius:16px; padding:14px 16px; font-size:12px; width:148px;
-  box-shadow:0 4px 20px rgba(28,28,46,.06); animation:float 6s ease-in-out infinite;
+  border-radius:16px; padding:clamp(12px,2vw,16px) clamp(14px,2.5vw,18px); font-size:clamp(10px,1.5vw,12px); width:clamp(110px,18vw,156px);
+  box-shadow:0 2px 16px rgba(28,28,46,.04); animation:float 6s ease-in-out infinite;
   cursor:pointer; transition:transform .2s,box-shadow .2s;
 }
-.fc:hover { box-shadow:0 8px 28px rgba(28,28,46,.12); }
-.fc:nth-child(2){top:-20px;left:-40px;animation-delay:0s}
-.fc:nth-child(3){top:-10px;right:-50px;animation-delay:1.5s}
-.fc:nth-child(4){bottom:10px;left:-60px;animation-delay:3s}
-.fc:nth-child(5){bottom:20px;right:-40px;animation-delay:1s}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.fc-tag { font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; padding:3px 8px; border-radius:50px; display:inline-block; }
+.fc:hover { box-shadow:0 6px 24px rgba(28,28,46,.08); transform:translateY(-2px); }
+.fc:nth-child(2){top:clamp(-16px,-2.5vw,-24px);left:clamp(-32px,-5vw,-44px);animation-delay:0s}
+.fc:nth-child(3){top:clamp(-8px,-1.5vw,-12px);right:clamp(-36px,-5.5vw,-52px);animation-delay:1.5s}
+.fc:nth-child(4){bottom:clamp(4px,1vw,8px);left:clamp(-44px,-7vw,-64px);animation-delay:3s}
+.fc:nth-child(5){bottom:clamp(10px,1.5vw,16px);right:clamp(-32px,-5vw,-44px);animation-delay:1s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(clamp(-4px,-1vw,-8px))}}
+.fc-tag { font-size:clamp(8px,1.2vw,10px); font-weight:500; letter-spacing:.06em; text-transform:uppercase; margin-bottom:clamp(6px,1vw,8px); padding:clamp(3px,0.5vw,4px) clamp(8px,1.2vw,10px); border-radius:50px; display:inline-block; }
 .tag-green{background:var(--sage);color:#4A7A4A}
 .tag-blue {background:var(--teal-lt);color:var(--teal)}
 .tag-amber{background:var(--amber);color:#8A6A2A}
 .tag-rose {background:var(--rose);color:#8A4A4A}
-.fc-title { font-weight:500; color:var(--ink); line-height:1.4; margin-bottom:8px; font-size:12px; }
-.fc-meta  { font-size:11px; color:var(--ink-soft); font-weight:300; }
+.fc-title { font-weight:500; color:var(--ink); line-height:1.45; margin-bottom:clamp(8px,1.2vw,10px); font-size:clamp(10px,1.5vw,12px); }
+.fc-meta  { font-size:clamp(9px,1.3vw,11px); color:var(--ink-soft); font-weight:300; }
 
 /* HOW IT WORKS */
 .how { background:var(--sage); padding:100px 48px; }
@@ -297,11 +290,9 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
   .nav-center-links{display:none}
   .nav-hamburger{display:flex}
   .land-nav-actions .btn:not(:last-child){display:none} /* hide "Log in" on tablet, keep "Get started" */
-  .hero{grid-template-columns:1fr;padding:100px 20px 60px;gap:32px}
-  .hero-visual{height:260px}
-  .orbit{width:200px;height:200px}
-  .hero-sub{max-width:100%}
-  .hero-value-cards{grid-template-columns:1fr 1fr}
+  .hero{grid-template-columns:1fr}
+  .hero-cta{flex-direction:column;align-items:stretch;gap:10px}
+  .hero-cta .btn{text-align:center}
   .cta-cards{grid-template-columns:1fr}
   .showcase{padding:70px 20px}
   .showcase-grid{grid-template-columns:1fr 1fr}
@@ -323,9 +314,7 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
   nav.land-nav{padding:12px 16px}
   .land-nav-actions{display:none} /* hamburger replaces all nav actions */
   .nav-hamburger{display:flex}
-  .hero{padding:88px 16px 48px;gap:24px}
-  .hero-value-cards{grid-template-columns:1fr}
-  .hero-cta{flex-direction:column;align-items:stretch}
+  .hero-cta{flex-direction:column;align-items:stretch;gap:8px}
   .hero-cta .btn{text-align:center}
   .featured-grid{grid-template-columns:1fr}
   .showcase-grid{grid-template-columns:1fr}
@@ -340,7 +329,6 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
 }
 
 @media(max-width:480px){
-  .hero-visual{display:none} /* hide floating cards on tiny screens */
   .quote-band{padding:48px 16px}
   .how{padding:52px 16px}
   .user-types{padding:48px 16px}
@@ -351,10 +339,6 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
 
 @media(max-width:360px){
   nav.land-nav{padding:10px 10px}
-  .hero{padding:76px 10px 40px;gap:16px}
-  .hero-value-cards{gap:8px}
-  .hvc{padding:14px 12px}
-  .hero-cta{gap:8px}
   .how{padding:40px 10px}
   .steps{gap:12px}
   .step{padding:20px 16px}
@@ -409,52 +393,14 @@ footer { background:var(--ink); border-top:1px solid rgba(255,255,255,.08); padd
 <section>
   <div class="hero">
     <div class="hero-text">
-      <!-- Hero value cards -->
-      <div class="hero-value-cards">
-        <!-- Card 1: Innovation First -->
-        <div class="hvc">
-          <span class="hvc-icon">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18h6"/>
-              <path d="M10 22h4"/>
-              <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/>
-            </svg>
-          </span>
-          <p class="hvc-title">Innovation First</p>
-          <p class="hvc-desc">Every idea deserves an opportunity.</p>
-        </div>
-        <!-- Card 2: Global Community -->
-        <div class="hvc">
-          <span class="hvc-icon">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-          </span>
-          <p class="hvc-title">Global Community</p>
-          <p class="hvc-desc">Connecting innovators worldwide.</p>
-        </div>
-        <!-- Card 3: Open Collaboration -->
-        <div class="hvc">
-          <span class="hvc-icon">
-            <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="6" cy="12" r="2"/>
-              <circle cx="18" cy="5" r="2"/>
-              <circle cx="18" cy="19" r="2"/>
-              <path d="M8 12h8M16 6l-6 4.5M16 18l-6-4.5"/>
-            </svg>
-          </span>
-          <p class="hvc-title">Open Collaboration</p>
-          <p class="hvc-desc">Innovators and organizations working together.</p>
-        </div>
-      </div>
-      <h1 class="hero-h1">Ideas That Deserve<br/><em style="font-style:italic;color:var(--teal)">to Be Seen.</em></h1>
-      <p class="hero-sub">Share your innovations, discover breakthrough solutions, and collaborate with a global community of builders.</p>
+      <div class="hero-eyebrow">For those who haven't built anything... yet.</div>
+      <h1 class="hero-h1">A place where ideas become<br/><em style="font-style:italic;color:var(--teal)">opportunities,</em><br/><em style="font-style:italic;color:var(--teal)">collaboration,</em><br/>and <em style="font-style:italic;color:var(--teal)">innovation.</em></h1>
+      <p class="hero-welcome">Welcome, Innovator.</p>
+      <p class="hero-sub">Discover innovation challenges, publish your ideas, collaborate with organizations, and turn great thinking into real-world impact.</p>
       <div class="hero-cta" id="hero-cta">
-        <a href="/discover.html" class="btn btn-primary">Discover Ideas</a>
-        <button class="btn btn-ghost" onclick="openPublishModal()">Publish</button>
-        <button class="btn btn-ghost" onclick="openModal('signup')">Sign In / Get Started</button>
+        <a href="/discover.html" class="btn btn-primary">Explore Ideas</a>
+        <button class="btn btn-ghost" onclick="openPublishModal()">Submit Ideas</button>
+        <button class="btn btn-ghost" onclick="openModal('signup')">Sign In / Up</button>
       </div>
       <p class="hero-note">No affiliation required. Just your ideas and the drive to share them.</p>
     </div>
